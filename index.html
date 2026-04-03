@@ -5,17 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HyperUX — Alpine.js Components</title>
 
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>📦</text></svg>"
+    />
+
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3/dist/cdn.min.js"
+      src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js"
+      integrity="sha256-6n4hVET1EQYZVJYhzQdgzt/ic/cIsUTU5lioe3AlVfk="
+      crossorigin="anonymous"
     ></script>
 
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.15/dist/cdn.min.js"
+      integrity="sha256-vuumPQiVb2T6Bg9rainIejQb8Gn7lslFnCIsb9QuWK4="
+      crossorigin="anonymous"
     ></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2/dist/index.global.min.js"></script>
 
     <style>
       [x-cloak] {
@@ -277,20 +286,21 @@ huxScrollSpy({
 huxCombobox({
   optionItems: [],
   acceptMultiple: false,
-  inputTemplateRef: 'comboBoxInput',
-  listboxTemplateRef: 'comboBoxListbox'
+  clearSelectionOnInputClear: false,
+  inputTemplateRef: 'comboboxInput',
+  listboxTemplateRef: 'comboboxListbox'
 })</pre
             >
           </header>
 
           <div
-            x-data="huxCombobox({ optionItems: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Coconut'] })"
+            x-data="huxCombobox({ optionItems: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Coconut'], clearSelectionOnInputClear: true })"
             @click.outside="closeList()"
             class="space-y-2"
             x-ref="comboboxExample"
           >
             <label
-              :for="comboBoxInputId"
+              :for="comboboxInputId"
               class="block text-sm font-medium text-gray-700"
             >
               Fruit
@@ -298,8 +308,8 @@ huxCombobox({
 
             <div class="relative">
               <input
-                x-ref="comboBoxInput"
-                :id="comboBoxInputId"
+                x-ref="comboboxInput"
+                :id="comboboxInputId"
                 type="text"
                 x-model="searchQuery"
                 @focus="openList()"
@@ -320,7 +330,7 @@ huxCombobox({
               />
 
               <div
-                x-ref="comboBoxListbox"
+                x-ref="comboboxListbox"
                 x-cloak
                 x-show="isOpen"
                 x-transition
@@ -333,11 +343,11 @@ huxCombobox({
                 </template>
 
                 <template
-                  x-for="(optionItem, optionIndex) in filteredOptionItems"
-                  :key="`${optionItem}-${optionIndex}`"
+                  x-for="({ optionItem, sourceIndex }, optionIndex) in filteredOptionItems"
+                  :key="`${optionItem}-${sourceIndex}`"
                 >
                   <div
-                    :id="optionItemId(optionIndex)"
+                    :id="optionItemId(sourceIndex)"
                     role="option"
                     :aria-selected="isOptionSelected(optionItem).toString()"
                     @click="toggleOptionItem(optionItem)"
@@ -362,36 +372,48 @@ huxCombobox({
               </div>
             </div>
 
-            <div class="space-y-1">
-              <p class="text-sm text-gray-600"> Selected: </p>
-
-              <template x-if="selectedValues.length === 0 && !selectedValue">
-                <p class="text-sm text-gray-500">Nothing</p>
-              </template>
-
-              <template x-if="acceptMultiple">
-                <div class="flex flex-wrap gap-1">
-                  <template
-                    x-for="(selectedItem, selectedIndex) in selectedValues"
-                    :key="`${selectedItem}-${selectedIndex}`"
+            <template x-if="acceptMultiple">
+              <div class="flex flex-wrap gap-1">
+                <template
+                  x-for="(selectedItem, selectedIndex) in selectedValues"
+                  :key="`${selectedItem}-${selectedIndex}`"
+                >
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
                   >
-                    <span
-                      class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
-                      x-text="selectedItem"
-                    ></span>
-                  </template>
-                </div>
-              </template>
+                    <span x-text="selectedItem"></span>
 
-              <template x-if="!acceptMultiple">
-                <div
-                  x-cloak
-                  x-show="selectedValue"
-                  x-text="selectedValue"
-                  class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
-                ></div>
-              </template>
-            </div>
+                    <button
+                      type="button"
+                      class="inline-flex size-4 items-center justify-center rounded-full bg-emerald-200/80 text-emerald-900 hover:bg-emerald-300"
+                      :aria-label="`Remove ${selectedItem}`"
+                      @click.stop="removeSelectedOptionItem(selectedItem)"
+                    >
+                      X
+                    </button>
+                  </span>
+                </template>
+              </div>
+            </template>
+
+            <template x-if="!acceptMultiple">
+              <div
+                x-cloak
+                x-show="selectedValue"
+                class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
+              >
+                <span x-text="selectedValue"></span>
+
+                <button
+                  type="button"
+                  class="inline-flex size-4 items-center justify-center rounded-full bg-emerald-200/80 text-emerald-900 hover:bg-emerald-300"
+                  aria-label="Clear selected value"
+                  @click.stop="clearSelection()"
+                >
+                  X
+                </button>
+              </div>
+            </template>
           </div>
 
           <button
@@ -702,30 +724,44 @@ huxCopy({
             selectedValues: [],
             acceptMultiple:
               initialConfig.acceptMultiple ?? initialConfig.multiple ?? false,
+            clearSelectionOnInputClear:
+              initialConfig.clearSelectionOnInputClear ?? false,
             focusedIndex: -1,
-            comboBoxInputId: null,
+            comboboxInputId: null,
             listboxId: null,
             optionItems: initialConfig.optionItems ?? [],
             inputTemplateRefName:
-              initialConfig.inputTemplateRef ?? 'comboBoxInput',
+              initialConfig.inputTemplateRef ?? 'comboboxInput',
             listboxTemplateRefName:
-              initialConfig.listboxTemplateRef ?? 'comboBoxListbox',
+              initialConfig.listboxTemplateRef ?? 'comboboxListbox',
             init() {
               this.configureTemplateRefs()
             },
             get filteredOptionItems() {
-              return this.optionItems.filter((optionItem) =>
-                optionItem
-                  .toLowerCase()
-                  .includes(this.searchQuery.toLowerCase()),
-              )
+              return this.optionItems
+                .map((optionItem, sourceIndex) => ({
+                  optionItem,
+                  sourceIndex,
+                }))
+                .filter(({ optionItem }) =>
+                  optionItem
+                    .toLowerCase()
+                    .includes(this.searchQuery.toLowerCase()),
+                )
             },
             get activeDescendantId() {
               if (!this.isOpen || this.focusedIndex < 0) {
                 return null
               }
 
-              return this.optionItemId(this.focusedIndex)
+              const focusedOptionItem =
+                this.filteredOptionItems[this.focusedIndex]
+
+              if (!focusedOptionItem) {
+                return null
+              }
+
+              return this.optionItemId(focusedOptionItem.sourceIndex)
             },
             randomIdSegment() {
               return Math.random().toString(36).slice(2, 10)
@@ -754,7 +790,7 @@ huxCopy({
               const listboxElement =
                 this.$refs[this.listboxTemplateRefName] ?? null
 
-              this.comboBoxInputId = this.ensureElementId(
+              this.comboboxInputId = this.ensureElementId(
                 inputElement,
                 'combo-box-input',
                 this.inputTemplateRefName,
@@ -766,8 +802,8 @@ huxCopy({
                 this.listboxTemplateRefName,
               )
             },
-            optionItemId(index) {
-              return `${this.listboxId}-option-${index}`
+            optionItemId(sourceIndex) {
+              return `${this.listboxId}-option-${sourceIndex}`
             },
             openList() {
               this.isOpen = true
@@ -777,6 +813,14 @@ huxCopy({
               this.focusedIndex = -1
             },
             onInputChange() {
+              if (
+                this.clearSelectionOnInputClear &&
+                !this.acceptMultiple &&
+                this.searchQuery.trim() === ''
+              ) {
+                this.clearSelection()
+              }
+
               this.isOpen = true
               this.focusedIndex = -1
             },
@@ -822,7 +866,7 @@ huxCopy({
                 this.filteredOptionItems[this.focusedIndex]
               ) {
                 this.toggleOptionItem(
-                  this.filteredOptionItems[this.focusedIndex],
+                  this.filteredOptionItems[this.focusedIndex].optionItem,
                 )
               }
             },
@@ -855,6 +899,25 @@ huxCopy({
               this.searchQuery = optionItem
               this.closeList()
             },
+            clearSelection() {
+              this.selectedValue = ''
+              this.selectedValues = []
+              this.searchQuery = ''
+              this.focusedIndex = -1
+            },
+            removeSelectedOptionItem(optionItem) {
+              if (!this.acceptMultiple) {
+                this.clearSelection()
+
+                return
+              }
+
+              this.selectedValues = this.selectedValues.filter(
+                (selectedItem) => selectedItem !== optionItem,
+              )
+
+              this.focusedIndex = -1
+            },
           }))
 
           Alpine.data('huxCopy', (initialConfig = {}) => ({
@@ -868,6 +931,14 @@ huxCopy({
               if (this.sourceTemplateRef) {
                 const escapedRefName =
                   CSS.escape(this.sourceTemplateRef) ?? this.sourceTemplateRef
+
+                const sourceByRootRef = this.$root?.querySelector(
+                  `[x-ref="${escapedRefName}"]`,
+                )
+
+                if (sourceByRootRef) {
+                  return sourceByRootRef
+                }
 
                 const sourceByRef = document.querySelector(
                   `[x-ref="${escapedRefName}"]`,
