@@ -12,13 +12,6 @@
 
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js"
-      integrity="sha256-6n4hVET1EQYZVJYhzQdgzt/ic/cIsUTU5lioe3AlVfk="
-      crossorigin="anonymous"
-    ></script>
-
-    <script
-      defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.15/dist/cdn.min.js"
       integrity="sha256-vuumPQiVb2T6Bg9rainIejQb8Gn7lslFnCIsb9QuWK4="
       crossorigin="anonymous"
@@ -32,38 +25,110 @@
       }
     </style>
   </head>
-  <body class="bg-gray-50 text-gray-900">
-    <div class="max-w-4xl mx-auto px-6 py-8 space-y-8">
-      <header>
-        <h1 class="text-3xl font-bold">
-          HyperUX <span aria-hidden="true">📦</span>
-        </h1>
+  <body class="bg-gray-50 text-gray-900 text-pretty">
+    <div
+      x-data="{ showBackToHyperUi: new URLSearchParams(window.location.search).get('ref') === 'hyperui' }"
+      class="max-w-4xl mx-auto px-6 py-8 space-y-8"
+    >
+      <header class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h1 class="text-3xl font-bold">
+            HyperUX <span aria-hidden="true">📦</span>
+          </h1>
 
-        <p class="text-gray-600 mt-2">
-          Copy-paste Alpine.js components. Behavioral, not visual.
+          <a
+            x-cloak
+            x-show="showBackToHyperUi"
+            href="https://www.hyperui.dev"
+            class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:bg-gray-100"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="size-5"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a.75.75 0 0 1-.75.75H4.66l2.1 1.95a.75.75 0 1 1-1.02 1.1l-3.5-3.25a.75.75 0 0 1 0-1.1l3.5-3.25a.75.75 0 1 1 1.02 1.1l-2.1 1.95h12.59A.75.75 0 0 1 18 10Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+
+            <span>Back to HyperUI</span>
+          </a>
+        </div>
+
+        <span
+          class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900"
+        >
+          Experimental Project
+        </span>
+
+        <p class="text-gray-700">
+          HyperUX is a sandbox for behavior-first UI experiments using
+          Alpine.js. This is where we test interaction patterns in public before
+          deciding if they belong in HyperUI.
+        </p>
+
+        <p class="text-gray-700">
+          This is not a component library that wraps finished HTML and ships it
+          as a packaged abstraction. The goal is the opposite: expose the
+          behavioral logic clearly so teams can adapt it to their own markup and
+          design systems.
         </p>
       </header>
 
+      <section
+        class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4"
+      >
+        <h2 class="text-xl font-semibold">How to Use These Experiments</h2>
+
+        <p class="text-sm text-gray-700">
+          Each experiment includes live behavior and copy-ready output. Copy the
+          HTML + JS, modify as needed for your project, and make it your own.
+        </p>
+
+        <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+          <li>
+            <strong>Tailwind CSS is scaffolding.</strong> The examples use
+            Tailwind only for the demo — it will copy with the HTML, but feel
+            free to strip it out and use your own styles.
+          </li>
+
+          <li>Keep accessibility and keyboard behavior intact.</li>
+
+          <li>
+            Customize the Alpine code — add features, remove what you don't
+            need, adapt naming and structure to fit your codebase.
+          </li>
+
+          <li>
+            <strong>Found a bug or improvement?</strong> Open an issue to share
+            what you learned. Bugs we fix, useful patterns we consider for all
+            experiments.
+          </li>
+        </ul>
+      </section>
+
       <details open class="group">
         <summary
-          class="cursor-pointer text-gray-700 [&::-webkit-details-marker]:hidden flex items-center gap-2"
+          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            class="size-5 shrink-0 group-open:-rotate-180"
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="size-5 shrink-0 group-open:-rotate-180"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
+              fill-rule="evenodd"
+              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+              clip-rule="evenodd"
+            />
           </svg>
 
-          <span class="font-medium"> Scroll Spy + TOC </span>
+          <span> Scroll Spy + TOC </span>
         </summary>
 
         <div
@@ -82,7 +147,7 @@
             </p>
 
             <pre
-              class="mt-3 rounded-md bg-gray-900 text-gray-100 p-3 text-xs overflow-x-auto"
+              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
             >
 huxScrollSpy({
   headingSelector: 'h2, h3, h4, h5, h6',
@@ -94,9 +159,9 @@ huxScrollSpy({
           </header>
 
           <div
-            class="grid grid-cols-3 gap-4 divide-x divide-gray-200"
             x-data="huxScrollSpy"
-            x-ref="scrollSpyExample"
+            data-hux-copy="scrollSpyExample"
+            class="grid grid-cols-3 gap-4 divide-x divide-gray-200"
           >
             <div class="col-span-1 p-4 bg-gray-50">
               <h3 class="font-semibold text-sm">Table of Contents</h3>
@@ -113,10 +178,10 @@ huxScrollSpy({
                     <button
                       x-text="headingItem.text"
                       :class="{
-                    'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
-                    'hover:bg-gray-100': activeHeadingId !== headingItem.id
-                  }"
-                      class="w-full text-left rounded px-3 py-2 text-sm transition"
+                        'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
+                        'hover:bg-gray-100': activeHeadingId !== headingItem.id
+                      }"
+                      class="w-full text-left rounded px-3 py-2 text-sm transition-colors"
                       @click="scrollToHeadingItem(headingItem.id)"
                     ></button>
                   </span>
@@ -125,8 +190,8 @@ huxScrollSpy({
             </div>
 
             <div
-              class="overflow-y-auto max-h-96 col-span-2 p-4 space-y-4"
               x-ref="tocContent"
+              class="overflow-y-auto max-h-96 col-span-2 p-4 space-y-4"
             >
               <h2 id="getting-started" class="text-lg font-semibold">
                 Getting Started
@@ -236,35 +301,35 @@ huxScrollSpy({
           </div>
 
           <button
-            x-data="huxCopy({ sourceTemplateRef: 'scrollSpyExample' })"
-            @click="copyToClipboard()"
+            x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
             class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            @click="copyToClipboard()"
           >
-            <span x-text="hasCopied ? 'Copied' : 'Copy'"></span>
+            <span
+              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+            ></span>
           </button>
         </div>
       </details>
 
       <details class="group">
         <summary
-          class="cursor-pointer text-gray-700 [&::-webkit-details-marker]:hidden flex items-center gap-2"
+          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            class="size-5 shrink-0 group-open:-rotate-180"
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="size-5 shrink-0 group-open:-rotate-180"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
+              fill-rule="evenodd"
+              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+              clip-rule="evenodd"
+            />
           </svg>
 
-          <span class="font-medium"> Combobox </span>
+          <span> Combobox </span>
         </summary>
 
         <div
@@ -281,7 +346,7 @@ huxScrollSpy({
             </p>
 
             <pre
-              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-3 text-xs overflow-x-auto"
+              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
             >
 huxCombobox({
   optionItems: [],
@@ -295,9 +360,9 @@ huxCombobox({
 
           <div
             x-data="huxCombobox({ optionItems: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Coconut'], clearSelectionOnInputClear: true })"
-            @click.outside="closeList()"
+            data-hux-copy="comboboxExample"
             class="space-y-2"
-            x-ref="comboboxExample"
+            @click.outside="closeList()"
           >
             <label
               :for="comboboxInputId"
@@ -309,31 +374,31 @@ huxCombobox({
             <div class="relative">
               <input
                 x-ref="comboboxInput"
-                :id="comboboxInputId"
-                type="text"
                 x-model="searchQuery"
+                :id="comboboxInputId"
+                :aria-expanded="isOpen.toString()"
+                :aria-controls="listboxId"
+                :aria-activedescendant="activeDescendantId"
+                type="text"
+                placeholder="Search fruits..."
+                role="combobox"
+                aria-autocomplete="list"
+                aria-haspopup="listbox"
+                autocomplete="off"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 @focus="openList()"
                 @input="onInputChange()"
                 @keydown.down.prevent="focusNextOptionItem()"
                 @keydown.up.prevent="focusPreviousOptionItem()"
                 @keydown.enter.prevent="selectFocusedOptionItem()"
                 @keydown.escape.stop.prevent="closeList()"
-                placeholder="Search fruits..."
-                role="combobox"
-                aria-autocomplete="list"
-                aria-haspopup="listbox"
-                autocomplete="off"
-                :aria-expanded="isOpen.toString()"
-                :aria-controls="listboxId"
-                :aria-activedescendant="activeDescendantId"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
               <div
-                x-ref="comboboxListbox"
                 x-cloak
-                x-show="isOpen"
                 x-transition
+                x-show="isOpen"
+                x-ref="comboboxListbox"
                 :id="listboxId"
                 role="listbox"
                 class="absolute z-10 mt-1 w-full border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-sm"
@@ -348,16 +413,16 @@ huxCombobox({
                 >
                   <div
                     :id="optionItemId(sourceIndex)"
-                    role="option"
                     :aria-selected="isOptionSelected(optionItem).toString()"
+                    :class="{
+                      'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                      'bg-emerald-50 text-emerald-900': isOptionSelected(optionItem) && focusedIndex !== optionIndex,
+                      'bg-white text-gray-900': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
+                    }"
+                    role="option"
+                    class="px-3 py-2 text-sm cursor-pointer flex items-center justify-between"
                     @click="toggleOptionItem(optionItem)"
                     @mouseenter="focusedIndex = optionIndex"
-                    :class="{
-                        'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
-                        'bg-emerald-50 text-emerald-900': isOptionSelected(optionItem) && focusedIndex !== optionIndex,
-                        'bg-white text-gray-900': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
-                      }"
-                    class="px-3 py-2 text-sm cursor-pointer flex items-center justify-between"
                   >
                     <span x-text="optionItem"></span>
 
@@ -389,7 +454,16 @@ huxCombobox({
                       :aria-label="`Remove ${selectedItem}`"
                       @click.stop="removeSelectedOptionItem(selectedItem)"
                     >
-                      X
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        class="size-5"
+                      >
+                        <path
+                          d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                        />
+                      </svg>
                     </button>
                   </span>
                 </template>
@@ -410,42 +484,51 @@ huxCombobox({
                   aria-label="Clear selected value"
                   @click.stop="clearSelection()"
                 >
-                  X
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="size-5"
+                  >
+                    <path
+                      d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                    />
+                  </svg>
                 </button>
               </div>
             </template>
           </div>
 
           <button
-            x-data="huxCopy({ sourceTemplateRef: 'comboboxExample' })"
-            @click="copyToClipboard()"
+            x-data="huxCopy({ sourceNames: ['comboboxExample', 'comboboxRegistrationCode'] })"
             class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            @click="copyToClipboard()"
           >
-            <span x-text="hasCopied ? 'Copied' : 'Copy'"></span>
+            <span
+              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+            ></span>
           </button>
         </div>
       </details>
 
       <details class="group">
         <summary
-          class="cursor-pointer text-gray-700 [&::-webkit-details-marker]:hidden flex items-center gap-2"
+          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            class="size-5 shrink-0 group-open:-rotate-180"
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="size-5 shrink-0 group-open:-rotate-180"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
+              fill-rule="evenodd"
+              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+              clip-rule="evenodd"
+            />
           </svg>
 
-          <span class="font-medium"> Copy to Clipboard </span>
+          <span> Copy to Clipboard </span>
         </summary>
 
         <div
@@ -456,16 +539,17 @@ huxCombobox({
 
             <p class="text-sm text-gray-700 mt-2">
               Utility component that copies markup directly from live DOM
-              elements. Supports innerHTML and outerHTML copy modes.
+              elements by their data-hux-copy identifier, and can also copy form
+              control values.
             </p>
 
             <pre
-              class="mt-3 rounded-md bg-gray-900 text-gray-100 p-3 text-xs overflow-x-auto"
+              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
             >
 huxCopy({
-  sourceTemplateRef: 'exampleSource',
-  sourceType: 'html', // 'html' | 'input'
-  copyMode: 'outerHTML' // for html only: 'innerHTML' | 'outerHTML',
+  sourceNames: ['exampleElement', 'exampleScript'],
+  valueSourceNames: ['exampleInput'],
+  contentSeparator: '\n\n',
   timeoutDuration: 2000
 })</pre
             >
@@ -474,70 +558,99 @@ huxCopy({
           <div
             class="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-4"
           >
-            <div
-              x-ref="copyHtmlExample"
-              class="rounded-md border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-700"
-            >
-              <h3 class="font-semibold">Copy Target</h3>
-
-              <p class="mt-2">This element is copied from the live page DOM.</p>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <button
-                x-data="huxCopy({ sourceTemplateRef: 'copyHtmlExample', copyMode: 'innerHTML' })"
-                @click="copyToClipboard()"
-                class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            <div data-hux-copy="copyExample">
+              <div
+                class="grid grid-cols-2 gap-4 p-4 border border-dashed border-gray-200 p-4 bg-white rounded-md"
               >
-                <span
-                  x-text="hasCopied ? 'Copied innerHTML' : 'Copy innerHTML'"
-                ></span>
-              </button>
+                <p class="text-sm text-gray-700">
+                  This is an example of copyable content. When you click the
+                  copy button, it will grab the HTML from this paragraph and the
+                  one below, as well as the value from the input on the right,
+                  and copy it all to your clipboard together.
+                </p>
 
-              <button
-                x-data="huxCopy({ sourceTemplateRef: 'copyHtmlExample'})"
-                @click="copyToClipboard()"
-                class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-              >
-                <span
-                  x-text="hasCopied ? 'Copied outerHTML' : 'Copy outerHTML'"
-                ></span>
-              </button>
-            </div>
+                <p class="text-sm text-gray-700">
+                  This content is separate from the copy source, so you can
+                  structure your markup in a way that makes sense for your UI,
+                  and still have a clean copy-paste output.
+                </p>
+              </div>
 
-            <hr class="border-none h-px bg-gray-200 my-8" />
-
-            <div>
-              <label
-                for="hux-copy-input-demo"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Input
-              </label>
-
-              <div class="flex items-center gap-2 mt-2">
-                <input
-                  id="hux-copy-input-demo"
-                  x-ref="copyInputExample"
-                  type="text"
-                  value="Copy me from input value"
-                  class="w-full bg-white px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-
-                <button
-                  x-data="huxCopy({ sourceTemplateRef: 'copyInputExample', sourceType: 'input' })"
-                  @click="copyToClipboard()"
-                  class="px-3 py-1.5 text-xs shrink-0 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              <div class="mt-4">
+                <label
+                  for="hux-copy-input-demo"
+                  class="block text-sm font-medium text-gray-700"
                 >
-                  <span x-text="hasCopied ? 'Copied' : 'Copy'"></span>
-                </button>
+                  Input Value
+                </label>
+
+                <div class="mt-2 relative">
+                  <input
+                    id="hux-copy-input-demo"
+                    data-hux-copy="copyInputExample"
+                    type="text"
+                    value="Hello there 👋"
+                    class="w-full rounded-md border border-gray-300 bg-white pl-3 pr-12 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+
+                  <button
+                    x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
+                    class="absolute top-[5px] right-[5px] rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
+                    :class="{ 'bg-gray-100': hasCopied }"
+                    @click="copyToClipboard()"
+                  >
+                    <svg
+                      x-cloak
+                      x-show="!hasCopied"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5 text-gray-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
+                      />
+                    </svg>
+
+                    <svg
+                      x-cloak
+                      x-show="hasCopied"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-5 text-gray-700"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m4.5 12.75 6 6 9-13.5"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+
+          <button
+            x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
+            class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            @click="copyToClipboard()"
+          >
+            <span
+              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+            ></span>
+          </button>
         </div>
       </details>
 
-      <script>
+      <script data-hux-copy="scrollSpyRegistrationCode">
         document.addEventListener('alpine:init', () => {
           Alpine.data('huxScrollSpy', (initialConfig = {}) => ({
             headingItems: [],
@@ -716,7 +829,11 @@ huxCopy({
               }
             },
           }))
+        })
+      </script>
 
+      <script data-hux-copy="comboboxRegistrationCode">
+        document.addEventListener('alpine:init', () => {
           Alpine.data('huxCombobox', (initialConfig = {}) => ({
             isOpen: false,
             searchQuery: '',
@@ -734,9 +851,11 @@ huxCopy({
               initialConfig.inputTemplateRef ?? 'comboboxInput',
             listboxTemplateRefName:
               initialConfig.listboxTemplateRef ?? 'comboboxListbox',
+
             init() {
               this.configureTemplateRefs()
             },
+
             get filteredOptionItems() {
               return this.optionItems
                 .map((optionItem, sourceIndex) => ({
@@ -749,6 +868,7 @@ huxCopy({
                     .includes(this.searchQuery.toLowerCase()),
                 )
             },
+
             get activeDescendantId() {
               if (!this.isOpen || this.focusedIndex < 0) {
                 return null
@@ -763,9 +883,11 @@ huxCopy({
 
               return this.optionItemId(focusedOptionItem.sourceIndex)
             },
+
             randomIdSegment() {
               return Math.random().toString(36).slice(2, 10)
             },
+
             ensureElementId(targetElement, fallbackPrefix, templateRefName) {
               const fallbackId = `${fallbackPrefix}-${this.randomIdSegment()}`
 
@@ -785,6 +907,7 @@ huxCopy({
 
               return fallbackId
             },
+
             configureTemplateRefs() {
               const inputElement = this.$refs[this.inputTemplateRefName] ?? null
               const listboxElement =
@@ -802,16 +925,20 @@ huxCopy({
                 this.listboxTemplateRefName,
               )
             },
+
             optionItemId(sourceIndex) {
               return `${this.listboxId}-option-${sourceIndex}`
             },
+
             openList() {
               this.isOpen = true
             },
+
             closeList() {
               this.isOpen = false
               this.focusedIndex = -1
             },
+
             onInputChange() {
               if (
                 this.clearSelectionOnInputClear &&
@@ -824,6 +951,7 @@ huxCopy({
               this.isOpen = true
               this.focusedIndex = -1
             },
+
             focusNextOptionItem() {
               const totalItems = this.filteredOptionItems.length
 
@@ -835,16 +963,19 @@ huxCopy({
               }
 
               this.openList()
+
               this.focusedIndex = Math.min(
                 this.focusedIndex + 1,
                 totalItems - 1,
               )
             },
+
             focusPreviousOptionItem() {
               const totalItems = this.filteredOptionItems.length
 
               if (totalItems === 0) {
                 this.openList()
+
                 this.focusedIndex = -1
 
                 return
@@ -860,6 +991,7 @@ huxCopy({
 
               this.focusedIndex -= 1
             },
+
             selectFocusedOptionItem() {
               if (
                 this.focusedIndex >= 0 &&
@@ -870,11 +1002,13 @@ huxCopy({
                 )
               }
             },
+
             isOptionSelected(optionItem) {
               return this.acceptMultiple
                 ? this.selectedValues.includes(optionItem)
                 : this.selectedValue === optionItem
             },
+
             toggleOptionItem(optionItem) {
               if (!this.acceptMultiple) {
                 this.selectOptionItem(optionItem)
@@ -891,20 +1025,26 @@ huxCopy({
               }
 
               this.searchQuery = ''
+
               this.openList()
+
               this.focusedIndex = -1
             },
+
             selectOptionItem(optionItem) {
               this.selectedValue = optionItem
               this.searchQuery = optionItem
+
               this.closeList()
             },
+
             clearSelection() {
               this.selectedValue = ''
               this.selectedValues = []
               this.searchQuery = ''
               this.focusedIndex = -1
             },
+
             removeSelectedOptionItem(optionItem) {
               if (!this.acceptMultiple) {
                 this.clearSelection()
@@ -919,65 +1059,95 @@ huxCopy({
               this.focusedIndex = -1
             },
           }))
+        })
+      </script>
 
+      <script data-hux-copy="copyRegistrationCode">
+        document.addEventListener('alpine:init', () => {
           Alpine.data('huxCopy', (initialConfig = {}) => ({
             hasCopied: false,
-            sourceTemplateRef: initialConfig.sourceTemplateRef ?? null,
-            sourceType: initialConfig.sourceType ?? 'html',
-            copyMode: initialConfig.copyMode ?? 'outerHTML',
+            sourceNames: initialConfig.sourceNames ?? [],
+            valueSourceNames: initialConfig.valueSourceNames ?? [],
+            contentSeparator: initialConfig.contentSeparator ?? '\n\n',
             timeoutDuration: initialConfig.timeoutDuration ?? 2000,
 
-            getSourceElement() {
-              if (this.sourceTemplateRef) {
-                const escapedRefName =
-                  CSS.escape(this.sourceTemplateRef) ?? this.sourceTemplateRef
-
-                const sourceByRootRef = this.$root?.querySelector(
-                  `[x-ref="${escapedRefName}"]`,
+            getSourceElement(sourceName) {
+              if (sourceName) {
+                const sourceElement = document.querySelector(
+                  `[data-hux-copy="${CSS.escape(sourceName)}"]`,
                 )
 
-                if (sourceByRootRef) {
-                  return sourceByRootRef
-                }
-
-                const sourceByRef = document.querySelector(
-                  `[x-ref="${escapedRefName}"]`,
-                )
-
-                if (sourceByRef) {
-                  return sourceByRef
+                if (sourceElement) {
+                  return sourceElement
                 }
               }
-
-              console.error('[huxCopy] Missing sourceTemplateRef config')
 
               return null
             },
 
-            resolveCopyContent() {
-              const sourceElement = this.getSourceElement()
+            resolveElementValue(sourceElement) {
+              if ('value' in sourceElement) {
+                return sourceElement.value
+              }
 
-              if (!sourceElement) {
+              return sourceElement.textContent?.trim() ?? ''
+            },
+
+            resolveCopyContent() {
+              if (
+                this.sourceNames.length === 0 &&
+                this.valueSourceNames.length === 0
+              ) {
                 console.error(
-                  `[huxCopy] Could not find source element for x-ref: ${this.sourceTemplateRef}`,
+                  '[huxCopy] No sourceNames or valueSourceNames configured',
                 )
 
                 return null
               }
 
-              if (this.sourceType === 'input') {
-                if ('value' in sourceElement) {
-                  return sourceElement.value
-                }
+              const htmlCopyChunks = this.sourceNames
+                .map((sourceName) => {
+                  const sourceElement = this.getSourceElement(sourceName)
 
-                return sourceElement.textContent?.trim() ?? ''
+                  if (!sourceElement) {
+                    console.error(
+                      `[huxCopy] Could not find source element for data-hux-copy: ${sourceName}`,
+                    )
+
+                    return null
+                  }
+
+                  return sourceElement.outerHTML
+                })
+                .filter((contentChunk) => typeof contentChunk === 'string')
+                .map((contentChunk) => contentChunk.trim())
+                .filter((contentChunk) => contentChunk.length > 0)
+
+              const valueCopyChunks = this.valueSourceNames
+                .map((sourceName) => {
+                  const sourceElement = this.getSourceElement(sourceName)
+
+                  if (!sourceElement) {
+                    console.error(
+                      `[huxCopy] Could not find value source element for data-hux-copy: ${sourceName}`,
+                    )
+
+                    return null
+                  }
+
+                  return this.resolveElementValue(sourceElement)
+                })
+                .filter((valueChunk) => typeof valueChunk === 'string')
+                .map((valueChunk) => valueChunk.trim())
+                .filter((valueChunk) => valueChunk.length > 0)
+
+              const copyChunks = [...htmlCopyChunks, ...valueCopyChunks]
+
+              if (copyChunks.length === 0) {
+                return null
               }
 
-              if (this.copyMode === 'outerHTML') {
-                return sourceElement.outerHTML
-              }
-
-              return sourceElement.innerHTML.trim()
+              return copyChunks.join(this.contentSeparator)
             },
 
             async copyToClipboard() {
