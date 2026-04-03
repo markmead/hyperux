@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HyperUX — Alpine.js Components</title>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3/dist/cdn.min.js"
+    ></script>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"
+    ></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900">
+    <div class="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      <header>
+        <h1 class="text-3xl font-bold">
+          HyperUX <span aria-hidden="true">📦</span>
+        </h1>
+
+        <p class="text-gray-600 mt-2">
+          Copy-paste Alpine.js components. Behavioral, not visual.
+        </p>
+      </header>
+
+      <details open class="group">
+        <summary
+          class="cursor-pointer text-gray-700 [&::-webkit-details-marker]:hidden flex items-center gap-2"
+        >
+          <svg
+            class="size-5 shrink-0 group-open:-rotate-180"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+
+          <span class="font-medium"> Scroll Spy + TOC </span>
+        </summary>
+
+        <div
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <header>
+            <h2 class="text-xl font-semibold">Scroll Spy + TOC</h2>
+
+            <p class="text-sm text-gray-700 mt-2">
+              This example demonstrates a scroll spy component that tracks the
+              visibility of heading elements within a scrollable container and
+              updates the active state of corresponding items in a table of
+              contents (TOC) navigation. The TOC allows users to click on items
+              to smoothly scroll to the associated heading within the content
+              area.
+            </p>
+
+            <pre
+              class="mt-3 rounded-md bg-gray-900 text-gray-100 p-3 text-xs overflow-x-auto"
+            >
+huxScrollSpy({
+  headingSelector: 'h2, h3, h4, h5, h6',
+  templateRef: 'tocContent',
+  rootMargin: '0px 0px -60% 0px',
+  threshold: 0.1
+})</pre
+            >
+          </header>
+
+          <div
+            class="grid grid-cols-3 gap-4 divide-x divide-gray-200"
+            x-data="huxScrollSpy"
+          >
+            <div class="col-span-1 p-4 bg-gray-50">
+              <h3 class="font-semibold text-sm">Table of Contents</h3>
+
+              <nav class="space-y-1 mt-2">
+                <template
+                  x-for="headingItem in headingItems"
+                  :key="headingItem.id"
+                >
+                  <span
+                    class="block"
+                    :style="{ paddingLeft: (headingItem.level - 2) * 0.75 + 'rem' }"
+                  >
+                    <button
+                      x-text="headingItem.text"
+                      :class="{
+                    'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
+                    'hover:bg-gray-100': activeHeadingId !== headingItem.id
+                  }"
+                      class="w-full text-left rounded px-3 py-2 text-sm transition"
+                      @click="scrollToHeadingItem(headingItem.id)"
+                    ></button>
+                  </span>
+                </template>
+              </nav>
+            </div>
+
+            <div
+              class="overflow-y-auto max-h-96 col-span-2 p-4 space-y-4"
+              x-ref="tocContent"
+            >
+              <h2 id="getting-started" class="text-lg font-semibold">
+                Getting Started
+              </h2>
+
+              <p class="text-sm text-gray-700">
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                Consequatur nobis error minus vel quisquam qui ipsam velit
+                nostrum nihil, ab itaque aperiam modi aspernatur asperiores
+                dolor vero voluptate eius quasi et iste accusantium tempora
+                minima! Hic neque sit a esse?
+              </p>
+
+              <h3 id="component-philosophy" class="font-semibold">
+                Component Philosophy
+              </h3>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Asperiores ut enim iure. Tenetur corrupti iste quibusdam, illo
+                delectus libero nemo cupiditate sequi ex, odit eos dolor totam
+                maiores porro quisquam!
+              </p>
+
+              <h4 id="copy-paste-contract" class="font-medium text-gray-800">
+                Copy-Paste Contract
+              </h4>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Pariatur quas aliquam labore tempore, perspiciatis dignissimos?
+                Magnam numquam natus saepe aliquid.
+              </p>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Doloremque assumenda minima, id voluptatum nemo exercitationem!
+              </p>
+
+              <h2 id="accessibility-basics" class="text-lg font-semibold">
+                Accessibility Basics
+              </h2>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
+                expedita quo quisquam, veritatis dignissimos placeat excepturi
+                provident dicta eligendi ea voluptatibus neque ipsum
+                consequuntur similique eveniet, animi, enim rerum dolor
+                voluptatum itaque cupiditate! Iusto assumenda at voluptate
+                corrupti voluptatum sed!
+              </p>
+
+              <h3 id="keyboard-support" class="font-semibold">
+                Keyboard Support
+              </h3>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi
+                esse expedita aperiam quis veniam, iste repellat adipisci
+                beatae. Voluptate reiciendis placeat eum sed harum ipsum, qui
+                magni tenetur id accusantium.
+              </p>
+
+              <h4 id="focus-return" class="font-medium text-gray-800">
+                Focus Return
+              </h4>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                Quibusdam, quia quis praesentium nihil iusto quas officia fugit
+                ut similique a!
+              </p>
+
+              <h2 id="authoring-patterns" class="text-lg font-semibold">
+                Authoring Patterns
+              </h2>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam
+                odit magnam expedita vitae! Vel, ratione. Error nostrum labore,
+                cumque veritatis nemo quo at! Quo modi architecto, eligendi sint
+                nesciunt illo obcaecati minima quasi odit, quod dolorem
+                asperiores suscipit, animi dolor?
+              </p>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                Assumenda numquam doloribus fugit ullam tenetur natus vel? Quas
+                quaerat tenetur consectetur distinctio cumque labore obcaecati
+                dolorem dolores eius possimus. Aperiam tempore eligendi
+                veritatis aut, illum, soluta asperiores quaerat autem quae ipsa
+                non distinctio. Reiciendis corrupti dolorem quasi tempore,
+                quibusdam quae quis, quo necessitatibus commodi voluptates
+                quaerat? Qui velit officiis aliquam voluptate.
+              </p>
+
+              <h3 id="configuration-surface" class="font-semibold">
+                Configuration Surface
+              </h3>
+
+              <p class="text-sm text-gray-700">
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi
+                impedit deserunt illo assumenda corrupti consectetur nulla modi
+                nobis architecto natus!
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="group">
+        <summary
+          class="cursor-pointer text-gray-700 [&::-webkit-details-marker]:hidden flex items-center gap-2"
+        >
+          <svg
+            class="size-5 shrink-0 group-open:-rotate-180"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
+          </svg>
+
+          <span class="font-medium"> Combo Box </span>
+        </summary>
+
+        <div
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <header>
+            <h2 class="text-xl font-semibold">Combobox</h2>
+
+            <p class="text-sm text-gray-700 mt-2">
+              Searchable listbox input that follows the WAI-ARIA combobox
+              pattern. Supports single or multiple selection, configurable
+              template refs for input and listbox wiring, keyboard navigation,
+              and outside-click close.
+            </p>
+
+            <pre
+              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-3 text-xs overflow-x-auto"
+            >
+huxCombobox({
+  optionItems: [],
+  acceptMultiple: false,
+  inputTemplateRef: 'comboBoxInput',
+  listboxTemplateRef: 'comboBoxListbox'
+})</pre
+            >
+          </header>
+
+          <div
+            x-data="huxCombobox({ optionItems: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Coconut'] })"
+            @click.outside="closeList()"
+            class="space-y-2"
+          >
+            <label
+              :for="comboBoxInputId"
+              class="block text-sm font-medium text-gray-700"
+            >
+              Fruit
+            </label>
+
+            <div class="relative">
+              <input
+                x-ref="comboBoxInput"
+                :id="comboBoxInputId"
+                type="text"
+                x-model="searchQuery"
+                @focus="openList()"
+                @input="onInputChange()"
+                @keydown.down.prevent="focusNextOptionItem()"
+                @keydown.up.prevent="focusPreviousOptionItem()"
+                @keydown.enter.prevent="selectFocusedOptionItem()"
+                @keydown.escape.stop.prevent="closeList()"
+                placeholder="Search fruits..."
+                role="combobox"
+                aria-autocomplete="list"
+                aria-haspopup="listbox"
+                autocomplete="off"
+                :aria-expanded="isOpen.toString()"
+                :aria-controls="listboxId"
+                :aria-activedescendant="activeDescendantId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <div
+                x-ref="comboBoxListbox"
+                x-cloak
+                x-show="isOpen"
+                x-transition
+                :id="listboxId"
+                role="listbox"
+                class="absolute z-10 mt-1 w-full border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-sm"
+              >
+                <template x-if="filteredOptionItems.length === 0">
+                  <p class="px-3 py-2 text-sm text-gray-500">No results.</p>
+                </template>
+
+                <template
+                  x-for="(optionItem, optionIndex) in filteredOptionItems"
+                  :key="`${optionItem}-${optionIndex}`"
+                >
+                  <div
+                    :id="optionItemId(optionIndex)"
+                    role="option"
+                    :aria-selected="isOptionSelected(optionItem).toString()"
+                    @click="toggleOptionItem(optionItem)"
+                    @mouseenter="focusedIndex = optionIndex"
+                    :class="{
+                        'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                        'bg-emerald-50 text-emerald-900': isOptionSelected(optionItem) && focusedIndex !== optionIndex,
+                        'bg-white text-gray-900': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
+                      }"
+                    class="px-3 py-2 text-sm cursor-pointer flex items-center justify-between"
+                  >
+                    <span x-text="optionItem"></span>
+
+                    <span
+                      x-show="isOptionSelected(optionItem)"
+                      class="text-xs font-medium"
+                    >
+                      Selected
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-sm text-gray-600"> Selected: </p>
+
+              <template x-if="acceptMultiple">
+                <div class="flex flex-wrap gap-1">
+                  <template
+                    x-for="(selectedItem, selectedIndex) in selectedValues"
+                    :key="`${selectedItem}-${selectedIndex}`"
+                  >
+                    <span
+                      class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
+                      x-text="selectedItem"
+                    ></span>
+                  </template>
+                </div>
+              </template>
+
+              <template x-if="!acceptMultiple">
+                <div
+                  x-cloak
+                  x-show="selectedValue"
+                  x-text="selectedValue"
+                  class="inline-flex items-center rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
+                ></div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <script>
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxScrollSpy', (initialConfig = {}) => ({
+            headingItems: [],
+            activeHeadingId: null,
+            scrollContainerElement: null,
+            intersectionObserver: null,
+            observedHeadingElements: [],
+            scrollContainerScrollHandler: null,
+            templateRefName: initialConfig.templateRef ?? 'tocContent',
+            headingSelector:
+              initialConfig.headingSelector ?? 'h2, h3, h4, h5, h6',
+
+            init() {
+              const scrollContainerElement = this.$refs[this.templateRefName]
+
+              if (!scrollContainerElement) {
+                console.error(
+                  `[scrollSpy] Missing x-ref target for templateRef: ${this.templateRefName}`,
+                )
+
+                return
+              }
+
+              this.scrollContainerElement = scrollContainerElement
+
+              const headingElements = scrollContainerElement.querySelectorAll(
+                this.headingSelector,
+              )
+
+              this.observedHeadingElements = Array.from(headingElements)
+
+              this.headingItems = Array.from(headingElements).map(
+                (headingElement, headingIndex) => {
+                  const headingId = this.ensureHeadingElementId(
+                    headingElement,
+                    headingIndex,
+                  )
+
+                  return {
+                    id: headingId,
+                    text: headingElement.textContent,
+                    level: parseInt(headingElement.tagName[1]),
+                  }
+                },
+              )
+
+              this.intersectionObserver = new IntersectionObserver(
+                (observerEntries) => {
+                  const visibleEntries = observerEntries.filter(
+                    (observerEntry) => observerEntry.isIntersecting,
+                  )
+
+                  if (visibleEntries.length === 0) {
+                    return
+                  }
+
+                  const lastVisibleEntry = visibleEntries.reduce(
+                    (currentLastEntry, observerEntry) => {
+                      if (!currentLastEntry) {
+                        return observerEntry
+                      }
+
+                      const currentIndex = this.observedHeadingElements.indexOf(
+                        currentLastEntry.target,
+                      )
+
+                      const nextIndex = this.observedHeadingElements.indexOf(
+                        observerEntry.target,
+                      )
+
+                      return nextIndex > currentIndex
+                        ? observerEntry
+                        : currentLastEntry
+                    },
+                    null,
+                  )
+
+                  if (lastVisibleEntry) {
+                    this.activeHeadingId = lastVisibleEntry.target.id
+                  }
+                },
+                {
+                  root: scrollContainerElement,
+                  rootMargin: initialConfig.rootMargin ?? '0px 0px -60% 0px',
+                  threshold: initialConfig.threshold ?? 0.1,
+                },
+              )
+
+              headingElements.forEach((headingElement) =>
+                this.intersectionObserver.observe(headingElement),
+              )
+
+              this.scrollContainerScrollHandler =
+                this.handleScrollContainerPosition.bind(this)
+
+              this.scrollContainerElement.addEventListener(
+                'scroll',
+                this.scrollContainerScrollHandler,
+              )
+
+              if (this.headingItems.length > 0) {
+                this.activeHeadingId = this.headingItems[0].id
+              }
+            },
+
+            scrollToHeadingItem(targetHeadingId) {
+              const targetHeadingElement =
+                this.scrollContainerElement?.querySelector(
+                  `#${CSS.escape(targetHeadingId)}`,
+                ) ?? null
+
+              if (targetHeadingElement) {
+                targetHeadingElement.scrollIntoView({ behavior: 'smooth' })
+              }
+            },
+
+            ensureHeadingElementId(headingElement, headingIndex) {
+              if (headingElement.id) {
+                return headingElement.id
+              }
+
+              const headingSlug = headingElement.textContent
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '')
+
+              const fallbackHeadingSlug =
+                headingSlug || `generated-heading-${headingIndex + 1}`
+
+              let uniqueHeadingId = fallbackHeadingSlug
+              let duplicateIndex = 1
+
+              while (document.getElementById(uniqueHeadingId)) {
+                duplicateIndex += 1
+                uniqueHeadingId = `${fallbackHeadingSlug}-${duplicateIndex}`
+              }
+
+              headingElement.id = uniqueHeadingId
+
+              return uniqueHeadingId
+            },
+
+            handleScrollContainerPosition() {
+              if (
+                !this.scrollContainerElement ||
+                this.headingItems.length === 0
+              ) {
+                return
+              }
+
+              const reachedBottomOfContainer =
+                this.scrollContainerElement.scrollTop +
+                  this.scrollContainerElement.clientHeight >=
+                this.scrollContainerElement.scrollHeight - 2
+
+              if (reachedBottomOfContainer) {
+                this.activeHeadingId =
+                  this.headingItems[this.headingItems.length - 1].id
+              }
+            },
+
+            destroy() {
+              if (
+                this.scrollContainerElement &&
+                this.scrollContainerScrollHandler
+              ) {
+                this.scrollContainerElement.removeEventListener(
+                  'scroll',
+                  this.scrollContainerScrollHandler,
+                )
+              }
+
+              if (this.intersectionObserver) {
+                this.intersectionObserver.disconnect()
+              }
+            },
+          }))
+
+          Alpine.data('huxCombobox', (initialConfig = {}) => ({
+            isOpen: false,
+            searchQuery: '',
+            selectedValue: '',
+            selectedValues: [],
+            acceptMultiple:
+              initialConfig.acceptMultiple ?? initialConfig.multiple ?? false,
+            focusedIndex: -1,
+            comboBoxInputId: null,
+            listboxId: null,
+            optionItems: initialConfig.optionItems ?? [],
+            inputTemplateRefName:
+              initialConfig.inputTemplateRef ?? 'comboBoxInput',
+            listboxTemplateRefName:
+              initialConfig.listboxTemplateRef ?? 'comboBoxListbox',
+            init() {
+              this.configureTemplateRefs()
+            },
+            get filteredOptionItems() {
+              return this.optionItems.filter((optionItem) =>
+                optionItem
+                  .toLowerCase()
+                  .includes(this.searchQuery.toLowerCase()),
+              )
+            },
+            get activeDescendantId() {
+              if (!this.isOpen || this.focusedIndex < 0) {
+                return null
+              }
+
+              return this.optionItemId(this.focusedIndex)
+            },
+            randomIdSegment() {
+              return Math.random().toString(36).slice(2, 10)
+            },
+            ensureElementId(targetElement, fallbackPrefix, templateRefName) {
+              const fallbackId = `${fallbackPrefix}-${this.randomIdSegment()}`
+
+              if (!targetElement) {
+                console.error(
+                  `[comboBox] Missing x-ref target for ${templateRefName}. Falling back to generated id ${fallbackId}`,
+                )
+
+                return fallbackId
+              }
+
+              if (targetElement.id) {
+                return targetElement.id
+              }
+
+              targetElement.id = fallbackId
+
+              return fallbackId
+            },
+            configureTemplateRefs() {
+              const inputElement = this.$refs[this.inputTemplateRefName] ?? null
+              const listboxElement =
+                this.$refs[this.listboxTemplateRefName] ?? null
+
+              this.comboBoxInputId = this.ensureElementId(
+                inputElement,
+                'combo-box-input',
+                this.inputTemplateRefName,
+              )
+
+              this.listboxId = this.ensureElementId(
+                listboxElement,
+                'combo-box-listbox',
+                this.listboxTemplateRefName,
+              )
+            },
+            optionItemId(index) {
+              return `${this.listboxId}-option-${index}`
+            },
+            openList() {
+              this.isOpen = true
+            },
+            closeList() {
+              this.isOpen = false
+              this.focusedIndex = -1
+            },
+            onInputChange() {
+              this.isOpen = true
+              this.focusedIndex = -1
+            },
+            focusNextOptionItem() {
+              const totalItems = this.filteredOptionItems.length
+
+              if (totalItems === 0) {
+                this.openList()
+                this.focusedIndex = -1
+
+                return
+              }
+
+              this.openList()
+              this.focusedIndex = Math.min(
+                this.focusedIndex + 1,
+                totalItems - 1,
+              )
+            },
+            focusPreviousOptionItem() {
+              const totalItems = this.filteredOptionItems.length
+
+              if (totalItems === 0) {
+                this.openList()
+                this.focusedIndex = -1
+
+                return
+              }
+
+              this.openList()
+
+              if (this.focusedIndex <= 0) {
+                this.focusedIndex = 0
+
+                return
+              }
+
+              this.focusedIndex -= 1
+            },
+            selectFocusedOptionItem() {
+              if (
+                this.focusedIndex >= 0 &&
+                this.filteredOptionItems[this.focusedIndex]
+              ) {
+                this.toggleOptionItem(
+                  this.filteredOptionItems[this.focusedIndex],
+                )
+              }
+            },
+            isOptionSelected(optionItem) {
+              return this.acceptMultiple
+                ? this.selectedValues.includes(optionItem)
+                : this.selectedValue === optionItem
+            },
+            toggleOptionItem(optionItem) {
+              if (!this.acceptMultiple) {
+                this.selectOptionItem(optionItem)
+
+                return
+              }
+
+              const selectedItemIndex = this.selectedValues.indexOf(optionItem)
+
+              if (selectedItemIndex >= 0) {
+                this.selectedValues.splice(selectedItemIndex, 1)
+              } else {
+                this.selectedValues.push(optionItem)
+              }
+
+              this.searchQuery = ''
+              this.openList()
+              this.focusedIndex = -1
+            },
+            selectOptionItem(optionItem) {
+              this.selectedValue = optionItem
+              this.searchQuery = optionItem
+              this.closeList()
+            },
+          }))
+        })
+      </script>
+    </div>
+  </body>
+</html>
