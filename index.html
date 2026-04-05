@@ -31,7 +31,7 @@
     ></script>
   </head>
   <body class="bg-gray-50 text-gray-900 text-pretty">
-    <div
+    <main
       x-data="{ showBackToHyperUi: new URLSearchParams(window.location.search).get('ref') === 'hyperui' }"
       class="max-w-4xl mx-auto px-6 py-8 space-y-8"
     >
@@ -45,9 +45,10 @@
             x-cloak
             x-show="showBackToHyperUi"
             href="https://www.hyperui.dev"
-            class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:bg-gray-100"
+            class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:bg-gray-100"
           >
             <svg
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
@@ -65,7 +66,7 @@
         </div>
 
         <span
-          class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900"
+          class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-amber-900"
         >
           Experimental Project
         </span>
@@ -105,7 +106,7 @@
           HTML + JS, modify as needed for your project, and make it your own.
         </p>
 
-        <ul class="list-disc pl-6 space-y-1 text-sm text-gray-700">
+        <ul class="list-disc pl-6 space-y-2 text-sm text-gray-700">
           <li>
             <strong>Tailwind CSS is scaffolding.</strong> The examples use
             Tailwind only for the demo — it will copy with the HTML, but feel
@@ -132,6 +133,7 @@
           class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
+            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -182,7 +184,7 @@ huxScrollSpy({
             <div class="col-span-1 p-4 bg-gray-50">
               <h3 class="font-semibold text-sm">Table of Contents</h3>
 
-              <nav class="space-y-1 mt-2">
+              <nav class="space-y-2 mt-2">
                 <template
                   x-for="headingItem in headingItems"
                   :key="headingItem.id"
@@ -197,7 +199,7 @@ huxScrollSpy({
                         'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
                         'hover:bg-gray-100': activeHeadingId !== headingItem.id
                       }"
-                      class="w-full text-left rounded px-3 py-2 text-sm transition-colors"
+                      class="w-full text-left rounded px-4 py-2 text-sm transition-colors"
                       @click="scrollToHeadingItem(headingItem.id)"
                     ></button>
                   </span>
@@ -318,21 +320,23 @@ huxScrollSpy({
 
           <button
             x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
-            class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
             @click="copyToClipboard()"
           >
             <span
+              aria-live="polite"
               x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
             ></span>
           </button>
         </div>
       </details>
 
-      <details class="group">
+      <details open class="group">
         <summary
           class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
+            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -401,13 +405,14 @@ huxCombobox({
                 aria-autocomplete="list"
                 aria-haspopup="listbox"
                 autocomplete="off"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 @focus="openList()"
                 @input="onInputChange()"
                 @keydown.down.prevent="focusNextOptionItem()"
                 @keydown.up.prevent="focusPreviousOptionItem()"
                 @keydown.enter.prevent="selectFocusedOptionItem()"
                 @keydown.escape.stop.prevent="closeList()"
+                @keydown.tab="closeList()"
               />
 
               <div
@@ -416,11 +421,12 @@ huxCombobox({
                 x-show="isOpen"
                 x-ref="comboboxListbox"
                 :id="listboxId"
+                :aria-multiselectable="acceptMultiple ? 'true' : null"
                 role="listbox"
-                class="absolute z-10 mt-1 w-full border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-sm"
+                class="absolute z-10 mt-2 w-full border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-sm"
               >
                 <template x-if="filteredOptionItems.length === 0">
-                  <p class="px-3 py-2 text-sm text-gray-500">No results.</p>
+                  <p class="px-4 py-2 text-sm text-gray-500">No results.</p>
                 </template>
 
                 <template
@@ -436,7 +442,7 @@ huxCombobox({
                       'bg-white text-gray-900': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
                     }"
                     role="option"
-                    class="px-3 py-2 text-sm cursor-pointer flex items-center justify-between"
+                    class="px-4 py-2 text-sm cursor-pointer flex items-center justify-between"
                     @click="toggleOptionItem(optionItem)"
                     @mouseenter="focusedIndex = optionIndex"
                   >
@@ -454,13 +460,13 @@ huxCombobox({
             </div>
 
             <template x-if="acceptMultiple">
-              <div class="flex flex-wrap gap-1">
+              <div class="flex flex-wrap gap-2">
                 <template
                   x-for="(selectedItem, selectedIndex) in selectedValues"
                   :key="`${selectedItem}-${selectedIndex}`"
                 >
                   <span
-                    class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
+                    class="inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-900 px-2 py-2 font-mono text-xs font-medium"
                   >
                     <span x-text="selectedItem"></span>
 
@@ -471,6 +477,7 @@ huxCombobox({
                       @click.stop="removeSelectedOptionItem(selectedItem)"
                     >
                       <svg
+                        aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
@@ -490,7 +497,7 @@ huxCombobox({
               <div
                 x-cloak
                 x-show="selectedValue"
-                class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-2.5 py-1 font-mono text-xs font-medium"
+                class="inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-900 px-2 py-2 font-mono text-xs font-medium"
               >
                 <span x-text="selectedValue"></span>
 
@@ -501,6 +508,7 @@ huxCombobox({
                   @click.stop="clearSelection()"
                 >
                   <svg
+                    aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
@@ -517,21 +525,23 @@ huxCombobox({
 
           <button
             x-data="huxCopy({ sourceNames: ['comboboxExample', 'comboboxRegistrationCode'] })"
-            class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
             @click="copyToClipboard()"
           >
             <span
+              aria-live="polite"
               x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
             ></span>
           </button>
         </div>
       </details>
 
-      <details class="group">
+      <details open class="group">
         <summary
           class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
+            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -554,9 +564,9 @@ huxCombobox({
             <h2 class="text-xl font-semibold">Copy to Clipboard</h2>
 
             <p class="text-sm text-gray-700 mt-2">
-              Utility component that copies markup directly from live DOM
-              elements by their data-hux-copy identifier, and can also copy form
-              control values.
+              Utility component that copies multiple markup and value sources
+              from live DOM elements by their data-hux-copy identifier. It
+              preserves array order and joins sources using contentSeparator.
             </p>
 
             <pre
@@ -576,7 +586,7 @@ huxCopy({
           >
             <div data-hux-copy="copyExample">
               <div
-                class="grid grid-cols-2 gap-4 p-4 border border-dashed border-gray-200 p-4 bg-white rounded-md"
+                class="grid grid-cols-2 gap-4 p-4 border border-dashed border-gray-200 bg-white rounded-md"
               >
                 <p class="text-sm text-gray-700">
                   This is an example of copyable content. When you click the
@@ -606,18 +616,27 @@ huxCopy({
                     data-hux-copy="copyInputExample"
                     type="text"
                     value="Hello there 👋"
-                    class="w-full rounded-md border border-gray-300 bg-white pl-3 pr-12 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full rounded-md border border-gray-300 bg-white pl-4 pr-12 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
 
                   <button
+                    type="button"
                     x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
-                    class="absolute top-[5px] right-[5px] rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
+                    aria-label="Copy input value"
+                    class="absolute top-2 right-2 rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
                     :class="{ 'bg-gray-100': hasCopied }"
                     @click="copyToClipboard()"
                   >
+                    <span
+                      aria-live="polite"
+                      class="sr-only"
+                      x-text="hasCopied ? 'Copied input value' : 'Copy input value'"
+                    ></span>
+
                     <svg
                       x-cloak
                       x-show="!hasCopied"
+                      aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -635,6 +654,7 @@ huxCopy({
                     <svg
                       x-cloak
                       x-show="hasCopied"
+                      aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -656,10 +676,11 @@ huxCopy({
 
           <button
             x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
-            class="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+            class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
             @click="copyToClipboard()"
           >
             <span
+              aria-live="polite"
               x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
             ></span>
           </button>
@@ -1188,6 +1209,6 @@ huxCopy({
           }))
         })
       </script>
-    </div>
+    </main>
   </body>
 </html>
