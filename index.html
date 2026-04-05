@@ -72,17 +72,16 @@
         </span>
 
         <p class="text-gray-700">
-          HyperUX is a sandbox for behavior-first UI experiments using
-          Alpine.js. This is where we test interaction patterns in public before
-          deciding if they belong in HyperUI.
+          Behavior-first Alpine.js patterns you can copy, adapt, and ship.
         </p>
 
         <p class="text-gray-700">
-          This is not a component library that wraps finished HTML and ships it
-          as a packaged abstraction. The goal is the opposite: expose the
-          behavioral logic clearly so teams can adapt it to their own markup and
-          design systems.
+          HyperUX is not about repackaging HTML elements and functionality as
+          components. It focuses on developer-friendly APIs for behavior-heavy
+          UI patterns you can adapt to your own markup and styles.
         </p>
+
+        <p class="text-sm text-gray-500">Last updated: 5 April 2026</p>
       </header>
 
       <div class="not-prose min-h-32 max-w-sm mx-auto">
@@ -104,6 +103,11 @@
         <p class="text-sm text-gray-700">
           Each experiment includes live behavior and copy-ready output. Copy the
           HTML + JS, modify as needed for your project, and make it your own.
+        </p>
+
+        <p class="text-sm text-gray-700">
+          Each copy button grabs the live demo markup and the related Alpine
+          registration code.
         </p>
 
         <ul class="list-disc pl-6 space-y-2 text-sm text-gray-700">
@@ -146,35 +150,30 @@
             />
           </svg>
 
-          <span> Scroll Spy + TOC </span>
+          <h2 class="text-lg font-semibold">Scroll Spy + TOC</h2>
         </summary>
 
         <div
           class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <header>
-            <h2 class="text-xl font-semibold">Scroll Spy + TOC</h2>
+          <p class="text-sm text-gray-700">
+            This example demonstrates a scroll spy component that tracks the
+            visibility of heading elements within a scrollable container and
+            updates the active state of corresponding items in a table of
+            contents (TOC) navigation. The TOC allows users to click on items to
+            smoothly scroll to the associated heading within the content area.
+          </p>
 
-            <p class="text-sm text-gray-700 mt-2">
-              This example demonstrates a scroll spy component that tracks the
-              visibility of heading elements within a scrollable container and
-              updates the active state of corresponding items in a table of
-              contents (TOC) navigation. The TOC allows users to click on items
-              to smoothly scroll to the associated heading within the content
-              area.
-            </p>
-
-            <pre
-              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
-            >
+          <pre
+            class="rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
+          >
 huxScrollSpy({
   headingSelector: 'h2, h3, h4, h5, h6',
   templateRef: 'tocContent',
   rootMargin: '0px 0px -60% 0px',
   threshold: 0.1
 })</pre
-            >
-          </header>
+          >
 
           <div
             x-data="huxScrollSpy"
@@ -328,6 +327,15 @@ huxScrollSpy({
               x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
             ></span>
           </button>
+
+          <p class="text-sm text-gray-700">
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </p>
         </div>
       </details>
 
@@ -349,25 +357,22 @@ huxScrollSpy({
             />
           </svg>
 
-          <span> Combobox </span>
+          <h2 class="text-lg font-semibold">Combobox</h2>
         </summary>
 
         <div
           class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <header>
-            <h2 class="text-xl font-semibold">Combobox</h2>
+          <p class="text-sm text-gray-700">
+            Searchable listbox input that follows the WAI-ARIA combobox pattern.
+            Supports single or multiple selection, configurable template refs
+            for input and listbox wiring, keyboard navigation, and outside-click
+            close.
+          </p>
 
-            <p class="text-sm text-gray-700 mt-2">
-              Searchable listbox input that follows the WAI-ARIA combobox
-              pattern. Supports single or multiple selection, configurable
-              template refs for input and listbox wiring, keyboard navigation,
-              and outside-click close.
-            </p>
-
-            <pre
-              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
-            >
+          <pre
+            class="rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
+          >
 huxCombobox({
   optionItems: [],
   acceptMultiple: false,
@@ -375,8 +380,7 @@ huxCombobox({
   inputTemplateRef: 'comboboxInput',
   listboxTemplateRef: 'comboboxListbox'
 })</pre
-            >
-          </header>
+          >
 
           <div
             x-data="huxCombobox({ optionItems: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Coconut'], clearSelectionOnInputClear: true })"
@@ -533,6 +537,15 @@ huxCombobox({
               x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
             ></span>
           </button>
+
+          <p class="text-sm text-gray-700">
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </p>
         </div>
       </details>
 
@@ -554,32 +567,28 @@ huxCombobox({
             />
           </svg>
 
-          <span> Copy to Clipboard </span>
+          <h2 class="text-lg font-semibold">Copy to Clipboard</h2>
         </summary>
 
         <div
           class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <header>
-            <h2 class="text-xl font-semibold">Copy to Clipboard</h2>
+          <p class="text-sm text-gray-700">
+            Utility component that copies multiple markup and value sources from
+            live DOM elements by their data-hux-copy identifier. It preserves
+            array order and joins sources using contentSeparator.
+          </p>
 
-            <p class="text-sm text-gray-700 mt-2">
-              Utility component that copies multiple markup and value sources
-              from live DOM elements by their data-hux-copy identifier. It
-              preserves array order and joins sources using contentSeparator.
-            </p>
-
-            <pre
-              class="mt-4 rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
-            >
+          <pre
+            class="rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
+          >
 huxCopy({
   sourceNames: ['exampleElement', 'exampleScript'],
   valueSourceNames: ['exampleInput'],
   contentSeparator: '\n\n',
   timeoutDuration: 2000
 })</pre
-            >
-          </header>
+          >
 
           <div
             class="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-4"
@@ -684,6 +693,119 @@ huxCopy({
               x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
             ></span>
           </button>
+
+          <p class="text-sm text-gray-700">
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </p>
+        </div>
+      </details>
+
+      <details class="group">
+        <summary
+          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="size-5 shrink-0 group-open:-rotate-180"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+
+          <h2 class="text-lg font-semibold">Command Palette</h2>
+
+          <span
+            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-2 py-2 text-xs font-medium text-gray-600"
+          >
+            Work in Progress
+          </span>
+        </summary>
+
+        <div
+          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-sm text-gray-700">
+            Keyboard-first action search with filtering, active item management,
+            escape handling, and copy-paste friendly Alpine.js behavior.
+          </p>
+
+          <p class="text-sm text-gray-700">
+            This experiment is in progress. The goal is a practical command
+            palette pattern that works for app actions, docs shortcuts, and
+            search-driven navigation.
+          </p>
+
+          <p class="text-sm text-gray-700">
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+            >
+              Want this sooner or have a use case? Open an issue.
+            </a>
+          </p>
+        </div>
+      </details>
+
+      <details class="group">
+        <summary
+          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            class="size-5 shrink-0 group-open:-rotate-180"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+
+          <h2 class="text-lg font-semibold">Dialog</h2>
+
+          <span
+            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-2 py-2 text-xs font-medium text-gray-600"
+          >
+            Work in Progress
+          </span>
+        </summary>
+
+        <div
+          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-sm text-gray-700">
+            Modal and drawer behavior with focus management, escape close,
+            restore focus, and scroll locking.
+          </p>
+
+          <p class="text-sm text-gray-700">
+            This experiment is in progress. The target is a behavior-first
+            dialog pattern that can be adapted to modals, side panels, and
+            confirmation flows.
+          </p>
+
+          <p class="text-sm text-gray-700">
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+            >
+              Want this sooner or have a use case? Open an issue.
+            </a>
+          </p>
         </div>
       </details>
 
