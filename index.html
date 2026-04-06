@@ -24,11 +24,6 @@
         display: none !important;
       }
     </style>
-
-    <script
-      defer
-      src="https://media.ethicalads.io/media/client/ethicalads.min.js"
-    ></script>
   </head>
   <body class="bg-gray-50 text-gray-900 text-pretty">
     <main
@@ -63,7 +58,7 @@
                 ></path>
               </svg>
 
-              <span class="hidden md:inline">GitHub</span>
+              <span>GitHub</span>
             </a>
 
             <a
@@ -110,17 +105,6 @@
         <p class="text-sm text-gray-500">Last updated: 5 April 2026</p>
       </header>
 
-      <div class="not-prose min-h-32 max-w-sm mx-auto">
-        <div
-          id="js."
-          data-ea-publisher="hyperuidev"
-          data-ea-type="image"
-          data-ea-keywords="tailwind-css|nextjs|reactjs|ai-development|devops|cloud-infrastructure|serverless"
-          class="horizontal [&_.ea-body]:text-gray-700! [&_.ea-callout]:mx-0! [&_.ea-callout]:-mt-px! [&_.ea-callout]:mb-0! [&_.ea-callout]:max-w-none! [&_.ea-callout]:rounded-b-lg! [&_.ea-callout]:border [&_.ea-callout]:border-gray-200 [&_.ea-callout]:bg-gray-50! [&_.ea-callout]:px-4! [&_.ea-callout]:py-2! [&_.ea-callout]:text-gray-500! [&_.ea-callout]:not-italic! [&_.ea-content]:m-0! [&_.ea-content]:max-w-none! [&_.ea-content]:rounded-t-lg! [&_.ea-content]:rounded-b-none! [&_.ea-content]:border! [&_.ea-content]:border-gray-200! [&_.ea-content]:bg-white! [&_.ea-content]:p-4! [&_.ea-content]:shadow-none! [&_.ea-content>a>img]:rounded-lg! [&_.ea-cta]:text-sky-500! [&_.ea-domain]:text-right! [&_.ea-domain]:text-gray-500! [&_.ea-headline]:text-sky-500! [&_.ea-placement]:rounded-lg [&_.ea-placement]:shadow-lg"
-        >
-        </div>
-      </div>
-
       <section
         class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4"
       >
@@ -160,14 +144,14 @@
 
       <details open class="group">
         <summary
-          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="size-5 shrink-0 group-open:-rotate-180"
+            class="size-6 shrink-0 group-open:-rotate-180"
           >
             <path
               fill-rule="evenodd"
@@ -176,7 +160,7 @@
             />
           </svg>
 
-          <h2 class="text-lg font-semibold">Scroll Spy + TOC</h2>
+          <h2 class="text-xl font-semibold">Scroll Spy + TOC</h2>
         </summary>
 
         <div
@@ -204,7 +188,7 @@ huxScrollSpy({
           <div
             x-data="huxScrollSpy"
             data-hux-copy="scrollSpyExample"
-            class="grid grid-cols-3 gap-4 divide-x divide-gray-200"
+            class="grid grid-cols-1 md:grid-cols-3 gap-4 divide-x divide-gray-200"
           >
             <div class="col-span-1 p-4 bg-gray-50">
               <h3 class="font-semibold text-sm">Table of Contents</h3>
@@ -234,7 +218,7 @@ huxScrollSpy({
 
             <div
               x-ref="tocContent"
-              class="overflow-y-auto max-h-96 col-span-2 p-4 space-y-4"
+              class="overflow-y-auto max-h-96 md:col-span-2 p-4 space-y-4"
             >
               <h2 id="getting-started" class="text-lg font-semibold">
                 Getting Started
@@ -367,14 +351,14 @@ huxScrollSpy({
 
       <details open class="group">
         <summary
-          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="size-5 shrink-0 group-open:-rotate-180"
+            class="size-6 shrink-0 group-open:-rotate-180"
           >
             <path
               fill-rule="evenodd"
@@ -383,7 +367,7 @@ huxScrollSpy({
             />
           </svg>
 
-          <h2 class="text-lg font-semibold">Combobox</h2>
+          <h2 class="text-xl font-semibold">Combobox</h2>
         </summary>
 
         <div
@@ -577,14 +561,14 @@ huxCombobox({
 
       <details open class="group">
         <summary
-          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="size-5 shrink-0 group-open:-rotate-180"
+            class="size-6 shrink-0 group-open:-rotate-180"
           >
             <path
               fill-rule="evenodd"
@@ -593,7 +577,7 @@ huxCombobox({
             />
           </svg>
 
-          <h2 class="text-lg font-semibold">Copy to Clipboard</h2>
+          <h2 class="text-xl font-semibold">Copy to Clipboard</h2>
         </summary>
 
         <div
@@ -733,14 +717,14 @@ huxCopy({
 
       <details class="group">
         <summary
-          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="size-5 shrink-0 group-open:-rotate-180"
+            class="size-6 shrink-0 group-open:-rotate-180"
           >
             <path
               fill-rule="evenodd"
@@ -749,7 +733,7 @@ huxCopy({
             />
           </svg>
 
-          <h2 class="text-lg font-semibold">Command Palette</h2>
+          <h2 class="text-xl font-semibold">Command Palette</h2>
 
           <span
             class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-2 py-2 text-xs font-medium text-gray-600"
@@ -785,14 +769,14 @@ huxCopy({
 
       <details class="group">
         <summary
-          class="flex items-center gap-2 text-lg font-semibold text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="size-5 shrink-0 group-open:-rotate-180"
+            class="size-6 shrink-0 group-open:-rotate-180"
           >
             <path
               fill-rule="evenodd"
@@ -801,7 +785,7 @@ huxCopy({
             />
           </svg>
 
-          <h2 class="text-lg font-semibold">Dialog</h2>
+          <h2 class="text-xl font-semibold">Dialog</h2>
 
           <span
             class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-2 py-2 text-xs font-medium text-gray-600"
