@@ -361,25 +361,27 @@ Options:
 - visibilityThreshold: number | number[] (default: 0.1)</pre
           >
 
-          <button
-            x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
-            class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <div class="flex gap-4 flex-wrap justify-between">
+            <button
+              x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 underline inline-block underline-offset-2 hover:text-sky-700"
-          >
-            Found a bug or improvement? Open an issue.
-          </a>
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 underline inline-block underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
@@ -585,25 +587,27 @@ Options:
 - listboxTemplateRef: string (default: 'comboboxListbox')</pre
           >
 
-          <button
-            x-data="huxCopy({ sourceNames: ['comboboxExample', 'comboboxRegistrationCode'] })"
-            class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <div class="flex gap-4 flex-wrap justify-between">
+            <button
+              x-data="huxCopy({ sourceNames: ['comboboxExample', 'comboboxRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
-          >
-            Found a bug or improvement? Open an issue.
-          </a>
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
@@ -657,16 +661,16 @@ huxCopy({
                 class="grid grid-cols-2 gap-4 p-4 border border-dashed border-gray-200 bg-white rounded-md"
               >
                 <p class="text-gray-700">
-                  This is an example of copyable content. When you click the
-                  copy button, it will grab the HTML from this paragraph and the
-                  one to the right, as well as the value from the input below,
-                  and copy it all to your clipboard together.
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                  Error quaerat obcaecati hic exercitationem? Libero unde
+                  dolorem est nostrum qui distinctio cum modi minima laudantium
+                  quia. Itaque consectetur totam adipisci magnam?
                 </p>
 
                 <p class="text-gray-700">
-                  This content is separate from the copy source, so you can
-                  structure your markup in a way that makes sense for your UI,
-                  and still have a clean copy-paste output.
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  Possimus praesentium quasi aliquid molestiae at accusantium
+                  veritatis, minima dicta sed voluptatem.
                 </p>
               </div>
 
@@ -754,25 +758,27 @@ Options:
 - timeoutDuration: number (default: 2000)</pre
           >
 
-          <button
-            x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
-            class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <div class="flex gap-4 flex-wrap justify-between">
+            <button
+              x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
-          >
-            Found a bug or improvement? Open an issue.
-          </a>
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
@@ -933,25 +939,27 @@ Events:
 - hux-dialog:close (fallback when dialogId is missing)</pre
           >
 
-          <button
-            x-data="huxCopy({ sourceNames: ['dialogExample', 'dialogRegistrationCode'] })"
-            class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <div class="flex gap-4 flex-wrap justify-between">
+            <button
+              x-data="huxCopy({ sourceNames: ['dialogExample', 'dialogRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
-          >
-            Found a bug or improvement? Open an issue.
-          </a>
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
