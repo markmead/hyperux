@@ -610,7 +610,7 @@ huxCopy({
                 <p class="text-sm text-gray-700">
                   This is an example of copyable content. When you click the
                   copy button, it will grab the HTML from this paragraph and the
-                  one below, as well as the value from the input on the right,
+                  one to the right, as well as the value from the input below,
                   and copy it all to your clipboard together.
                 </p>
 
@@ -642,7 +642,7 @@ huxCopy({
                     type="button"
                     x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
                     aria-label="Copy input value"
-                    class="absolute top-2 right-2 rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
+                    class="absolute top-1.5 right-1.5 rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
                     :class="{ 'bg-gray-100': hasCopied }"
                     @click="copyToClipboard()"
                   >
