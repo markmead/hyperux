@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HyperUX — Alpine.js Components</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+      rel="stylesheet"
+    />
+
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>📦</text></svg>"
@@ -22,13 +30,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2/dist/index.global.min.js"></script>
 
+    <style type="text/tailwindcss">
+      @theme {
+        --font-sans: 'Google Sans';
+      }
+    </style>
+
     <style>
       [x-cloak] {
         display: none !important;
       }
     </style>
   </head>
-  <body class="bg-gray-50 text-gray-900 text-pretty antialiased">
+  <body class="bg-gray-50 text-gray-900 font-sans text-pretty antialiased">
     <main
       x-data="{ showBack: new URLSearchParams(window.location.search).get('ref') === 'hyperui' }"
       class="max-w-4xl mx-auto px-6 py-8 space-y-8"
@@ -246,7 +260,7 @@ huxScrollSpy()</pre
                 maiores porro quisquam!
               </p>
 
-              <h4 id="copy-paste-contract" class="font-medium text-gray-900">
+              <h4 id="copy-paste-contract" class="font-medium">
                 Copy-Paste Contract
               </h4>
 
@@ -285,9 +299,7 @@ huxScrollSpy()</pre
                 magni tenetur id accusantium.
               </p>
 
-              <h4 id="focus-return" class="font-medium text-gray-900">
-                Focus Return
-              </h4>
+              <h4 id="focus-return" class="font-medium"> Focus Return </h4>
 
               <p class="text-sm text-gray-700">
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
@@ -364,7 +376,7 @@ Options:
 
       <details open class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-900 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -466,7 +478,7 @@ huxCombobox({
                     :class="{
                       'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
                       'bg-emerald-50 text-emerald-900': isOptionSelected(optionItem) && focusedIndex !== optionIndex,
-                      'bg-white text-gray-900': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
+                      'bg-white': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
                     }"
                     role="option"
                     class="px-4 py-2 text-sm cursor-pointer flex items-center justify-between"
@@ -585,7 +597,7 @@ Options:
 
       <details open class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-900 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -749,7 +761,7 @@ Options:
 
       <details open class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-900 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -832,7 +844,7 @@ huxDialog({
                     <div class="flex items-start justify-between gap-4">
                       <h3
                         :id="dialogTitleId || null"
-                        class="text-base font-semibold text-gray-900"
+                        class="text-base font-semibold"
                       >
                         Delete item
                       </h3>
@@ -925,7 +937,7 @@ Events:
 
       <details class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-900 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
