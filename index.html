@@ -500,6 +500,7 @@ huxCombobox({
                     <span x-text="optionItem"></span>
 
                     <span
+                      x-cloak
                       x-show="isOptionSelected(optionItem)"
                       class="text-sm font-medium"
                     >
@@ -841,6 +842,7 @@ huxDialog({
 
             <template x-teleport="body">
               <div
+                x-cloak
                 x-show="isOpen"
                 class="fixed inset-0 z-50 overflow-y-auto"
                 @keydown.escape.stop="handleEscape()"
@@ -848,6 +850,7 @@ huxDialog({
                 <div class="flex min-h-full items-center justify-center p-4">
                   <template x-if="showBackdrop">
                     <div
+                      x-cloak
                       x-show="isOpen"
                       x-transition.opacity.duration.200ms
                       class="fixed inset-0 bg-gray-900/60"
@@ -857,6 +860,7 @@ huxDialog({
                   </template>
 
                   <div
+                    x-cloak
                     x-show="isOpen"
                     x-trap.noscroll="trapFocus && isOpen"
                     x-transition.duration.200ms
