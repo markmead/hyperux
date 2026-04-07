@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HyperUX — Alpine.js Components</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+      rel="stylesheet"
+    />
+
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 16 16'><text x='0' y='14'>📦</text></svg>"
     />
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js"
+      integrity="sha256-6n4hVET1EQYZVJYhzQdgzt/ic/cIsUTU5lioe3AlVfk="
+      crossorigin="anonymous"
+    ></script>
 
     <script
       defer
@@ -19,13 +34,21 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2/dist/index.global.min.js"></script>
 
+    <style type="text/tailwindcss">
+      @theme {
+        --font-sans:
+          'Google Sans', system-ui, -apple-system, BlinkMacSystemFont,
+          'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+    </style>
+
     <style>
       [x-cloak] {
         display: none !important;
       }
     </style>
   </head>
-  <body class="bg-gray-50 text-gray-900 text-pretty">
+  <body class="bg-gray-50 text-gray-900 font-sans text-pretty antialiased">
     <main
       x-data="{ showBack: new URLSearchParams(window.location.search).get('ref') === 'hyperui' }"
       class="max-w-4xl mx-auto px-6 py-8 space-y-8"
@@ -39,7 +62,7 @@
           <div class="flex flex-wrap items-center gap-2">
             <a
               href="https://github.com/markmead/hyperux"
-              class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-900 bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-gray-800 hover:bg-gray-800"
+              class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-900 bg-gray-900 px-4 py-2 font-medium text-white transition-colors hover:border-gray-800 hover:bg-gray-800"
               aria-label="GitHub"
               target="_blank"
               rel="noreferrer"
@@ -65,13 +88,13 @@
               x-cloak
               x-show="showBack"
               href="https://www.hyperui.dev"
-              class="px-4 py-2 inline-flex items-center gap-2 text-sm font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
+              class="px-4 py-2 inline-flex items-center gap-2 font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
             >
               <svg
-                aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
+                aria-hidden="true"
                 class="size-5"
               >
                 <path
@@ -87,7 +110,7 @@
         </div>
 
         <span
-          class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-amber-900"
+          class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-amber-900"
         >
           Experimental Project
         </span>
@@ -102,7 +125,9 @@
           UI patterns you can adapt to your own markup and styles.
         </p>
 
-        <p class="text-sm text-gray-500">Last updated: 5 April 2026</p>
+        <time datetime="2026-04-06" class="text-gray-500">
+          Last updated: 7 April 2026
+        </time>
       </header>
 
       <section
@@ -110,17 +135,17 @@
       >
         <h2 class="text-xl font-semibold">How to Use These Experiments</h2>
 
-        <p class="text-sm text-gray-700">
+        <p class="text-gray-700">
           Each experiment includes live behavior and copy-ready output. Copy the
           HTML + JS, modify as needed for your project, and make it your own.
         </p>
 
-        <p class="text-sm text-gray-700">
+        <p class="text-gray-700">
           Each copy button grabs the live demo markup and the related Alpine
           registration code.
         </p>
 
-        <ul class="list-disc pl-6 space-y-2 text-sm text-gray-700">
+        <ul class="list-disc pl-6 space-y-2 text-gray-700">
           <li>
             <strong>Tailwind CSS is scaffolding.</strong> The examples use
             Tailwind only for the demo — it will copy with the HTML, but feel
@@ -144,19 +169,21 @@
 
       <details open class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="size-6 shrink-0 group-open:-rotate-180"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
           >
             <path
-              fill-rule="evenodd"
-              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-              clip-rule="evenodd"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
 
@@ -166,7 +193,7 @@
         <div
           class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <p class="text-sm text-gray-700">
+          <p class="text-gray-700">
             This example demonstrates a scroll spy component that tracks the
             visibility of heading elements within a scrollable container and
             updates the active state of corresponding items in a table of
@@ -174,24 +201,21 @@
             smoothly scroll to the associated heading within the content area.
           </p>
 
+          <p class="font-semibold"> Config Used for This Demo </p>
+
           <pre
-            class="rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
-huxScrollSpy({
-  headingSelector: 'h2, h3, h4, h5, h6',
-  templateRef: 'tocContent',
-  rootMargin: '0px 0px -60% 0px',
-  threshold: 0.1
-})</pre
+huxScrollSpy()</pre
           >
 
           <div
             x-data="huxScrollSpy"
             data-hux-copy="scrollSpyExample"
-            class="grid grid-cols-1 md:grid-cols-3 gap-4 divide-x divide-gray-200"
+            class="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
-            <div class="col-span-1 p-4 bg-gray-50">
-              <h3 class="font-semibold text-sm">Table of Contents</h3>
+            <div class="col-span-1 p-4 bg-gray-50 rounded-md">
+              <h3 class="font-semibold">Table of Contents</h3>
 
               <nav class="space-y-2 mt-2">
                 <template
@@ -208,7 +232,7 @@ huxScrollSpy({
                         'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
                         'hover:bg-gray-100': activeHeadingId !== headingItem.id
                       }"
-                      class="w-full text-left rounded px-4 py-2 text-sm transition-colors"
+                      class="w-full text-left rounded px-4 py-2 transition-colors"
                       @click="scrollToHeadingItem(headingItem.id)"
                     ></button>
                   </span>
@@ -218,13 +242,13 @@ huxScrollSpy({
 
             <div
               x-ref="tocContent"
-              class="overflow-y-auto max-h-96 md:col-span-2 p-4 space-y-4"
+              class="overflow-y-auto max-h-128 md:col-span-2 p-4 space-y-4"
             >
               <h2 id="getting-started" class="text-lg font-semibold">
                 Getting Started
               </h2>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem, ipsum dolor sit amet consectetur adipisicing elit.
                 Consequatur nobis error minus vel quisquam qui ipsam velit
                 nostrum nihil, ab itaque aperiam modi aspernatur asperiores
@@ -236,24 +260,24 @@ huxScrollSpy({
                 Component Philosophy
               </h3>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
                 Asperiores ut enim iure. Tenetur corrupti iste quibusdam, illo
                 delectus libero nemo cupiditate sequi ex, odit eos dolor totam
                 maiores porro quisquam!
               </p>
 
-              <h4 id="copy-paste-contract" class="font-medium text-gray-800">
+              <h4 id="copy-paste-contract" class="font-medium">
                 Copy-Paste Contract
               </h4>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
                 Pariatur quas aliquam labore tempore, perspiciatis dignissimos?
                 Magnam numquam natus saepe aliquid.
               </p>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit, amet consectetur adipisicing elit.
                 Doloremque assumenda minima, id voluptatum nemo exercitationem!
               </p>
@@ -262,7 +286,7 @@ huxScrollSpy({
                 Accessibility Basics
               </h2>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab
                 expedita quo quisquam, veritatis dignissimos placeat excepturi
                 provident dicta eligendi ea voluptatibus neque ipsum
@@ -275,18 +299,16 @@ huxScrollSpy({
                 Keyboard Support
               </h3>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi
                 esse expedita aperiam quis veniam, iste repellat adipisci
                 beatae. Voluptate reiciendis placeat eum sed harum ipsum, qui
                 magni tenetur id accusantium.
               </p>
 
-              <h4 id="focus-return" class="font-medium text-gray-800">
-                Focus Return
-              </h4>
+              <h4 id="focus-return" class="font-medium"> Focus Return </h4>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum, dolor sit amet consectetur adipisicing elit.
                 Quibusdam, quia quis praesentium nihil iusto quas officia fugit
                 ut similique a!
@@ -296,7 +318,7 @@ huxScrollSpy({
                 Authoring Patterns
               </h2>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam
                 odit magnam expedita vitae! Vel, ratione. Error nostrum labore,
                 cumque veritatis nemo quo at! Quo modi architecto, eligendi sint
@@ -304,7 +326,7 @@ huxScrollSpy({
                 asperiores suscipit, animi dolor?
               </p>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit.
                 Assumenda numquam doloribus fugit ullam tenetur natus vel? Quas
                 quaerat tenetur consectetur distinctio cumque labore obcaecati
@@ -319,7 +341,7 @@ huxScrollSpy({
                 Configuration Surface
               </h3>
 
-              <p class="text-sm text-gray-700">
+              <p class="text-gray-700">
                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi
                 impedit deserunt illo assumenda corrupti consectetur nulla modi
                 nobis architecto natus!
@@ -327,43 +349,59 @@ huxScrollSpy({
             </div>
           </div>
 
-          <button
-            x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
-            class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <p class="font-semibold"> All Options </p>
 
-          <p class="text-sm text-gray-700">
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- headingSelector: string (default: 'h2, h3, h4, h5, h6')
+- templateRef: string (default: 'tocContent')
+- rootMargin: string (default: '0px 0px -60% 0px')
+- visibilityThreshold: number | number[] (default: 0.1)</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
             <a
               href="https://github.com/markmead/hyperux/issues/new"
-              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 underline inline-block underline-offset-2 hover:text-sky-700"
             >
               Found a bug or improvement? Open an issue.
             </a>
-          </p>
+          </div>
         </div>
       </details>
 
       <details open class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="size-6 shrink-0 group-open:-rotate-180"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
           >
             <path
-              fill-rule="evenodd"
-              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-              clip-rule="evenodd"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
 
@@ -373,22 +411,21 @@ huxScrollSpy({
         <div
           class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <p class="text-sm text-gray-700">
+          <p class="text-gray-700">
             Searchable listbox input that follows the WAI-ARIA combobox pattern.
             Supports single or multiple selection, configurable template refs
             for input and listbox wiring, keyboard navigation, and outside-click
             close.
           </p>
 
+          <p class="font-semibold"> Config Used for This Demo </p>
+
           <pre
-            class="rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 huxCombobox({
-  optionItems: [],
-  acceptMultiple: false,
-  clearSelectionOnInputClear: false,
-  inputTemplateRef: 'comboboxInput',
-  listboxTemplateRef: 'comboboxListbox'
+  optionItems: ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Coconut'],
+  clearSelectionOnInputClear: true
 })</pre
           >
 
@@ -400,7 +437,7 @@ huxCombobox({
           >
             <label
               :for="comboboxInputId"
-              class="block text-sm font-medium text-gray-700"
+              class="block font-medium text-gray-700"
             >
               Fruit
             </label>
@@ -440,7 +477,7 @@ huxCombobox({
                 class="absolute z-10 mt-2 w-full border border-gray-300 rounded-md max-h-48 overflow-y-auto bg-white shadow-sm"
               >
                 <template x-if="filteredOptionItems.length === 0">
-                  <p class="px-4 py-2 text-sm text-gray-500">No results.</p>
+                  <p class="px-4 py-2 text-gray-500">No results.</p>
                 </template>
 
                 <template
@@ -453,18 +490,19 @@ huxCombobox({
                     :class="{
                       'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
                       'bg-emerald-50 text-emerald-900': isOptionSelected(optionItem) && focusedIndex !== optionIndex,
-                      'bg-white text-gray-900': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
+                      'bg-white': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
                     }"
                     role="option"
-                    class="px-4 py-2 text-sm cursor-pointer flex items-center justify-between"
+                    class="px-4 py-2 cursor-pointer flex items-center justify-between"
                     @click="toggleOptionItem(optionItem)"
                     @mouseenter="focusedIndex = optionIndex"
                   >
                     <span x-text="optionItem"></span>
 
                     <span
+                      x-cloak
                       x-show="isOptionSelected(optionItem)"
-                      class="text-xs font-medium"
+                      class="text-sm font-medium"
                     >
                       Selected
                     </span>
@@ -480,7 +518,7 @@ huxCombobox({
                   :key="`${selectedItem}-${selectedIndex}`"
                 >
                   <span
-                    class="inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-900 px-2 py-2 font-mono text-xs font-medium"
+                    class="inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-900 px-2 py-2 font-mono text-sm font-medium"
                   >
                     <span x-text="selectedItem"></span>
 
@@ -491,10 +529,10 @@ huxCombobox({
                       @click.stop="removeSelectedOptionItem(selectedItem)"
                     >
                       <svg
-                        aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
+                        aria-hidden="true"
                         class="size-5"
                       >
                         <path
@@ -511,7 +549,7 @@ huxCombobox({
               <div
                 x-cloak
                 x-show="selectedValue"
-                class="inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-900 px-2 py-2 font-mono text-xs font-medium"
+                class="inline-flex items-center gap-2 rounded-full bg-emerald-100 text-emerald-900 px-2 py-2 font-mono text-sm font-medium"
               >
                 <span x-text="selectedValue"></span>
 
@@ -522,10 +560,10 @@ huxCombobox({
                   @click.stop="clearSelection()"
                 >
                   <svg
-                    aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
+                    aria-hidden="true"
                     class="size-5"
                   >
                     <path
@@ -537,43 +575,60 @@ huxCombobox({
             </template>
           </div>
 
-          <button
-            x-data="huxCopy({ sourceNames: ['comboboxExample', 'comboboxRegistrationCode'] })"
-            class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <p class="font-semibold"> All Options </p>
 
-          <p class="text-sm text-gray-700">
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- optionItems: string[] (default: [])
+- acceptMultiple: boolean (default: false)
+- clearSelectionOnInputClear: boolean (default: false)
+- inputTemplateRef: string (default: 'comboboxInput')
+- listboxTemplateRef: string (default: 'comboboxListbox')</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['comboboxExample', 'comboboxRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
             <a
               href="https://github.com/markmead/hyperux/issues/new"
-              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
             >
               Found a bug or improvement? Open an issue.
             </a>
-          </p>
+          </div>
         </div>
       </details>
 
       <details open class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="size-6 shrink-0 group-open:-rotate-180"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
           >
             <path
-              fill-rule="evenodd"
-              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-              clip-rule="evenodd"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
 
@@ -583,20 +638,19 @@ huxCombobox({
         <div
           class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <p class="text-sm text-gray-700">
+          <p class="text-gray-700">
             Utility component that copies multiple markup and value sources from
             live DOM elements by their data-hux-copy identifier. It preserves
             array order and joins sources using contentSeparator.
           </p>
 
+          <p class="font-semibold"> Config Used for This Demo </p>
+
           <pre
-            class="rounded-md bg-gray-900 text-gray-100 p-4 text-xs overflow-x-auto"
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 huxCopy({
-  sourceNames: ['exampleElement', 'exampleScript'],
-  valueSourceNames: ['exampleInput'],
-  contentSeparator: '\n\n',
-  timeoutDuration: 2000
+  sourceNames: ['copyExample', 'copyRegistrationCode']
 })</pre
           >
 
@@ -607,24 +661,24 @@ huxCopy({
               <div
                 class="grid grid-cols-2 gap-4 p-4 border border-dashed border-gray-200 bg-white rounded-md"
               >
-                <p class="text-sm text-gray-700">
-                  This is an example of copyable content. When you click the
-                  copy button, it will grab the HTML from this paragraph and the
-                  one to the right, as well as the value from the input below,
-                  and copy it all to your clipboard together.
+                <p class="text-gray-700">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                  Error quaerat obcaecati hic exercitationem? Libero unde
+                  dolorem est nostrum qui distinctio cum modi minima laudantium
+                  quia. Itaque consectetur totam adipisci magnam?
                 </p>
 
-                <p class="text-sm text-gray-700">
-                  This content is separate from the copy source, so you can
-                  structure your markup in a way that makes sense for your UI,
-                  and still have a clean copy-paste output.
+                <p class="text-gray-700">
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                  Possimus praesentium quasi aliquid molestiae at accusantium
+                  veritatis, minima dicta sed voluptatem.
                 </p>
               </div>
 
               <div class="mt-4">
                 <label
                   for="hux-copy-input-demo"
-                  class="block text-sm font-medium text-gray-700"
+                  class="block font-medium text-gray-700"
                 >
                   Input Value
                 </label>
@@ -642,7 +696,7 @@ huxCopy({
                     type="button"
                     x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
                     aria-label="Copy input value"
-                    class="absolute top-1.5 right-1.5 rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
+                    class="absolute inset-y-0 right-0 text-gray-700 rounded w-10.5 grid place-content-center hover:bg-gray-100 transition-colors"
                     :class="{ 'bg-gray-100': hasCopied }"
                     @click="copyToClipboard()"
                   >
@@ -655,13 +709,13 @@ huxCopy({
                     <svg
                       x-cloak
                       x-show="!hasCopied"
-                      aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="size-5 text-gray-700"
+                      aria-hidden="true"
+                      class="size-5"
                     >
                       <path
                         stroke-linecap="round"
@@ -673,13 +727,13 @@ huxCopy({
                     <svg
                       x-cloak
                       x-show="hasCopied"
-                      aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke-width="1.5"
                       stroke="currentColor"
-                      class="size-5 text-gray-700"
+                      aria-hidden="true"
+                      class="size-5"
                     >
                       <path
                         stroke-linecap="round"
@@ -693,129 +747,277 @@ huxCopy({
             </div>
           </div>
 
-          <button
-            x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
-            class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
-            @click="copyToClipboard()"
-          >
-            <span
-              aria-live="polite"
-              x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-            ></span>
-          </button>
+          <p class="font-semibold"> All Options </p>
 
-          <p class="text-sm text-gray-700">
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- sourceNames: string[] (default: [])
+- valueSourceNames: string[] (default: [])
+- contentSeparator: string (default: '\\n\\n')
+- timeoutDuration: number (default: 2000)</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
             <a
               href="https://github.com/markmead/hyperux/issues/new"
-              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
             >
               Found a bug or improvement? Open an issue.
             </a>
+          </div>
+        </div>
+      </details>
+
+      <details open class="group">
+        <summary
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+
+          <h2 class="text-xl font-semibold">Dialog</h2>
+        </summary>
+
+        <div
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-gray-700">
+            Focus-trapped dialog with scroll locking, Escape dismiss, backdrop
+            dismiss, and focus restore on close. Uses the Alpine.js Focus plugin
+            for reliable keyboard containment via
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >x-trap</code
+            >.
           </p>
+
+          <p class="font-semibold"> Config Used for This Demo </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+huxDialog({
+  dialogId: 'delete-item-dialog'
+})</pre
+          >
+
+          <div
+            x-data="huxDialog({ dialogId: 'delete-item-dialog' })"
+            data-hux-copy="dialogExample"
+          >
+            <button
+              type="button"
+              class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
+              @click="openDialog()"
+            >
+              Open Dialog
+            </button>
+
+            <template x-teleport="body">
+              <div
+                x-cloak
+                x-show="isOpen"
+                class="fixed inset-0 z-50 overflow-y-auto"
+                @keydown.escape.stop="handleEscape()"
+              >
+                <div class="flex min-h-full items-center justify-center p-4">
+                  <template x-if="showBackdrop">
+                    <div
+                      x-cloak
+                      x-show="isOpen"
+                      x-transition.opacity.duration.200ms
+                      class="fixed inset-0 bg-gray-900/60"
+                      aria-hidden="true"
+                      @click="handleBackdropClick()"
+                    ></div>
+                  </template>
+
+                  <div
+                    x-cloak
+                    x-show="isOpen"
+                    x-trap.noscroll="trapFocus && isOpen"
+                    x-transition.duration.200ms
+                    :aria-labelledby="dialogTitleId || null"
+                    role="dialog"
+                    aria-modal="true"
+                    class="relative w-full max-w-md bg-white rounded-lg shadow-xl p-6 space-y-4"
+                  >
+                    <div class="flex items-start justify-between gap-4">
+                      <h3
+                        :id="dialogTitleId || null"
+                        class="text-base font-semibold"
+                      >
+                        Delete item
+                      </h3>
+
+                      <button
+                        type="button"
+                        class="shrink-0 rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        aria-label="Close dialog"
+                        @click="closeDialog()"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                          class="size-5"
+                        >
+                          <path
+                            d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <p class="text-gray-600">
+                      Are you sure you want to delete this item? This action
+                      cannot be undone.
+                    </p>
+
+                    <div class="flex justify-end gap-3">
+                      <button
+                        type="button"
+                        class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+                        @click="closeDialog()"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="button"
+                        class="px-4 py-2 font-medium bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                        @click="closeDialog()"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- dialogId: string (optional, scopes emitted event names)
+- isPersistent: boolean (default: false)
+- isSeamless: boolean (default: false)
+- trapFocus: boolean (default: true)
+- startsOpen: boolean (default: false)
+Events:
+- hux-dialog:{dialogId}:open
+- hux-dialog:{dialogId}:close
+- hux-dialog:open (fallback when dialogId is missing)
+- hux-dialog:close (fallback when dialogId is missing)</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['dialogExample', 'dialogRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
       <details class="group">
         <summary
-          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
           <svg
-            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="size-6 shrink-0 group-open:-rotate-180"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
           >
             <path
-              fill-rule="evenodd"
-              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-              clip-rule="evenodd"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
 
           <h2 class="text-xl font-semibold">Command Palette</h2>
 
           <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-2 py-2 text-xs font-medium text-gray-600"
+            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
           >
-            Work in Progress
+            WIP
           </span>
         </summary>
 
         <div
           class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <p class="text-sm text-gray-700">
+          <p class="text-gray-700">
             Keyboard-first action search with filtering, active item management,
             escape handling, and copy-paste friendly Alpine.js behavior.
           </p>
 
-          <p class="text-sm text-gray-700">
+          <p class="text-gray-700">
             This experiment is in progress. The goal is a practical command
             palette pattern that works for app actions, docs shortcuts, and
             search-driven navigation.
           </p>
 
-          <p class="text-sm text-gray-700">
-            <a
-              href="https://github.com/markmead/hyperux/issues/new"
-              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Want this sooner or have a use case? Open an issue.
-            </a>
-          </p>
-        </div>
-      </details>
-
-      <details class="group">
-        <summary
-          class="inline-flex items-center gap-2 text-gray-800 cursor-pointer [&::-webkit-details-marker]:hidden"
-        >
-          <svg
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="size-6 shrink-0 group-open:-rotate-180"
+          <a
+            href="https://github.com/markmead/hyperux/issues/new"
+            target="_blank"
+            rel="noreferrer"
+            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
           >
-            <path
-              fill-rule="evenodd"
-              d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-
-          <h2 class="text-xl font-semibold">Dialog</h2>
-
-          <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-2 py-2 text-xs font-medium text-gray-600"
-          >
-            Work in Progress
-          </span>
-        </summary>
-
-        <div
-          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
-        >
-          <p class="text-sm text-gray-700">
-            Modal and drawer behavior with focus management, escape close,
-            restore focus, and scroll locking.
-          </p>
-
-          <p class="text-sm text-gray-700">
-            This experiment is in progress. The target is a behavior-first
-            dialog pattern that can be adapted to modals, side panels, and
-            confirmation flows.
-          </p>
-
-          <p class="text-sm text-gray-700">
-            <a
-              href="https://github.com/markmead/hyperux/issues/new"
-              class="text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Want this sooner or have a use case? Open an issue.
-            </a>
-          </p>
+            Want this sooner or have a use case? Open an issue.
+          </a>
         </div>
       </details>
 
@@ -904,7 +1106,7 @@ huxCopy({
                 {
                   root: scrollContainerElement,
                   rootMargin: initialConfig.rootMargin ?? '0px 0px -60% 0px',
-                  threshold: initialConfig.threshold ?? 0.1,
+                  threshold: initialConfig.visibilityThreshold ?? 0.1,
                 },
               )
 
@@ -1226,6 +1428,81 @@ huxCopy({
               )
 
               this.focusedIndex = -1
+            },
+          }))
+        })
+      </script>
+
+      <script data-hux-copy="dialogRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxDialog', (initialConfig = {}) => ({
+            isOpen: initialConfig.startsOpen ?? false,
+            dialogId: initialConfig.dialogId ?? null,
+            trapFocus: initialConfig.trapFocus ?? true,
+            isPersistent: initialConfig.isPersistent ?? false,
+            isSeamless: initialConfig.isSeamless ?? false,
+            dialogTitleId: null,
+
+            get closeOnBackdrop() {
+              return !this.isPersistent
+            },
+
+            get closeOnEscape() {
+              return !this.isPersistent
+            },
+
+            get showBackdrop() {
+              return !this.isSeamless
+            },
+
+            init() {
+              this.dialogTitleId = this.dialogId
+                ? `${this.dialogId}-title`
+                : null
+            },
+
+            openDialog() {
+              this.isOpen = true
+
+              this.dispatchDialogEvent('open')
+            },
+
+            toggleDialog() {
+              if (this.isOpen) {
+                this.closeDialog()
+
+                return
+              }
+
+              this.openDialog()
+            },
+
+            closeDialog() {
+              this.isOpen = false
+
+              this.dispatchDialogEvent('close')
+            },
+
+            handleBackdropClick() {
+              if (this.closeOnBackdrop) {
+                this.closeDialog()
+              }
+            },
+
+            handleEscape() {
+              if (this.closeOnEscape) {
+                this.closeDialog()
+              }
+            },
+
+            dispatchDialogEvent(eventName) {
+              const scopedEventName = this.dialogId
+                ? `hux-dialog:${this.dialogId}:${eventName}`
+                : `hux-dialog:${eventName}`
+
+              this.$dispatch(scopedEventName, {
+                dialogId: this.dialogId,
+              })
             },
           }))
         })
