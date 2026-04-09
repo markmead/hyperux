@@ -657,25 +657,56 @@ huxCopy({
           <div
             class="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-4"
           >
-            <div data-hux-copy="copyExample">
-              <div
-                class="grid grid-cols-2 gap-4 p-4 border border-dashed border-gray-200 bg-white rounded-md"
-              >
-                <p class="text-gray-700">
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                  Error quaerat obcaecati hic exercitationem? Libero unde
-                  dolorem est nostrum qui distinctio cum modi minima laudantium
-                  quia. Itaque consectetur totam adipisci magnam?
-                </p>
+            <div data-hux-copy="copyExample" class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div
+                  class="p-4 border border-dashed border-gray-200 bg-white rounded-md space-y-4"
+                  data-hux-copy="copyExampleA"
+                >
+                  <span
+                    class="inline-flex items-center rounded-full border border-teal-300 bg-teal-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-teal-900"
+                  >
+                    Element A
+                  </span>
 
-                <p class="text-gray-700">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Possimus praesentium quasi aliquid molestiae at accusantium
-                  veritatis, minima dicta sed voluptatem.
-                </p>
+                  <p class="text-gray-700">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Error quaerat obcaecati hic exercitationem? Libero unde
+                    dolorem est nostrum qui distinctio cum modi minima
+                    laudantium quia. Itaque consectetur totam adipisci magnam?
+                  </p>
+                </div>
+
+                <div
+                  class="p-4 border border-dashed border-gray-200 bg-white rounded-md space-y-4"
+                  data-hux-copy="copyExampleB"
+                >
+                  <span
+                    class="inline-flex items-center rounded-full border border-teal-300 bg-teal-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-teal-900"
+                  >
+                    Element B
+                  </span>
+
+                  <p class="text-gray-700">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Possimus praesentium quasi aliquid molestiae at accusantium
+                    veritatis, minima dicta sed voluptatem.
+                  </p>
+                </div>
               </div>
 
-              <div class="mt-4">
+              <button
+                x-data="huxCopy({ sourceNames: ['copyExampleA', 'copyExampleB'] })"
+                class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+                @click="copyToClipboard()"
+              >
+                <span
+                  aria-live="polite"
+                  x-text="hasCopied ? 'Copied' : 'Copy'"
+                ></span>
+              </button>
+
+              <div>
                 <label
                   for="hux-copy-input-demo"
                   class="block font-medium text-gray-700"
