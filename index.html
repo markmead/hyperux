@@ -1052,6 +1052,60 @@ Events:
         </div>
       </details>
 
+      <details class="group">
+        <summary
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+
+          <h2 class="text-xl font-semibold">Dropdown</h2>
+
+          <span
+            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
+          >
+            WIP
+          </span>
+        </summary>
+
+        <div
+          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-gray-700">
+            Accessible dropdown behavior for toggling menus, handling outside
+            clicks, and keyboard-friendly item navigation.
+          </p>
+
+          <p class="text-gray-700">
+            This experiment is in progress. The goal is a practical dropdown
+            pattern you can adapt for action menus, profile menus, and compact
+            navigation.
+          </p>
+
+          <a
+            href="https://github.com/markmead/hyperux/issues/new"
+            target="_blank"
+            rel="noreferrer"
+            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          >
+            Want this sooner or have a use case? Open an issue.
+          </a>
+        </div>
+      </details>
+
       <script data-hux-copy="scrollSpyRegistrationCode">
         document.addEventListener('alpine:init', () => {
           Alpine.data('huxScrollSpy', (initialConfig = {}) => ({
