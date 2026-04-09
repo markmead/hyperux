@@ -125,8 +125,8 @@
           UI patterns you can adapt to your own markup and styles.
         </p>
 
-        <time datetime="2026-04-06" class="text-gray-500">
-          Last updated: 7 April 2026
+        <time datetime="2026-04-09" class="text-gray-500">
+          Last updated: 9 April 2026
         </time>
       </header>
 
@@ -998,7 +998,167 @@ Events:
         </div>
       </details>
 
-      <details class="group">
+      <details open class="group">
+        <summary
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+
+          <h2 class="text-xl font-semibold">Dropdown</h2>
+        </summary>
+
+        <div
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-gray-700">
+            Accessible dropdown menu component following the WAI-ARIA menu
+            button pattern. Supports keyboard navigation, focus management, and
+            outside-click close. Queries
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >[role="menuitem"]</code
+            >
+            elements from within the menu ref for dynamic focus control.
+          </p>
+
+          <p class="font-semibold"> Config Used for This Demo </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+huxDropdown()</pre
+          >
+
+          <div
+            x-data="huxDropdown()"
+            data-hux-copy="dropdownExample"
+            class="relative inline-block"
+            @click.outside="closeMenu()"
+          >
+            <button
+              type="button"
+              x-ref="dropdownTrigger"
+              :id="triggerId"
+              :aria-expanded="isOpen.toString()"
+              :aria-controls="menuId"
+              aria-haspopup="menu"
+              class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 inline-flex items-center gap-2 transition-colors"
+              @click="toggleMenu()"
+              @keydown.down.prevent="openMenuAndFocusFirst()"
+              @keydown.up.prevent="openMenuAndFocusLast()"
+              @keydown.escape.stop.prevent="closeMenuAndReturnFocus()"
+            >
+              <span>Options</span>
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                class="size-4"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+
+            <div
+              x-cloak
+              x-transition
+              x-show="isOpen"
+              x-ref="dropdownMenu"
+              :id="menuId"
+              role="menu"
+              class="absolute left-0 z-10 mt-2 w-48 rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+              @keydown.down.prevent="focusNextMenuItem()"
+              @keydown.up.prevent="focusPreviousMenuItem()"
+              @keydown.escape.stop.prevent="closeMenuAndReturnFocus()"
+              @keydown.home.prevent="focusFirstMenuItem()"
+              @keydown.end.prevent="focusLastMenuItem()"
+              @keydown.tab="closeMenu()"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                @click="closeMenu()"
+              >
+                Edit
+              </button>
+
+              <button
+                type="button"
+                role="menuitem"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                @click="closeMenu()"
+              >
+                Duplicate
+              </button>
+
+              <hr class="my-1 border-gray-200" role="separator" />
+
+              <button
+                type="button"
+                role="menuitem"
+                class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 focus:bg-red-50 focus:outline-none"
+                @click="closeMenu()"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- menuRef: string (default: 'dropdownMenu')
+- triggerRef: string (default: 'dropdownTrigger')</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['dropdownExample', 'dropdownRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
+        </div>
+      </details>
+
+      <details open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -1019,36 +1179,206 @@ Events:
           </svg>
 
           <h2 class="text-xl font-semibold">Command Palette</h2>
-
-          <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
-          >
-            WIP
-          </span>
         </summary>
 
         <div
-          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
           <p class="text-gray-700">
-            Keyboard-first action search with filtering, active item management,
-            escape handling, and copy-paste friendly Alpine.js behavior.
+            Keyboard-first command search built from the patterns of
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >huxCombobox</code
+            >
+            and
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >huxDialog</code
+            >. Supports label and group filtering, active item tracking,
+            keyboard navigation, Escape dismiss, backdrop dismiss, focus
+            trapping, and an optional
+            <kbd
+              class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded border border-gray-200"
+              >⌘K</kbd
+            >
+            /
+            <kbd
+              class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded border border-gray-200"
+              >Ctrl+K</kbd
+            >
+            global shortcut.
           </p>
 
-          <p class="text-gray-700">
-            This experiment is in progress. The goal is a practical command
-            palette pattern that works for app actions, docs shortcuts, and
-            search-driven navigation.
-          </p>
+          <p class="font-semibold"> Config Used for This Demo </p>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
-            Want this sooner or have a use case? Open an issue.
-          </a>
+huxCommandPalette({
+  commandItems: [
+    { id: 'new-file', label: 'New File', group: 'File' },
+    { id: 'open-file', label: 'Open File', group: 'File' },
+    { id: 'save-file', label: 'Save File', group: 'File' },
+    { id: 'find-in-files', label: 'Find in Files', group: 'Edit' },
+    { id: 'open-settings', label: 'Open Settings', group: 'General' },
+    { id: 'change-theme', label: 'Change Theme', group: 'General' },
+  ]
+})</pre
+          >
+
+          <div
+            x-data="huxCommandPalette({
+              commandItems: [
+                { id: 'new-file', label: 'New File', group: 'File' },
+                { id: 'open-file', label: 'Open File', group: 'File' },
+                { id: 'save-file', label: 'Save File', group: 'File' },
+                { id: 'find-in-files', label: 'Find in Files', group: 'Edit' },
+                { id: 'open-settings', label: 'Open Settings', group: 'General' },
+                { id: 'change-theme', label: 'Change Theme', group: 'General' }
+              ]
+            })"
+            data-hux-copy="commandPaletteExample"
+          >
+            <div class="flex flex-wrap items-center gap-4">
+              <button
+                type="button"
+                class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+                @click="openPalette()"
+              >
+                Open Command Palette
+              </button>
+
+              <kbd
+                class="inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-1 font-mono text-xs text-gray-600"
+              >
+                ⌘K
+              </kbd>
+            </div>
+
+            <template x-teleport="body">
+              <div
+                x-cloak
+                x-show="isOpen"
+                class="fixed inset-0 z-50 overflow-y-auto"
+                @keydown.escape.stop="closePalette()"
+              >
+                <div
+                  class="flex min-h-full items-start justify-center px-4 pt-24"
+                >
+                  <div
+                    x-cloak
+                    x-show="isOpen"
+                    x-transition.opacity.duration.200ms
+                    class="fixed inset-0 bg-gray-900/60"
+                    aria-hidden="true"
+                    @click="closePalette()"
+                  ></div>
+
+                  <div
+                    x-cloak
+                    x-show="isOpen"
+                    x-trap.noscroll="trapFocus && isOpen"
+                    x-transition.duration.200ms
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Command Palette"
+                    class="relative w-full max-w-lg overflow-hidden rounded-lg bg-white shadow-xl"
+                  >
+                    <div class="border-b border-gray-200">
+                      <input
+                        x-ref="commandPaletteInput"
+                        x-model="searchQuery"
+                        type="text"
+                        :placeholder="placeholder"
+                        role="combobox"
+                        aria-autocomplete="list"
+                        aria-haspopup="listbox"
+                        :aria-expanded="isOpen.toString()"
+                        autocomplete="off"
+                        class="w-full px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none"
+                        @input="onSearchInput()"
+                        @keydown.down.prevent="focusNextCommand()"
+                        @keydown.up.prevent="focusPreviousCommand()"
+                        @keydown.enter.prevent="executeActiveCommand()"
+                        @keydown.escape.stop.prevent="closePalette()"
+                      />
+                    </div>
+
+                    <div role="listbox" class="max-h-72 overflow-y-auto py-2">
+                      <template x-if="filteredCommandItems.length === 0">
+                        <p class="px-4 py-6 text-center text-sm text-gray-500">
+                          No commands found.
+                        </p>
+                      </template>
+
+                      <template
+                        x-for="(commandItem, commandIndex) in filteredCommandItems"
+                        :key="commandItem.id"
+                      >
+                        <button
+                          type="button"
+                          role="option"
+                          :aria-selected="(focusedIndex === commandIndex).toString()"
+                          :class="{
+                            'bg-blue-50 text-blue-900': focusedIndex === commandIndex,
+                            'text-gray-700': focusedIndex !== commandIndex
+                          }"
+                          class="flex w-full items-center justify-between gap-4 px-4 py-2 text-left text-sm hover:bg-gray-50 focus:outline-none"
+                          @click="executeCommand(commandItem)"
+                          @mouseenter="focusedIndex = commandIndex"
+                        >
+                          <span x-text="commandItem.label"></span>
+
+                          <span
+                            x-text="commandItem.group"
+                            class="shrink-0 text-xs text-gray-400"
+                          ></span>
+                        </button>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- commandItems: { id: string, label: string, group?: string, action?: () => void }[] (default: [])
+- placeholder: string (default: 'Search...')
+- keyboardShortcut: boolean (default: true)
+- trapFocus: boolean (default: true)
+- startsOpen: boolean (default: false)
+- inputRef: string (default: 'commandPaletteInput')
+Events:
+- hux-command-palette:open
+- hux-command-palette:close
+- hux-command-palette:execute (detail: { command })</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['commandPaletteExample', 'commandPaletteRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
@@ -1644,6 +1974,294 @@ Events:
                 }, this.timeoutDuration)
               } catch (copyError) {
                 console.error('[huxCopy] Copy failed', copyError)
+              }
+            },
+          }))
+        })
+      </script>
+      <script data-hux-copy="dropdownRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxDropdown', (initialConfig = {}) => ({
+            isOpen: false,
+            triggerId: null,
+            menuId: null,
+            focusedIndex: -1,
+            menuTemplateRefName: initialConfig.menuRef ?? 'dropdownMenu',
+            triggerTemplateRefName:
+              initialConfig.triggerRef ?? 'dropdownTrigger',
+
+            init() {
+              this.$nextTick(() => {
+                this.configureTemplateRefs()
+              })
+            },
+
+            get menuItemElements() {
+              const menuElement =
+                this.$refs[this.menuTemplateRefName] ?? null
+
+              if (!menuElement) {
+                return []
+              }
+
+              return Array.from(
+                menuElement.querySelectorAll('[role="menuitem"]'),
+              )
+            },
+
+            randomIdSegment() {
+              return Math.random().toString(36).slice(2, 10)
+            },
+
+            ensureElementId(targetElement, fallbackPrefix) {
+              const fallbackId = `${fallbackPrefix}-${this.randomIdSegment()}`
+
+              if (!targetElement) {
+                return fallbackId
+              }
+
+              if (targetElement.id) {
+                return targetElement.id
+              }
+
+              targetElement.id = fallbackId
+
+              return fallbackId
+            },
+
+            configureTemplateRefs() {
+              const triggerElement =
+                this.$refs[this.triggerTemplateRefName] ?? null
+              const menuElement =
+                this.$refs[this.menuTemplateRefName] ?? null
+
+              this.triggerId = this.ensureElementId(
+                triggerElement,
+                'dropdown-trigger',
+              )
+              this.menuId = this.ensureElementId(menuElement, 'dropdown-menu')
+            },
+
+            toggleMenu() {
+              if (this.isOpen) {
+                this.closeMenu()
+              } else {
+                this.openMenu()
+              }
+            },
+
+            openMenu() {
+              this.isOpen = true
+              this.focusedIndex = -1
+            },
+
+            openMenuAndFocusFirst() {
+              this.openMenu()
+
+              this.$nextTick(() => {
+                this.focusMenuItem(0)
+              })
+            },
+
+            openMenuAndFocusLast() {
+              this.openMenu()
+
+              this.$nextTick(() => {
+                const items = this.menuItemElements
+
+                this.focusMenuItem(items.length - 1)
+              })
+            },
+
+            closeMenu() {
+              this.isOpen = false
+              this.focusedIndex = -1
+            },
+
+            closeMenuAndReturnFocus() {
+              this.closeMenu()
+
+              this.$nextTick(() => {
+                const triggerElement =
+                  this.$refs[this.triggerTemplateRefName] ?? null
+
+                if (triggerElement) {
+                  triggerElement.focus()
+                }
+              })
+            },
+
+            focusMenuItem(targetIndex) {
+              const items = this.menuItemElements
+
+              if (items.length === 0) {
+                return
+              }
+
+              const clampedIndex = Math.max(
+                0,
+                Math.min(targetIndex, items.length - 1),
+              )
+
+              this.focusedIndex = clampedIndex
+              items[clampedIndex].focus()
+            },
+
+            focusNextMenuItem() {
+              const items = this.menuItemElements
+              const nextIndex =
+                this.focusedIndex >= items.length - 1
+                  ? 0
+                  : this.focusedIndex + 1
+
+              this.focusMenuItem(nextIndex)
+            },
+
+            focusPreviousMenuItem() {
+              const items = this.menuItemElements
+              const prevIndex =
+                this.focusedIndex <= 0
+                  ? items.length - 1
+                  : this.focusedIndex - 1
+
+              this.focusMenuItem(prevIndex)
+            },
+
+            focusFirstMenuItem() {
+              this.focusMenuItem(0)
+            },
+
+            focusLastMenuItem() {
+              const items = this.menuItemElements
+
+              this.focusMenuItem(items.length - 1)
+            },
+          }))
+        })
+      </script>
+
+      <script data-hux-copy="commandPaletteRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxCommandPalette', (initialConfig = {}) => ({
+            isOpen: initialConfig.startsOpen ?? false,
+            trapFocus: initialConfig.trapFocus ?? true,
+            searchQuery: '',
+            focusedIndex: -1,
+            commandItems: initialConfig.commandItems ?? [],
+            placeholder: initialConfig.placeholder ?? 'Search...',
+            keyboardShortcut: initialConfig.keyboardShortcut ?? true,
+            inputTemplateRefName:
+              initialConfig.inputRef ?? 'commandPaletteInput',
+            _shortcutHandler: null,
+
+            get filteredCommandItems() {
+              const query = this.searchQuery.trim().toLowerCase()
+
+              if (!query) {
+                return this.commandItems
+              }
+
+              return this.commandItems.filter(
+                (commandItem) =>
+                  commandItem.label.toLowerCase().includes(query) ||
+                  (commandItem.group &&
+                    commandItem.group.toLowerCase().includes(query)),
+              )
+            },
+
+            init() {
+              if (this.keyboardShortcut) {
+                this._shortcutHandler = (keyboardEvent) => {
+                  if (
+                    (keyboardEvent.metaKey || keyboardEvent.ctrlKey) &&
+                    keyboardEvent.key === 'k'
+                  ) {
+                    keyboardEvent.preventDefault()
+                    this.openPalette()
+                  }
+                }
+
+                window.addEventListener('keydown', this._shortcutHandler)
+              }
+            },
+
+            destroy() {
+              if (this._shortcutHandler) {
+                window.removeEventListener('keydown', this._shortcutHandler)
+              }
+            },
+
+            openPalette() {
+              this.isOpen = true
+              this.searchQuery = ''
+              this.focusedIndex = -1
+
+              this.$nextTick(() => {
+                const inputElement =
+                  this.$refs[this.inputTemplateRefName] ?? null
+
+                if (inputElement) {
+                  inputElement.focus()
+                }
+              })
+
+              this.$dispatch('hux-command-palette:open')
+            },
+
+            closePalette() {
+              this.isOpen = false
+              this.searchQuery = ''
+              this.focusedIndex = -1
+
+              this.$dispatch('hux-command-palette:close')
+            },
+
+            onSearchInput() {
+              this.focusedIndex = -1
+            },
+
+            focusNextCommand() {
+              const total = this.filteredCommandItems.length
+
+              if (total === 0) {
+                return
+              }
+
+              this.focusedIndex = Math.min(this.focusedIndex + 1, total - 1)
+            },
+
+            focusPreviousCommand() {
+              if (this.filteredCommandItems.length === 0) {
+                return
+              }
+
+              if (this.focusedIndex <= 0) {
+                this.focusedIndex = 0
+
+                return
+              }
+
+              this.focusedIndex -= 1
+            },
+
+            executeCommand(commandItem) {
+              if (typeof commandItem.action === 'function') {
+                commandItem.action()
+              }
+
+              this.$dispatch('hux-command-palette:execute', {
+                command: commandItem,
+              })
+
+              this.closePalette()
+            },
+
+            executeActiveCommand() {
+              const activeCommand =
+                this.filteredCommandItems[this.focusedIndex] ?? null
+
+              if (activeCommand) {
+                this.executeCommand(activeCommand)
               }
             },
           }))
