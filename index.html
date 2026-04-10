@@ -1058,22 +1058,43 @@ huxCommandPalette({
           >
 
           <div
-            x-data="{ ...huxDialog({ dialogId: 'command-palette' }), ...huxCommandPalette({ paletteItems: [{ label: 'Scroll Spy + TOC', href: '#component-scroll-spy' }, { label: 'Open Google', href: 'https://google.com', target: '_blank' }, { label: 'Combobox', href: '#component-combobox' }, { label: 'Copy to Clipboard', href: '#component-copy' }, { label: 'Dialog', href: '#component-dialog' }, { label: 'Command Palette', href: '#component-command-palette' }, { label: 'Dropdown', href: '#component-dropdown' }, { label: 'Toggle Dropdown Section', action: 'toggleDropdownSection' }, { label: 'Copy Page URL', action: 'copyPageUrl' }] }) }"
+            x-data="{
+              ...huxDialog({ dialogId: 'command-palette' }),
+              ...huxCommandPalette({
+                paletteItems: [
+                { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+                { label: 'Open Google', href: 'https://google.com', target: '_blank' },
+                { label: 'Combobox', href: '#component-combobox' },
+                { label: 'Copy to Clipboard', href: '#component-copy' },
+                { label: 'Dialog', href: '#component-dialog' },
+                { label: 'Command Palette', href: '#component-command-palette' },
+                { label: 'Dropdown', href: '#component-dropdown' },
+                { label: 'Toggle Dropdown Section', action: 'toggleDropdownSection' },
+                { label: 'Copy Page URL', action: 'copyPageUrl' }] })
+              }"
             data-hux-copy="commandPaletteExample"
-            class="space-y-3"
+            class="space-y-2"
             @keydown.window="handleGlobalShortcut($event)"
             @hux-command-palette:close.window="closeDialog()"
-            @hux-command-palette:action.window="if ($event.detail.action === 'toggleDropdownSection') { const dropdownSection = document.querySelector('#component-dropdown'); if (dropdownSection) { dropdownSection.open = !dropdownSection.open; dropdownSection.scrollIntoView({ behavior: 'smooth', block: 'start' }) } } if ($event.detail.action === 'copyPageUrl') { navigator.clipboard.writeText(globalThis.location.href) }"
+            @hux-command-palette:action.window="
+              if ($event.detail.action === 'toggleDropdownSection') {
+                const dropdownSection = document.querySelector('#component-dropdown');
+                if (dropdownSection) {
+                  dropdownSection.open = !dropdownSection.open;
+                  dropdownSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              }
+              if ($event.detail.action === 'copyPageUrl') {
+                navigator.clipboard.writeText(globalThis.location.href)
+              }"
           >
-            <div class="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
-                @click="openDialog()"
-              >
-                Open Command Palette
-              </button>
-            </div>
+            <button
+              type="button"
+              class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
+              @click="openDialog()"
+            >
+              Open Command Palette
+            </button>
 
             <p class="text-sm text-gray-600">
               Press <span class="font-medium" x-text="shortcutHint"></span> to
@@ -1109,14 +1130,61 @@ huxCommandPalette({
                     :aria-labelledby="dialogTitleId || null"
                     role="dialog"
                     aria-modal="true"
-                    class="relative w-full max-w-xl bg-white rounded-lg shadow-xl p-4 space-y-3"
+                    class="relative w-full max-w-xl bg-white rounded-lg shadow-xl p-4 space-y-4"
                   >
                     <h3 :id="dialogTitleId || null" class="sr-only">
                       Command palette
                     </h3>
 
                     <div
-                      x-data="{ ...huxCombobox({ optionItems: ['Scroll Spy + TOC', 'Open Google', 'Combobox', 'Copy to Clipboard', 'Dialog', 'Command Palette', 'Dropdown', 'Toggle Dropdown Section', 'Copy Page URL'], inputTemplateRef: 'commandPaletteInput', listboxTemplateRef: 'commandPaletteListbox', clearSelectionOnInputClear: true }), get filteredOptionItems() { const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []; const normalizedSearchQuery = this.searchQuery.trim().toLowerCase(); return normalizedOptionItems.map((optionItem, sourceIndex) => ({ optionItem, sourceIndex })).filter(({ optionItem }) => optionItem.toLowerCase().includes(normalizedSearchQuery)) }, get activeDescendantId() { if (!this.isOpen || this.focusedIndex < 0) { return null } const focusedOptionItem = this.filteredOptionItems[this.focusedIndex]; if (!focusedOptionItem) { return null } return this.optionItemId(focusedOptionItem.sourceIndex) }, onPaletteOpen() { this.searchQuery = ''; this.focusedIndex = -1; this.closeList(); this.$nextTick(() => this.$refs.commandPaletteInput?.focus()) }, onPaletteClose() { this.closeList(); this.clearSelection() }, runFocusedCommand() { const focusedOptionItem = this.filteredOptionItems[this.focusedIndex]; if (!focusedOptionItem) { return } this.toggleOptionItem(focusedOptionItem.optionItem); const selectedItem = selectItem(focusedOptionItem.optionItem); if (selectedItem) { this.closeList(); this.$dispatch('hux-command-palette:close') } } }"
+                      x-data="{
+                        ...huxCombobox({
+                          optionItems: paletteItems.map((paletteItem) => paletteItem.label),
+                          inputTemplateRef: 'commandPaletteInput',
+                          listboxTemplateRef: 'commandPaletteListbox',
+                          clearSelectionOnInputClear: true
+                        }),
+                        get filteredOptionItems() {
+                          const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : [];
+                          const normalizedSearchQuery = this.searchQuery.trim().toLowerCase();
+                          return normalizedOptionItems
+                            .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+                            .filter(({ optionItem }) => optionItem.toLowerCase()
+                            .includes(normalizedSearchQuery))
+                        },
+                        get activeDescendantId() {
+                          if (!this.isOpen || this.focusedIndex < 0) {
+                            return null
+                          }
+                          const focusedOptionItem = this.filteredOptionItems[this.focusedIndex];
+                          if (!focusedOptionItem) {
+                            return null
+                          }
+                          return this.optionItemId(focusedOptionItem.sourceIndex)
+                        },
+                        onPaletteOpen() {
+                          this.searchQuery = '';
+                          this.focusedIndex = -1;
+                          this.closeList();
+                          this.$nextTick(() => this.$refs.commandPaletteInput?.focus())
+                        },
+                        onPaletteClose() {
+                          this.closeList();
+                          this.clearSelection()
+                        },
+                        runFocusedCommand() {
+                          const focusedOptionItem = this.filteredOptionItems[this.focusedIndex];
+                          if (!focusedOptionItem) {
+                            return
+                          }
+                          this.toggleOptionItem(focusedOptionItem.optionItem);
+                          const selectedItem = selectItem(focusedOptionItem.optionItem);
+                          if (selectedItem) {
+                            this.closeList();
+                            this.$dispatch('hux-command-palette:close')
+                          }
+                        }
+                      }"
                       class="space-y-2"
                       @hux-dialog:command-palette:open.window="onPaletteOpen()"
                       @hux-dialog:command-palette:close.window="onPaletteClose()"
@@ -1130,7 +1198,7 @@ huxCommandPalette({
                           x-ref="commandPaletteInput"
                           x-model="searchQuery"
                           :id="comboboxInputId"
-                          :aria-expanded="isOpen.toString()"
+                          :aria-expanded="(isOpen && searchQuery.trim() !== '').toString()"
                           :aria-controls="listboxId"
                           :aria-activedescendant="activeDescendantId"
                           type="text"
@@ -1178,7 +1246,13 @@ huxCommandPalette({
                               }"
                               role="option"
                               class="w-full text-left px-4 py-3 transition-colors"
-                              @click="toggleOptionItem(optionItem); const selectedItem = selectItem(optionItem); if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                              @click="
+                                toggleOptionItem(optionItem);
+                                const selectedItem = selectItem(optionItem);
+                                if (selectedItem) {
+                                  closeList();
+                                  $dispatch('hux-command-palette:close')
+                                }"
                               @mouseenter="focusedIndex = optionIndex"
                             >
                               <span x-text="optionItem"></span>
@@ -1198,14 +1272,14 @@ huxCommandPalette({
           <pre
             class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
-Command Palette Wrapper:
-- paletteItems: { label: string, href?: string, action?: string, target?: '_self' | '_blank' }[] (default: [])
+Options:
+- paletteItems: {label: string, href?: string, action?: string, target?: '_self' | '_blank'}[] (default: [])
 - shortcutKey: string (default: 'k')
 Events:
 - hux-command-palette:action (dispatched when an action item is selected)
 - hux-command-palette:close (request emitted by composed combobox UI)
-
-Composed Components:
+---
+Components:
 - huxDialog options
 - huxCombobox options</pre
           >
@@ -1814,7 +1888,10 @@ Composed Components:
 
               const uppercaseShortcutKey = this.shortcutKey.toUpperCase()
 
-              this.shortcutHint = navigator.platform.includes('Mac')
+              const platformString =
+                navigator.userAgentData?.platform ?? navigator.platform ?? ''
+
+              this.shortcutHint = /mac/i.test(platformString)
                 ? `Command + ${uppercaseShortcutKey}`
                 : `Control + ${uppercaseShortcutKey}`
             },
