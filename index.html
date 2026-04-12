@@ -1854,7 +1854,7 @@ Components:
               this.focusedIndex = -1
             },
 
-            removeSelectedOptionItem(value) {
+            removeSelectedOptionItem(selectedValue) {
               if (!this.acceptMultiple) {
                 this.clearSelection()
 
@@ -1862,16 +1862,16 @@ Components:
               }
 
               this.selectedValues = this.selectedValues.filter(
-                (selectedItem) => selectedItem !== value,
+                (existingSelectedValue) => existingSelectedValue !== selectedValue,
               )
 
               this.focusedIndex = -1
             },
 
-            getLabelForValue(value) {
-              const item = this.optionItems.find((optionItem) => optionItem.value === value)
+            getLabelForValue(selectedValue) {
+              const matchedOptionItem = this.optionItems.find((optionItem) => optionItem.value === selectedValue)
 
-              return item ? item.label : String(value)
+              return matchedOptionItem ? matchedOptionItem.label : String(selectedValue)
             },
           }))
         })
