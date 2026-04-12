@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <link
-      href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap"
       rel="stylesheet"
     />
 
@@ -37,7 +37,7 @@
     <style type="text/tailwindcss">
       @theme {
         --font-sans:
-          'Google Sans', system-ui, -apple-system, BlinkMacSystemFont,
+          'Google Sans Flex', system-ui, -apple-system, BlinkMacSystemFont,
           'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       }
     </style>
@@ -49,64 +49,36 @@
     </style>
   </head>
   <body class="bg-gray-50 text-gray-900 font-sans text-pretty antialiased">
-    <main
-      x-data="{ showBack: new URLSearchParams(globalThis.location.search).get('ref') === 'hyperui' }"
-      class="max-w-4xl mx-auto px-6 py-8 space-y-8"
-    >
+    <main class="max-w-4xl mx-auto px-6 py-8 space-y-8">
       <header class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <h1 class="text-3xl font-bold">
             HyperUX <span aria-hidden="true">📦</span>
           </h1>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <a
-              href="https://github.com/markmead/hyperux"
-              class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-900 bg-gray-900 px-4 py-2 font-medium text-white transition-colors hover:border-gray-800 hover:bg-gray-800"
-              aria-label="GitHub"
-              target="_blank"
-              rel="noreferrer"
+          <a
+            href="https://github.com/markmead/hyperux"
+            class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-900 bg-gray-900 px-4 py-2 font-medium text-white transition-colors hover:border-gray-800 hover:bg-gray-800"
+            aria-label="GitHub"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              class="size-4"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                class="size-4"
-              >
-                <path
-                  d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
-                  fill="currentColor"
-                ></path>
-              </svg>
-
-              <span>GitHub</span>
-            </a>
-
-            <a
-              x-cloak
-              x-show="showBack"
-              href="https://www.hyperui.dev"
-              class="px-4 py-2 inline-flex items-center gap-2 font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
+              <path
+                d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
                 fill="currentColor"
-                aria-hidden="true"
-                class="size-5"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M18 10a.75.75 0 0 1-.75.75H4.66l2.1 1.95a.75.75 0 1 1-1.02 1.1l-3.5-3.25a.75.75 0 0 1 0-1.1l3.5-3.25a.75.75 0 1 1 1.02 1.1l-2.1 1.95h12.59A.75.75 0 0 1 18 10Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              ></path>
+            </svg>
 
-              <span>Back to HyperUI</span>
-            </a>
-          </div>
+            <span>GitHub</span>
+          </a>
         </div>
 
         <span
@@ -1382,6 +1354,115 @@ Components:
             class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
           >
             Have dropdown edge cases to cover? Open an issue.
+          </a>
+        </div>
+      </details>
+
+      <details class="group">
+        <summary
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+
+          <h2 class="text-xl font-semibold">Dropdown</h2>
+
+          <span
+            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
+          >
+            WIP
+          </span>
+        </summary>
+
+        <div
+          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-gray-700">
+            Accessible dropdown behavior for toggling menus, handling outside
+            clicks, and keyboard-friendly item navigation.
+          </p>
+
+          <p class="text-gray-700">
+            This experiment is in progress. The goal is a practical dropdown
+            pattern you can adapt for action menus, profile menus, and compact
+            navigation.
+          </p>
+
+          <a
+            href="https://github.com/markmead/hyperux/issues/new"
+            target="_blank"
+            rel="noreferrer"
+            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          >
+            Want this sooner or have a use case? Open an issue.
+          </a>
+        </div>
+      </details>
+
+      <details class="group">
+        <summary
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+
+          <h2 class="text-xl font-semibold">Tabs</h2>
+
+          <span
+            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
+          >
+            WIP
+          </span>
+        </summary>
+
+        <div
+          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-gray-700">
+            Accessible tabs behavior with arrow-key navigation, roving tabindex,
+            panel association, and first-class support for horizontal and
+            vertical tab lists.
+          </p>
+
+          <p class="text-gray-700">
+            This experiment is in progress. The goal is a practical tabs pattern
+            for settings pages, dashboards, and docs-style layouts that stays
+            ergonomic to adapt.
+          </p>
+
+          <a
+            href="https://github.com/markmead/hyperux/issues/new"
+            target="_blank"
+            rel="noreferrer"
+            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          >
+            Want this sooner or have a use case? Open an issue.
           </a>
         </div>
       </details>
