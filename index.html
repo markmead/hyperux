@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -138,6 +138,78 @@
           </li>
         </ul>
       </section>
+
+      <nav
+        aria-label="Component navigation"
+        class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm space-y-4"
+      >
+        <h2 class="text-xl font-semibold">Components</h2>
+
+        <ul class="flex flex-wrap gap-x-6 gap-y-2">
+          <li>
+            <a
+              href="#component-scroll-spy"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Scroll Spy + TOC
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#component-combobox"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Combobox
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#component-copy"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Copy to Clipboard
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#component-dialog"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Dialog
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#component-command-palette"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Command Palette
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#component-dropdown"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Dropdown
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="#component-tabs"
+              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            >
+              Tabs
+            </a>
+          </li>
+        </ul>
+      </nav>
 
       <details id="component-scroll-spy" open class="group">
         <summary
@@ -1369,7 +1441,7 @@ Components:
         </div>
       </details>
 
-      <details class="group">
+      <details id="component-tabs" class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
