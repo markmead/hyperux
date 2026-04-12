@@ -1763,6 +1763,13 @@ Components:
             },
 
             openList() {
+              if (
+                this.hideOptionItemsWhenSearchQueryEmpty &&
+                this.searchQuery.trim() === ''
+              ) {
+                return
+              }
+
               this.isOpen = true
             },
 
