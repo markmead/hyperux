@@ -1187,18 +1187,6 @@ huxCommandPalette({
                         onPaletteClose() {
                           this.closeList();
                           this.clearSelection()
-                        },
-                        runFocusedCommand() {
-                          const focusedOptionItem = this.filteredOptionItems[this.focusedIndex];
-                          if (!focusedOptionItem) {
-                            return
-                          }
-                          this.toggleOptionItem(focusedOptionItem.optionItem);
-                          const selectedItem = selectItem(focusedOptionItem.optionItem);
-                          if (selectedItem) {
-                            this.closeList();
-                            this.$dispatch('hux-command-palette:close')
-                          }
                         }
                       }"
                       class="space-y-2"
@@ -1227,7 +1215,12 @@ huxCommandPalette({
                           @input="onInputChange()"
                           @keydown.down.prevent="if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
                           @keydown.up.prevent="focusPreviousOptionItem()"
-                          @keydown.enter.prevent="runFocusedCommand()"
+                          @keydown.enter.prevent="
+                            const focusedOptionItem = filteredOptionItems[focusedIndex];
+                            if (!focusedOptionItem) return;
+                            toggleOptionItem(focusedOptionItem.optionItem);
+                            const selectedItem = selectItem(focusedOptionItem.optionItem);
+                            if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
                           @keydown.escape.stop.prevent="closeList(); $dispatch('hux-command-palette:close')"
                         />
 
