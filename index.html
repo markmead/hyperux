@@ -1140,6 +1140,9 @@ huxCommandPalette({
                         get filteredOptionItems() {
                           const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : [];
                           const normalizedSearchQuery = this.searchQuery.trim().toLowerCase();
+                          if (normalizedSearchQuery === '') {
+                            return [];
+                          }
                           return normalizedOptionItems
                             .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
                             .filter(({ optionItem }) => optionItem.toLowerCase()
@@ -1190,8 +1193,8 @@ huxCommandPalette({
                           autocomplete="off"
                           class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           @input="onInputChange()"
-                          @keydown.down.prevent="if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
-                          @keydown.up.prevent="focusPreviousOptionItem()"
+                          @keydown.down.prevent="if (searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
+                          @keydown.up.prevent="if (searchQuery.trim() === '') return; focusPreviousOptionItem()"
                           @keydown.enter.prevent="
                             const focusedOptionItem = filteredOptionItems[focusedIndex];
                             if (!focusedOptionItem) return;
@@ -1225,12 +1228,13 @@ huxCommandPalette({
                             <button
                               type="button"
                               :id="optionItemId(sourceIndex)"
-                              :aria-selected="(focusedIndex === optionIndex).toString()"
+                              :aria-selected="isOptionSelected(optionItem).toString()"
                               :class="{
                                 'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
                                 'hover:bg-gray-100': focusedIndex !== optionIndex
                               }"
                               role="option"
+                              tabindex="-1"
                               class="w-full text-left px-4 py-3 transition-colors flex items-center justify-between gap-3"
                               @click="
                                 toggleOptionItem(optionItem);
@@ -1354,60 +1358,6 @@ Components:
             class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
           >
             Have dropdown edge cases to cover? Open an issue.
-          </a>
-        </div>
-      </details>
-
-      <details class="group">
-        <summary
-          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            aria-hidden="true"
-            class="size-5 group-open:rotate-180 shrink-0"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-
-          <h2 class="text-xl font-semibold">Dropdown</h2>
-
-          <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
-          >
-            WIP
-          </span>
-        </summary>
-
-        <div
-          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
-        >
-          <p class="text-gray-700">
-            Accessible dropdown behavior for toggling menus, handling outside
-            clicks, and keyboard-friendly item navigation.
-          </p>
-
-          <p class="text-gray-700">
-            This experiment is in progress. The goal is a practical dropdown
-            pattern you can adapt for action menus, profile menus, and compact
-            navigation.
-          </p>
-
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
-          >
-            Want this sooner or have a use case? Open an issue.
           </a>
         </div>
       </details>
@@ -1874,7 +1824,11 @@ Components:
 
               this.searchQuery = ''
 
-              this.openList()
+              if (this.hideOptionItemsWhenSearchQueryEmpty) {
+                this.closeList()
+              } else {
+                this.openList()
+              }
 
               this.focusedIndex = -1
             },
@@ -2017,6 +1971,17 @@ Components:
               }
 
               if (!event.metaKey && !event.ctrlKey) {
+                return
+              }
+
+              const target = event.target
+              const tagName = target?.tagName?.toLowerCase()
+
+              if (
+                tagName === 'input' ||
+                tagName === 'textarea' ||
+                target?.isContentEditable
+              ) {
                 return
               }
 
