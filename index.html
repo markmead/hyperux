@@ -779,7 +779,7 @@ huxCopy({
                     type="button"
                     x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
                     aria-label="Copy input value"
-                    class="absolute inset-y-0 right-0 text-gray-700 rounded w-10.5 grid place-content-center hover:bg-gray-100 transition-colors"
+                    class="absolute top-1.25 right-1.25 text-gray-700 rounded size-8 grid place-content-center hover:bg-gray-100 transition-colors"
                     :class="{ 'bg-gray-100': hasCopied }"
                     @click="copyToClipboard()"
                   >
@@ -1725,7 +1725,9 @@ Components:
                   sourceIndex,
                 }))
                 .filter(({ optionItem }) =>
-                  optionItem.label.toLowerCase().includes(normalizedSearchQuery),
+                  optionItem.label
+                    .toLowerCase()
+                    .includes(normalizedSearchQuery),
                 )
             },
 
@@ -1892,7 +1894,9 @@ Components:
                 return
               }
 
-              const selectedItemIndex = this.selectedValues.indexOf(optionItem.value)
+              const selectedItemIndex = this.selectedValues.indexOf(
+                optionItem.value,
+              )
 
               if (selectedItemIndex >= 0) {
                 this.selectedValues.splice(selectedItemIndex, 1)
@@ -1933,17 +1937,24 @@ Components:
               }
 
               this.selectedValues = this.selectedValues.filter(
-                (existingSelectedValue) => existingSelectedValue !== selectedValue,
+                (existingSelectedValue) =>
+                  existingSelectedValue !== selectedValue,
               )
 
               this.focusedIndex = -1
             },
 
             getLabelForValue(selectedValue) {
-              const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
-              const matchedOptionItem = normalizedOptionItems.find((optionItem) => optionItem.value === selectedValue)
+              const normalizedOptionItems = Array.isArray(this.optionItems)
+                ? this.optionItems
+                : []
+              const matchedOptionItem = normalizedOptionItems.find(
+                (optionItem) => optionItem.value === selectedValue,
+              )
 
-              return matchedOptionItem ? matchedOptionItem.label : String(selectedValue)
+              return matchedOptionItem
+                ? matchedOptionItem.label
+                : String(selectedValue)
             },
           }))
         })
