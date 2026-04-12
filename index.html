@@ -139,7 +139,7 @@
         </ul>
       </section>
 
-      <details open class="group">
+      <details id="component-scroll-spy" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -357,7 +357,7 @@ Options:
         </div>
       </details>
 
-      <details open class="group">
+      <details id="component-combobox" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -556,6 +556,7 @@ Options:
 - optionItems: string[] (default: [])
 - acceptMultiple: boolean (default: false)
 - clearSelectionOnInputClear: boolean (default: false)
+- hideOptionItemsWhenSearchQueryEmpty: boolean (default: false)
 - inputTemplateRef: string (default: 'comboboxInput')
 - listboxTemplateRef: string (default: 'comboboxListbox')</pre
           >
@@ -584,7 +585,7 @@ Options:
         </div>
       </details>
 
-      <details open class="group">
+      <details id="component-copy" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -786,7 +787,7 @@ Options:
         </div>
       </details>
 
-      <details open class="group">
+      <details id="component-dialog" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -970,7 +971,7 @@ Events:
         </div>
       </details>
 
-      <details class="group">
+      <details id="component-command-palette" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -991,40 +992,324 @@ Events:
           </svg>
 
           <h2 class="text-xl font-semibold">Command Palette</h2>
-
-          <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
-          >
-            WIP
-          </span>
         </summary>
 
         <div
-          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
-          <p class="text-gray-700">
-            Keyboard-first action search with filtering, active item management,
-            escape handling, and copy-paste friendly Alpine.js behavior.
-          </p>
-
-          <p class="text-gray-700">
-            This experiment is in progress. The goal is a practical command
-            palette pattern that works for app actions, docs shortcuts, and
-            search-driven navigation.
-          </p>
-
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          <span
+            class="inline-flex items-center rounded-full border border-amber-300 bg-amber-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-amber-900"
           >
-            Want this sooner or have a use case? Open an issue.
-          </a>
+            Extra Experimental
+          </span>
+
+          <p class="text-gray-700">
+            Keyboard-first search built by composing
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >huxDialog</code
+            >
+            and
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >huxCombobox</code
+            >. Includes shortcut open, filtering, active item navigation, and
+            mixed selection for links and actions.
+          </p>
+
+          <p
+            class="text-amber-900 bg-amber-50 border border-amber-200 rounded-md px-4 py-3"
+          >
+            <strong>Note:</strong>
+            <code class="font-mono text-sm">huxCommandPalette</code>
+            is extra experimental because it composes existing HyperUX
+            primitives that are also still in the experimental phase. Expect API
+            and behavior changes as the underlying components evolve.
+          </p>
+
+          <p class="font-semibold"> Config Used for This Demo </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+huxCommandPalette({
+  paletteItems: [
+    { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+    { label: 'Open Google', href: 'https://google.com', target: '_blank' },
+    { label: 'Combobox', href: '#component-combobox' },
+    { label: 'Copy to Clipboard', href: '#component-copy' },
+    { label: 'Dialog', href: '#component-dialog' },
+    { label: 'Command Palette', href: '#component-command-palette' },
+    { label: 'Dropdown', href: '#component-dropdown' },
+    { label: 'Toggle Dropdown Section', action: 'toggleDropdownSection' },
+    { label: 'Copy Page URL', action: 'copyPageUrl' }
+  ]
+})</pre
+          >
+
+          <div
+            x-data="(() => {
+              const dialogComponent = huxDialog({ dialogId: 'command-palette' });
+              const paletteComponent = huxCommandPalette({
+                paletteItems: [
+                { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+                { label: 'Open Google', href: 'https://google.com', target: '_blank' },
+                { label: 'Combobox', href: '#component-combobox' },
+                { label: 'Copy to Clipboard', href: '#component-copy' },
+                { label: 'Dialog', href: '#component-dialog' },
+                { label: 'Command Palette', href: '#component-command-palette' },
+                { label: 'Dropdown', href: '#component-dropdown' },
+                { label: 'Toggle Dropdown Section', action: 'toggleDropdownSection' },
+                { label: 'Copy Page URL', action: 'copyPageUrl' }] });
+              return {
+                ...dialogComponent,
+                ...paletteComponent,
+                init() { dialogComponent.init.call(this); paletteComponent.init.call(this); }
+              };
+            })()"
+            data-hux-copy="commandPaletteExample"
+            class="space-y-2"
+            @keydown.window="handleGlobalShortcut($event)"
+            @hux-command-palette:close.window="closeDialog()"
+            @hux-command-palette:action.window="
+              if ($event.detail.action === 'toggleDropdownSection') {
+                const dropdownSection = document.querySelector('#component-dropdown');
+                if (dropdownSection) {
+                  dropdownSection.open = !dropdownSection.open;
+                  dropdownSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+              }
+              if ($event.detail.action === 'copyPageUrl') {
+                navigator.clipboard.writeText(globalThis.location.href)
+              }"
+          >
+            <button
+              type="button"
+              class="px-4 py-2 font-medium border border-gray-300 rounded-md bg-white transition-colors hover:bg-gray-100"
+              @click="openDialog()"
+            >
+              Open Command Palette
+            </button>
+
+            <p class="text-sm text-gray-600">
+              Press <span class="font-medium" x-text="shortcutHint"></span> to
+              open from anywhere.
+            </p>
+
+            <template x-teleport="body">
+              <div
+                x-cloak
+                x-show="isOpen"
+                class="fixed inset-0 z-50 overflow-y-auto"
+                @keydown.escape.stop="handleEscape()"
+              >
+                <div
+                  class="flex min-h-full items-start justify-center p-4 pt-24"
+                >
+                  <template x-if="showBackdrop">
+                    <div
+                      x-cloak
+                      x-show="isOpen"
+                      x-transition.opacity.duration.200ms
+                      class="fixed inset-0 bg-gray-900/60"
+                      aria-hidden="true"
+                      @click="handleBackdropClick()"
+                    ></div>
+                  </template>
+
+                  <div
+                    x-cloak
+                    x-show="isOpen"
+                    x-trap.noscroll="trapFocus && isOpen"
+                    x-transition.duration.200ms
+                    :aria-labelledby="dialogTitleId || null"
+                    role="dialog"
+                    aria-modal="true"
+                    class="relative w-full max-w-xl bg-white rounded-lg shadow-xl p-4 space-y-4"
+                  >
+                    <h3 :id="dialogTitleId || null" class="sr-only">
+                      Command palette
+                    </h3>
+
+                    <div
+                      x-data="{
+                        ...huxCombobox({
+                          optionItems: paletteItems.map((paletteItem) => paletteItem.label),
+                          inputTemplateRef: 'commandPaletteInput',
+                          listboxTemplateRef: 'commandPaletteListbox',
+                          clearSelectionOnInputClear: true
+                        }),
+                        get filteredOptionItems() {
+                          const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : [];
+                          const normalizedSearchQuery = this.searchQuery.trim().toLowerCase();
+                          if (normalizedSearchQuery === '') {
+                            return [];
+                          }
+                          return normalizedOptionItems
+                            .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+                            .filter(({ optionItem }) => optionItem.toLowerCase()
+                            .includes(normalizedSearchQuery))
+                        },
+                        get activeDescendantId() {
+                          if (!this.isOpen || this.focusedIndex < 0) {
+                            return null
+                          }
+                          const focusedOptionItem = this.filteredOptionItems[this.focusedIndex];
+                          if (!focusedOptionItem) {
+                            return null
+                          }
+                          return this.optionItemId(focusedOptionItem.sourceIndex)
+                        },
+                        onPaletteOpen() {
+                          this.searchQuery = '';
+                          this.focusedIndex = -1;
+                          this.closeList();
+                          this.$nextTick(() => this.$refs.commandPaletteInput?.focus())
+                        },
+                        onPaletteClose() {
+                          this.closeList();
+                          this.clearSelection()
+                        }
+                      }"
+                      class="space-y-2"
+                      @hux-dialog:command-palette:open.window="onPaletteOpen()"
+                      @hux-dialog:command-palette:close.window="onPaletteClose()"
+                    >
+                      <label :for="comboboxInputId" class="sr-only">
+                        Search links and actions
+                      </label>
+
+                      <div class="relative">
+                        <input
+                          x-ref="commandPaletteInput"
+                          x-model="searchQuery"
+                          :id="comboboxInputId"
+                          :aria-expanded="(isOpen && searchQuery.trim() !== '').toString()"
+                          :aria-controls="listboxId"
+                          :aria-activedescendant="activeDescendantId"
+                          type="text"
+                          placeholder="Search links and actions..."
+                          role="combobox"
+                          aria-autocomplete="list"
+                          aria-haspopup="listbox"
+                          autocomplete="off"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          @input="onInputChange()"
+                          @keydown.down.prevent="if (searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
+                          @keydown.up.prevent="if (searchQuery.trim() === '') return; focusPreviousOptionItem()"
+                          @keydown.enter.prevent="
+                            const focusedOptionItem = filteredOptionItems[focusedIndex];
+                            if (!focusedOptionItem) return;
+                            toggleOptionItem(focusedOptionItem.optionItem);
+                            const selectedItem = selectItem(focusedOptionItem.optionItem);
+                            if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                          @keydown.escape.stop.prevent="closeList(); $dispatch('hux-command-palette:close')"
+                        />
+
+                        <div
+                          x-cloak
+                          x-transition
+                          x-show="isOpen && searchQuery.trim() !== ''"
+                          x-ref="commandPaletteListbox"
+                          :id="listboxId"
+                          role="listbox"
+                          class="mt-2 w-full border border-gray-300 rounded-md max-h-72 overflow-y-auto bg-white"
+                        >
+                          <template
+                            x-if="searchQuery.trim() !== '' && filteredOptionItems.length === 0"
+                          >
+                            <p class="px-4 py-3 text-gray-500"
+                              >No results found.</p
+                            >
+                          </template>
+
+                          <template
+                            x-for="({ optionItem, sourceIndex }, optionIndex) in filteredOptionItems"
+                            :key="`${optionItem}-${sourceIndex}`"
+                          >
+                            <button
+                              type="button"
+                              :id="optionItemId(sourceIndex)"
+                              :aria-selected="isOptionSelected(optionItem).toString()"
+                              :class="{
+                                'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                                'hover:bg-gray-100': focusedIndex !== optionIndex
+                              }"
+                              role="option"
+                              tabindex="-1"
+                              class="w-full text-left px-4 py-3 transition-colors flex items-center justify-between gap-3"
+                              @click="
+                                toggleOptionItem(optionItem);
+                                const selectedItem = selectItem(optionItem);
+                                if (selectedItem) {
+                                  closeList();
+                                  $dispatch('hux-command-palette:close')
+                                }"
+                              @mouseenter="focusedIndex = optionIndex"
+                            >
+                              <span x-text="optionItem"></span>
+                              <span
+                                x-data="{ paletteItem: findPaletteItem(optionItem) }"
+                                x-show="paletteItem"
+                                :class="{
+                                  'bg-blue-100 text-blue-700': paletteItem?.href && paletteItem?.target !== '_blank',
+                                  'bg-green-100 text-green-700': paletteItem?.target === '_blank',
+                                  'bg-purple-100 text-purple-700': paletteItem?.action
+                                }"
+                                class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
+                                x-text="paletteItem?.target === '_blank' ? 'External link' : paletteItem?.href ? 'Internal link' : 'Method'"
+                              ></span>
+                            </button>
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- paletteItems: {label: string, href?: string, action?: string, target?: '_self' | '_blank'}[] (default: [])
+- shortcutKey: string (default: 'k')
+Events:
+- hux-command-palette:action (dispatched when an action item is selected)
+- hux-command-palette:close (request emitted by composed combobox UI)
+---
+Components:
+- huxDialog options
+- huxCombobox options</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['commandPaletteExample', 'commandPaletteRegistrationCode', 'dialogRegistrationCode', 'comboboxRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
-      <details class="group">
+      <details id="component-dropdown" class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -1057,14 +1342,13 @@ Events:
           class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
           <p class="text-gray-700">
-            Accessible dropdown behavior for toggling menus, handling outside
-            clicks, and keyboard-friendly item navigation.
+            Menu-ready dropdown behavior with trigger wiring, keyboard support,
+            active item management, outside-click close, and easy composability.
           </p>
 
           <p class="text-gray-700">
-            This experiment is in progress. The goal is a practical dropdown
-            pattern you can adapt for action menus, profile menus, and compact
-            navigation.
+            This is now in the active queue and will focus on practical menu
+            patterns (action menus, profile menus, and nested content blocks).
           </p>
 
           <a
@@ -1073,7 +1357,7 @@ Events:
             rel="noreferrer"
             class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
           >
-            Want this sooner or have a use case? Open an issue.
+            Have dropdown edge cases to cover? Open an issue.
           </a>
         </div>
       </details>
@@ -1326,6 +1610,8 @@ Events:
               initialConfig.acceptMultiple ?? initialConfig.multiple ?? false,
             clearSelectionOnInputClear:
               initialConfig.clearSelectionOnInputClear ?? false,
+            hideOptionItemsWhenSearchQueryEmpty:
+              initialConfig.hideOptionItemsWhenSearchQueryEmpty ?? false,
             focusedIndex: -1,
             comboboxInputId: null,
             listboxId: null,
@@ -1340,15 +1626,28 @@ Events:
             },
 
             get filteredOptionItems() {
-              return this.optionItems
+              const normalizedOptionItems = Array.isArray(this.optionItems)
+                ? this.optionItems
+                : []
+
+              const normalizedSearchQuery = this.searchQuery
+                .trim()
+                .toLowerCase()
+
+              if (
+                this.hideOptionItemsWhenSearchQueryEmpty &&
+                normalizedSearchQuery === ''
+              ) {
+                return []
+              }
+
+              return normalizedOptionItems
                 .map((optionItem, sourceIndex) => ({
                   optionItem,
                   sourceIndex,
                 }))
                 .filter(({ optionItem }) =>
-                  optionItem
-                    .toLowerCase()
-                    .includes(this.searchQuery.toLowerCase()),
+                  optionItem.toLowerCase().includes(normalizedSearchQuery),
                 )
             },
 
@@ -1414,6 +1713,13 @@ Events:
             },
 
             openList() {
+              if (
+                this.hideOptionItemsWhenSearchQueryEmpty &&
+                this.searchQuery.trim() === ''
+              ) {
+                return
+              }
+
               this.isOpen = true
             },
 
@@ -1429,6 +1735,15 @@ Events:
                 this.searchQuery.trim() === ''
               ) {
                 this.clearSelection()
+              }
+
+              if (
+                this.hideOptionItemsWhenSearchQueryEmpty &&
+                this.searchQuery.trim() === ''
+              ) {
+                this.closeList()
+
+                return
               }
 
               this.isOpen = true
@@ -1509,7 +1824,11 @@ Events:
 
               this.searchQuery = ''
 
-              this.openList()
+              if (this.hideOptionItemsWhenSearchQueryEmpty) {
+                this.closeList()
+              } else {
+                this.openList()
+              }
 
               this.focusedIndex = -1
             },
@@ -1615,6 +1934,99 @@ Events:
               this.$dispatch(scopedEventName, {
                 dialogId: this.dialogId,
               })
+            },
+          }))
+        })
+      </script>
+
+      <script data-hux-copy="commandPaletteRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxCommandPalette', (initialConfig = {}) => ({
+            paletteItems: initialConfig.paletteItems ?? [],
+            shortcutKey: (initialConfig.shortcutKey ?? 'k').toLowerCase(),
+            shortcutHint: '',
+
+            init() {
+              this.paletteItems = this.paletteItems.filter(
+                (paletteItem) =>
+                  paletteItem?.label &&
+                  (paletteItem?.href || paletteItem?.action),
+              )
+
+              const uppercaseShortcutKey = this.shortcutKey.toUpperCase()
+
+              const platformString =
+                navigator.userAgentData?.platform ?? navigator.platform ?? ''
+
+              this.shortcutHint = /mac/i.test(platformString)
+                ? `Command + ${uppercaseShortcutKey}`
+                : `Control + ${uppercaseShortcutKey}`
+            },
+
+            handleGlobalShortcut(event) {
+              const pressedKey = event.key.toLowerCase()
+
+              if (pressedKey !== this.shortcutKey) {
+                return
+              }
+
+              if (!event.metaKey && !event.ctrlKey) {
+                return
+              }
+
+              const target = event.target
+              const tagName = target?.tagName?.toLowerCase()
+
+              if (
+                tagName === 'input' ||
+                tagName === 'textarea' ||
+                target?.isContentEditable
+              ) {
+                return
+              }
+
+              event.preventDefault()
+
+              this.openDialog()
+            },
+
+            findPaletteItem(itemLabel) {
+              return (
+                this.paletteItems.find(
+                  (paletteItem) => paletteItem.label === itemLabel,
+                ) ?? null
+              )
+            },
+
+            selectItem(itemLabel) {
+              const selectedItem = this.findPaletteItem(itemLabel)
+
+              if (!selectedItem) {
+                return null
+              }
+
+              if (selectedItem.href) {
+                if (selectedItem.target === '_blank') {
+                  globalThis.open(
+                    selectedItem.href,
+                    '_blank',
+                    'noopener,noreferrer',
+                  )
+
+                  return selectedItem
+                }
+
+                globalThis.location.assign(selectedItem.href)
+
+                return selectedItem
+              }
+
+              this.$dispatch('hux-command-palette:action', {
+                action: selectedItem.action,
+                item: selectedItem,
+              })
+
+              return selectedItem
             },
           }))
         })
