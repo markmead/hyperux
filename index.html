@@ -1869,7 +1869,8 @@ Components:
             },
 
             getLabelForValue(selectedValue) {
-              const matchedOptionItem = this.optionItems.find((optionItem) => optionItem.value === selectedValue)
+              const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
+              const matchedOptionItem = normalizedOptionItems.find((optionItem) => optionItem.value === selectedValue)
 
               return matchedOptionItem ? matchedOptionItem.label : String(selectedValue)
             },
