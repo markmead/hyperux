@@ -1270,17 +1270,17 @@ huxCommandPalette({
                               @mouseenter="focusedIndex = optionIndex"
                             >
                               <span x-text="optionItem"></span>
-                              <template x-if="findPaletteItem(optionItem)">
-                                <span
-                                  :class="{
-                                    'bg-blue-100 text-blue-700': findPaletteItem(optionItem)?.href && findPaletteItem(optionItem)?.target !== '_blank',
-                                    'bg-green-100 text-green-700': findPaletteItem(optionItem)?.target === '_blank',
-                                    'bg-purple-100 text-purple-700': findPaletteItem(optionItem)?.action
-                                  }"
-                                  class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
-                                  x-text="findPaletteItem(optionItem)?.target === '_blank' ? 'External link' : findPaletteItem(optionItem)?.href ? 'Internal link' : 'Method'"
-                                ></span>
-                              </template>
+                              <span
+                                x-data="{ _item: findPaletteItem(optionItem) }"
+                                x-show="_item"
+                                :class="{
+                                  'bg-blue-100 text-blue-700': _item?.href && _item?.target !== '_blank',
+                                  'bg-green-100 text-green-700': _item?.target === '_blank',
+                                  'bg-purple-100 text-purple-700': _item?.action
+                                }"
+                                class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
+                                x-text="_item?.target === '_blank' ? 'External link' : _item?.href ? 'Internal link' : 'Method'"
+                              ></span>
                             </button>
                           </template>
                         </div>
