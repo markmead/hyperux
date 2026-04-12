@@ -1075,8 +1075,8 @@ huxCommandPalette({
 
           <div
             x-data="(() => {
-              const _dialog = huxDialog({ dialogId: 'command-palette' });
-              const _palette = huxCommandPalette({
+              const dialogComponent = huxDialog({ dialogId: 'command-palette' });
+              const paletteComponent = huxCommandPalette({
                 paletteItems: [
                 { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
                 { label: 'Open Google', href: 'https://google.com', target: '_blank' },
@@ -1088,9 +1088,9 @@ huxCommandPalette({
                 { label: 'Toggle Dropdown Section', action: 'toggleDropdownSection' },
                 { label: 'Copy Page URL', action: 'copyPageUrl' }] });
               return {
-                ..._dialog,
-                ..._palette,
-                init() { _dialog.init.call(this); _palette.init.call(this); }
+                ...dialogComponent,
+                ...paletteComponent,
+                init() { dialogComponent.init.call(this); paletteComponent.init.call(this); }
               };
             })()"
             data-hux-copy="commandPaletteExample"
@@ -1271,15 +1271,15 @@ huxCommandPalette({
                             >
                               <span x-text="optionItem"></span>
                               <span
-                                x-data="{ _item: findPaletteItem(optionItem) }"
-                                x-show="_item"
+                                x-data="{ paletteItem: findPaletteItem(optionItem) }"
+                                x-show="paletteItem"
                                 :class="{
-                                  'bg-blue-100 text-blue-700': _item?.href && _item?.target !== '_blank',
-                                  'bg-green-100 text-green-700': _item?.target === '_blank',
-                                  'bg-purple-100 text-purple-700': _item?.action
+                                  'bg-blue-100 text-blue-700': paletteItem?.href && paletteItem?.target !== '_blank',
+                                  'bg-green-100 text-green-700': paletteItem?.target === '_blank',
+                                  'bg-purple-100 text-purple-700': paletteItem?.action
                                 }"
                                 class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
-                                x-text="_item?.target === '_blank' ? 'External link' : _item?.href ? 'Internal link' : 'Method'"
+                                x-text="paletteItem?.target === '_blank' ? 'External link' : paletteItem?.href ? 'Internal link' : 'Method'"
                               ></span>
                             </button>
                           </template>
