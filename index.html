@@ -212,18 +212,37 @@
               x-for="(menuItem, menuIndex) in menuItems"
               :key="menuIndex"
             >
-              <a
-                :id="menuItemIds[menuIndex]"
-                :href="menuItem.href || null"
-                :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
-                :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
-                role="menuitem"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                @click="selectItem(menuItem)"
-                @mouseenter="focusedIndex = menuIndex"
-                @focus="focusedIndex = menuIndex"
-                x-text="menuItem.label"
-              ></a>
+              <div role="none">
+                <template x-if="menuItem.href">
+                  <a
+                    :id="menuItemIds[menuIndex]"
+                    :href="menuItem.href"
+                    :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                    :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                    role="menuitem"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                    @click="selectItem(menuItem)"
+                    @mouseenter="focusedIndex = menuIndex"
+                    @focus="focusedIndex = menuIndex"
+                    x-text="menuItem.label"
+                  ></a>
+                </template>
+
+                <template x-if="!menuItem.href">
+                  <button
+                    :id="menuItemIds[menuIndex]"
+                    type="button"
+                    :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                    :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                    role="menuitem"
+                    class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                    @click="selectItem(menuItem)"
+                    @mouseenter="focusedIndex = menuIndex"
+                    @focus="focusedIndex = menuIndex"
+                    x-text="menuItem.label"
+                  ></button>
+                </template>
+              </div>
             </template>
           </div>
         </div>
@@ -1455,86 +1474,122 @@ huxDropdown({
           >
 
           <div
-            x-data="huxDropdown({
-              triggerId: 'options-menu',
-              menuItems: [
-                { label: 'View Profile', href: '#' },
-                { label: 'Account Settings', href: '#' },
-                { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-                { label: 'Copy Page URL', action: 'copyPageUrl' }
-              ]
-            })"
-            data-hux-copy="dropdownExample"
-            class="relative inline-block"
-            @click.outside="closeMenu()"
+            x-data="{ lastAction: null }"
+            @hux-dropdown:options-menu:action="lastAction = $event.detail.action"
           >
-            <button
-              x-ref="dropdownTrigger"
-              type="button"
-              :aria-expanded="isOpen.toString()"
-              aria-haspopup="menu"
-              :aria-controls="menuId"
-              class="inline-flex items-center gap-2 px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
-              @click="toggleMenu()"
-              @keydown.down.prevent="openMenu(); focusFirstItem()"
-              @keydown.up.prevent="openMenu(); focusLastItem()"
-              @keydown.escape.prevent="closeMenu(true)"
-            >
-              <span>Options</span>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
-                class="size-4 transition-transform"
-                :class="{ 'rotate-180': isOpen }"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
-            </button>
-
             <div
-              x-cloak
-              x-show="isOpen"
-              x-transition
-              :id="menuId"
-              role="menu"
-              class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
-              @keydown.down.prevent="focusNextItem()"
-              @keydown.up.prevent="focusPreviousItem()"
-              @keydown.escape.stop.prevent="closeMenu(true)"
-              @keydown.home.prevent="focusFirstItem()"
-              @keydown.end.prevent="focusLastItem()"
-              @keydown.enter="focusedIndex >= 0 && selectItem(menuItems[focusedIndex])"
-              @keydown.tab="closeMenu()"
+              x-data="huxDropdown({
+                triggerId: 'options-menu',
+                menuItems: [
+                  { label: 'View Profile', href: '#' },
+                  { label: 'Account Settings', href: '#' },
+                  { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+                  { label: 'Copy Page URL', action: 'copyPageUrl' }
+                ]
+              })"
+              data-hux-copy="dropdownExample"
+              class="relative inline-block"
+              @click.outside="closeMenu()"
             >
-              <template
-                x-for="(menuItem, menuIndex) in menuItems"
-                :key="menuIndex"
+              <button
+                x-ref="dropdownTrigger"
+                type="button"
+                :aria-expanded="isOpen.toString()"
+                aria-haspopup="menu"
+                :aria-controls="menuId"
+                class="inline-flex items-center gap-2 px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+                @click="toggleMenu()"
+                @keydown.down.prevent="openMenu(); focusFirstItem()"
+                @keydown.up.prevent="openMenu(); focusLastItem()"
+                @keydown.escape.prevent="closeMenu(true)"
               >
-                <a
-                  :id="menuItemIds[menuIndex]"
-                  :href="menuItem.href || null"
-                  :target="menuItem.target || null"
-                  :rel="menuItem.target === '_blank' ? 'noreferrer' : null"
-                  :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
-                  :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
-                  role="menuitem"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                  @click="selectItem(menuItem)"
-                  @mouseenter="focusedIndex = menuIndex"
-                  @focus="focusedIndex = menuIndex"
-                  x-text="menuItem.label"
-                ></a>
-              </template>
+                <span>Options</span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  class="size-4 transition-transform"
+                  :class="{ 'rotate-180': isOpen }"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </button>
+
+              <div
+                x-cloak
+                x-show="isOpen"
+                x-transition
+                :id="menuId"
+                role="menu"
+                class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
+                @keydown.down.prevent="focusNextItem()"
+                @keydown.up.prevent="focusPreviousItem()"
+                @keydown.escape.stop.prevent="closeMenu(true)"
+                @keydown.home.prevent="focusFirstItem()"
+                @keydown.end.prevent="focusLastItem()"
+                @keydown.enter="focusedIndex >= 0 && selectItem(menuItems[focusedIndex])"
+                @keydown.tab="closeMenu()"
+              >
+                <template
+                  x-for="(menuItem, menuIndex) in menuItems"
+                  :key="menuIndex"
+                >
+                  <div role="none">
+                    <template x-if="menuItem.href">
+                      <a
+                        :id="menuItemIds[menuIndex]"
+                        :href="menuItem.href"
+                        :target="menuItem.target || null"
+                        :rel="menuItem.target === '_blank' ? 'noreferrer' : null"
+                        :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                        :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                        role="menuitem"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        @click="selectItem(menuItem)"
+                        @mouseenter="focusedIndex = menuIndex"
+                        @focus="focusedIndex = menuIndex"
+                        x-text="menuItem.label"
+                      ></a>
+                    </template>
+
+                    <template x-if="!menuItem.href">
+                      <button
+                        :id="menuItemIds[menuIndex]"
+                        type="button"
+                        :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                        :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                        role="menuitem"
+                        class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        @click="selectItem(menuItem)"
+                        @mouseenter="focusedIndex = menuIndex"
+                        @focus="focusedIndex = menuIndex"
+                        x-text="menuItem.label"
+                      ></button>
+                    </template>
+                  </div>
+                </template>
+              </div>
             </div>
+
+            <p
+              x-cloak
+              x-show="lastAction"
+              class="mt-3 text-sm text-gray-600"
+            >
+              Action fired:
+              <code
+                class="font-mono bg-gray-100 px-1 py-0.5 rounded"
+                x-text="lastAction"
+              ></code>
+            </p>
           </div>
 
           <p class="font-semibold"> All Options </p>
@@ -1650,17 +1705,13 @@ Events:
 
               this.triggerId = initialConfig.triggerId ?? null
 
-              const idSuffix = this.triggerId ?? this.randomIdSegment()
+              const idSuffix = this.triggerId ?? crypto.randomUUID()
 
               this.menuId = `hux-dropdown-menu-${idSuffix}`
 
               this.menuItemIds = this.menuItems.map(
-                (_, i) => `${this.menuId}-item-${i}`,
+                (_, menuItemIndex) => `${this.menuId}-item-${menuItemIndex}`,
               )
-            },
-
-            randomIdSegment() {
-              return Math.random().toString(36).slice(2, 10)
             },
 
             openMenu() {
@@ -1690,13 +1741,13 @@ Events:
               this.openMenu()
             },
 
-            focusItem(index) {
-              this.focusedIndex = index
+            focusItem(itemIndex) {
+              this.focusedIndex = itemIndex
 
               this.$nextTick(() => {
-                const itemEl = document.getElementById(this.menuItemIds[index])
+                const menuItemElement = document.getElementById(this.menuItemIds[itemIndex])
 
-                itemEl?.focus()
+                menuItemElement?.focus()
               })
             },
 
@@ -1713,27 +1764,27 @@ Events:
             },
 
             focusNextItem() {
-              const total = this.menuItems.length
+              const menuItemCount = this.menuItems.length
 
-              if (total === 0) {
+              if (menuItemCount === 0) {
                 return
               }
 
               const nextIndex =
-                this.focusedIndex < total - 1 ? this.focusedIndex + 1 : 0
+                this.focusedIndex < menuItemCount - 1 ? this.focusedIndex + 1 : 0
 
               this.focusItem(nextIndex)
             },
 
             focusPreviousItem() {
-              const total = this.menuItems.length
+              const menuItemCount = this.menuItems.length
 
-              if (total === 0) {
+              if (menuItemCount === 0) {
                 return
               }
 
               const prevIndex =
-                this.focusedIndex > 0 ? this.focusedIndex - 1 : total - 1
+                this.focusedIndex > 0 ? this.focusedIndex - 1 : menuItemCount - 1
 
               this.focusItem(prevIndex)
             },
