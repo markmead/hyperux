@@ -1474,12 +1474,6 @@ huxDropdown({
           >
 
           <div
-            x-data
-            @hux-dropdown:options-menu:action="
-              $event.detail.action === 'copyPageUrl' && navigator.clipboard.writeText(location.href)
-            "
-          >
-            <div
               x-data="huxDropdown({
                 triggerId: 'options-menu',
                 menuItems: [
@@ -1492,6 +1486,9 @@ huxDropdown({
               data-hux-copy="dropdownExample"
               class="relative inline-block"
               @click.outside="closeMenu()"
+              @hux-dropdown:options-menu:action="
+                $event.detail.action === 'copyPageUrl' && navigator.clipboard.writeText(location.href)
+              "
             >
               <button
                 x-ref="dropdownTrigger"
@@ -1580,7 +1577,6 @@ huxDropdown({
                 </template>
               </div>
             </div>
-          </div>
 
           <p class="font-semibold"> All Options </p>
 
