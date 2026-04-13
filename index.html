@@ -1474,8 +1474,10 @@ huxDropdown({
           >
 
           <div
-            x-data="{ lastAction: null }"
-            @hux-dropdown:options-menu:action="lastAction = $event.detail.action"
+            x-data
+            @hux-dropdown:options-menu:action="
+              $event.detail.action === 'copyPageUrl' && navigator.clipboard.writeText(location.href)
+            "
           >
             <div
               x-data="huxDropdown({
@@ -1578,18 +1580,6 @@ huxDropdown({
                 </template>
               </div>
             </div>
-
-            <p
-              x-cloak
-              x-show="lastAction"
-              class="mt-3 text-sm text-gray-600"
-            >
-              Action fired:
-              <code
-                class="font-mono bg-gray-100 px-1 py-0.5 rounded"
-                x-text="lastAction"
-              ></code>
-            </p>
           </div>
 
           <p class="font-semibold"> All Options </p>
