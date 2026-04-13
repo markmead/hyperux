@@ -163,6 +163,7 @@
         >
           <button
             x-ref="dropdownTrigger"
+            :id="triggerButtonId"
             type="button"
             :aria-expanded="isOpen.toString()"
             aria-haspopup="menu"
@@ -172,6 +173,7 @@
             @keydown.down.prevent="openMenu(); focusFirstItem()"
             @keydown.up.prevent="openMenu(); focusLastItem()"
             @keydown.escape.prevent="closeMenu(true)"
+            @keydown.tab="if (isOpen) closeMenu()"
           >
             <span>Jump to component</span>
 
@@ -199,13 +201,13 @@
             x-transition
             :id="menuId"
             role="menu"
+            :aria-labelledby="triggerButtonId"
             class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
             @keydown.down.prevent="focusNextItem()"
             @keydown.up.prevent="focusPreviousItem()"
             @keydown.escape.stop.prevent="closeMenu(true)"
             @keydown.home.prevent="focusFirstItem()"
             @keydown.end.prevent="focusLastItem()"
-            @keydown.enter="focusedIndex >= 0 && selectItem(menuItems[focusedIndex])"
             @keydown.tab="closeMenu()"
           >
             <template
@@ -1487,11 +1489,16 @@ huxDropdown({
               class="relative inline-block"
               @click.outside="closeMenu()"
               @hux-dropdown:options-menu:action="
-                $event.detail.action === 'copyPageUrl' && navigator.clipboard.writeText(location.href)
-              "
+                (async () => {
+                  if ($event.detail.action !== 'copyPageUrl') return
+                  try {
+                    await navigator.clipboard.writeText(location.href)
+                  } catch (_) {}
+                })()"
             >
               <button
                 x-ref="dropdownTrigger"
+                :id="triggerButtonId"
                 type="button"
                 :aria-expanded="isOpen.toString()"
                 aria-haspopup="menu"
@@ -1501,6 +1508,7 @@ huxDropdown({
                 @keydown.down.prevent="openMenu(); focusFirstItem()"
                 @keydown.up.prevent="openMenu(); focusLastItem()"
                 @keydown.escape.prevent="closeMenu(true)"
+                @keydown.tab="if (isOpen) closeMenu()"
               >
                 <span>Options</span>
 
@@ -1528,13 +1536,13 @@ huxDropdown({
                 x-transition
                 :id="menuId"
                 role="menu"
+                :aria-labelledby="triggerButtonId"
                 class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
                 @keydown.down.prevent="focusNextItem()"
                 @keydown.up.prevent="focusPreviousItem()"
                 @keydown.escape.stop.prevent="closeMenu(true)"
                 @keydown.home.prevent="focusFirstItem()"
                 @keydown.end.prevent="focusLastItem()"
-                @keydown.enter="focusedIndex >= 0 && selectItem(menuItems[focusedIndex])"
                 @keydown.tab="closeMenu()"
               >
                 <template
@@ -1682,6 +1690,7 @@ Events:
             menuItems: [],
             triggerId: null,
             menuId: null,
+            triggerButtonId: null,
             menuItemIds: [],
 
             init() {
@@ -1694,6 +1703,7 @@ Events:
               const idSuffix = this.triggerId ?? crypto.randomUUID()
 
               this.menuId = `hux-dropdown-menu-${idSuffix}`
+              this.triggerButtonId = `hux-dropdown-trigger-${idSuffix}`
 
               this.menuItemIds = this.menuItems.map(
                 (_, menuItemIndex) => `${this.menuId}-item-${menuItemIndex}`,
@@ -1787,6 +1797,10 @@ Events:
                     : 'hux-dropdown:action',
                   { action: menuItem.action, item: menuItem },
                 )
+
+                this.closeMenu(true)
+
+                return
               }
 
               this.closeMenu()
