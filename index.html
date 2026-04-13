@@ -2058,12 +2058,8 @@ Events:
               return this.optionItemId(focusedOptionItem.sourceIndex)
             },
 
-            randomIdSegment() {
-              return Math.random().toString(36).slice(2, 10)
-            },
-
             ensureElementId(targetElement, fallbackPrefix, templateRefName) {
-              const fallbackId = `${fallbackPrefix}-${this.randomIdSegment()}`
+              const fallbackId = `${fallbackPrefix}-${crypto.randomUUID()}`
 
               if (!targetElement) {
                 console.error(
