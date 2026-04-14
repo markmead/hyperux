@@ -1689,9 +1689,9 @@ huxTabs({
             >
               <template x-for="(tabItem, tabIndex) in tabItems" :key="tabItem.id">
                 <button
-                  :id="'tab-' + tabItem.id"
+                  :id="`tab-${tabItem.id}`"
                   :aria-selected="(activeTabId === tabItem.id).toString()"
-                  :aria-controls="'panel-' + tabItem.id"
+                  :aria-controls="`panel-${tabItem.id}`"
                   :tabindex="activeTabId === tabItem.id ? '0' : '-1'"
                   role="tab"
                   type="button"
@@ -1845,11 +1845,19 @@ Options:
               this.activeTabId = tabId
             },
 
-            focusTab(tabIndex) {
+            focusTab(tabId) {
               this.$nextTick(() => {
-                const tabElements = this.$el.querySelectorAll('[role="tab"]')
+                const tabElements = Array.from(
+                  this.$el.querySelectorAll('[role="tab"]'),
+                )
 
-                tabElements[tabIndex]?.focus()
+                tabElements
+                  .find(
+                    (tabElement) =>
+                      tabElement.getAttribute('aria-controls') ===
+                      `panel-${tabId}`,
+                  )
+                  ?.focus()
               })
             },
 
@@ -1857,30 +1865,34 @@ Options:
               const currentIndex = this.activeTabIndex
               const nextIndex =
                 currentIndex < this.tabItems.length - 1 ? currentIndex + 1 : 0
+              const nextTabId = this.tabItems[nextIndex].id
 
-              this.selectTab(this.tabItems[nextIndex].id)
-              this.focusTab(nextIndex)
+              this.selectTab(nextTabId)
+              this.focusTab(nextTabId)
             },
 
             focusPreviousTab() {
               const currentIndex = this.activeTabIndex
               const prevIndex =
                 currentIndex > 0 ? currentIndex - 1 : this.tabItems.length - 1
+              const prevTabId = this.tabItems[prevIndex].id
 
-              this.selectTab(this.tabItems[prevIndex].id)
-              this.focusTab(prevIndex)
+              this.selectTab(prevTabId)
+              this.focusTab(prevTabId)
             },
 
             focusFirstTab() {
-              this.selectTab(this.tabItems[0].id)
-              this.focusTab(0)
+              const firstTabId = this.tabItems[0].id
+
+              this.selectTab(firstTabId)
+              this.focusTab(firstTabId)
             },
 
             focusLastTab() {
-              const lastIndex = this.tabItems.length - 1
+              const lastTabId = this.tabItems[this.tabItems.length - 1].id
 
-              this.selectTab(this.tabItems[lastIndex].id)
-              this.focusTab(lastIndex)
+              this.selectTab(lastTabId)
+              this.focusTab(lastTabId)
             },
           }))
         })
