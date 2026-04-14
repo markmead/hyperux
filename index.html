@@ -1842,25 +1842,29 @@ Options:
             },
 
             get activeTabIndex() {
-              const foundIndex = this.tabItems.findIndex((tabItem) => tabItem.id === this.activeTabId)
+              const foundIndex = this.findTabIndex(this.activeTabId)
 
               return foundIndex >= 0 ? foundIndex : 0
             },
 
+            findTabIndex(tabId) {
+              return this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+            },
+
             getTabId(tabId) {
-              const tabIndex = this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+              const tabIndex = this.findTabIndex(tabId)
 
               return tabIndex >= 0 ? this.tabIds[tabIndex] : null
             },
 
             getPanelId(tabId) {
-              const tabIndex = this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+              const tabIndex = this.findTabIndex(tabId)
 
               return tabIndex >= 0 ? this.panelIds[tabIndex] : null
             },
 
             selectTab(tabId) {
-              const tabExists = this.tabItems.some((tabItem) => tabItem.id === tabId)
+              const tabExists = this.findTabIndex(tabId) >= 0
 
               if (!tabExists) {
                 return
