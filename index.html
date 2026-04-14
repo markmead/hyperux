@@ -1847,17 +1847,13 @@ Options:
 
             focusTab(tabId) {
               this.$nextTick(() => {
-                const tabElements = Array.from(
-                  this.$el.querySelectorAll('[role="tab"]'),
-                )
+                const tabIndex = this.findTabIndex(tabId)
 
-                tabElements
-                  .find(
-                    (tabElement) =>
-                      tabElement.getAttribute('aria-controls') ===
-                      `panel-${tabId}`,
-                  )
-                  ?.focus()
+                if (tabIndex === -1) return
+
+                const tabElements = this.$el.querySelectorAll('[role="tab"]')
+
+                tabElements[tabIndex]?.focus()
               })
             },
 
@@ -1889,7 +1885,7 @@ Options:
             },
 
             focusLastTab() {
-              const lastTabId = this.tabItems[this.tabItems.length - 1].id
+              const lastTabId = this.tabItems.at(-1).id
 
               this.selectTab(lastTabId)
               this.focusTab(lastTabId)
