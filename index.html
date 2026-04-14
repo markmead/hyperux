@@ -1714,8 +1714,8 @@ huxTabs({
             </div>
 
             <div
-              :id="panelIds[0]"
-              :aria-labelledby="tabIds[0]"
+              :id="getPanelId('general')"
+              :aria-labelledby="getTabId('general')"
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'general'"
@@ -1737,8 +1737,8 @@ huxTabs({
             </div>
 
             <div
-              :id="panelIds[1]"
-              :aria-labelledby="tabIds[1]"
+              :id="getPanelId('security')"
+              :aria-labelledby="getTabId('security')"
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'security'"
@@ -1757,8 +1757,8 @@ huxTabs({
             </div>
 
             <div
-              :id="panelIds[2]"
-              :aria-labelledby="tabIds[2]"
+              :id="getPanelId('notifications')"
+              :aria-labelledby="getTabId('notifications')"
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'notifications'"
@@ -1845,6 +1845,18 @@ Options:
               const foundIndex = this.tabItems.findIndex((tabItem) => tabItem.id === this.activeTabId)
 
               return foundIndex >= 0 ? foundIndex : 0
+            },
+
+            getTabId(tabId) {
+              const tabIndex = this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+
+              return tabIndex >= 0 ? this.tabIds[tabIndex] : null
+            },
+
+            getPanelId(tabId) {
+              const tabIndex = this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+
+              return tabIndex >= 0 ? this.panelIds[tabIndex] : null
             },
 
             selectTab(tabId) {
