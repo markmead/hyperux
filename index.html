@@ -97,8 +97,8 @@
           UI patterns you can adapt to your own markup and styles.
         </p>
 
-        <time datetime="2026-04-12" class="text-gray-500">
-          Last updated: 12 April 2026
+        <time datetime="2026-04-13" class="text-gray-500">
+          Last updated: 13 April 2026
         </time>
       </header>
 
@@ -145,70 +145,109 @@
       >
         <h2 class="text-xl font-semibold">Components</h2>
 
-        <ul class="flex flex-wrap gap-x-6 gap-y-2">
-          <li>
-            <a
-              href="#component-scroll-spy"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
-            >
-              Scroll Spy + TOC
-            </a>
-          </li>
+        <div
+          x-data="huxDropdown({
+            triggerId: 'component-nav',
+            menuItems: [
+              { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+              { label: 'Combobox', href: '#component-combobox' },
+              { label: 'Copy to Clipboard', href: '#component-copy' },
+              { label: 'Dialog', href: '#component-dialog' },
+              { label: 'Command Palette', href: '#component-command-palette' },
+              { label: 'Dropdown', href: '#component-dropdown' },
+              { label: 'Tabs', href: '#component-tabs' }
+            ]
+          })"
+          class="relative inline-block"
+          @click.outside="closeMenu()"
+        >
+          <button
+            x-ref="dropdownTrigger"
+            :id="triggerButtonId"
+            type="button"
+            :aria-expanded="isOpen.toString()"
+            aria-haspopup="menu"
+            :aria-controls="menuId"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+            @click="toggleMenu()"
+            @keydown.down.prevent="openMenu(); focusFirstItem()"
+            @keydown.up.prevent="openMenu(); focusLastItem()"
+            @keydown.escape.prevent="closeMenu(true)"
+            @keydown.tab="if (isOpen) closeMenu()"
+          >
+            <span>Jump to component</span>
 
-          <li>
-            <a
-              href="#component-combobox"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+              class="size-4 transition-transform"
+              :class="{ 'rotate-180': isOpen }"
             >
-              Combobox
-            </a>
-          </li>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+              />
+            </svg>
+          </button>
 
-          <li>
-            <a
-              href="#component-copy"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
+          <div
+            x-cloak
+            x-show="isOpen"
+            x-transition
+            :id="menuId"
+            role="menu"
+            :aria-labelledby="triggerButtonId"
+            class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
+            @keydown.down.prevent="focusNextItem()"
+            @keydown.up.prevent="focusPreviousItem()"
+            @keydown.escape.stop.prevent="closeMenu(true)"
+            @keydown.home.prevent="focusFirstItem()"
+            @keydown.end.prevent="focusLastItem()"
+            @keydown.tab="closeMenu()"
+          >
+            <template
+              x-for="(menuItem, menuIndex) in menuItems"
+              :key="menuIndex"
             >
-              Copy to Clipboard
-            </a>
-          </li>
+              <div role="none">
+                <template x-if="menuItem.href">
+                  <a
+                    :id="menuItemIds[menuIndex]"
+                    :href="menuItem.href"
+                    :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                    :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                    role="menuitem"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                    @click="selectItem(menuItem)"
+                    @mouseenter="focusedIndex = menuIndex"
+                    @focus="focusedIndex = menuIndex"
+                    x-text="menuItem.label"
+                  ></a>
+                </template>
 
-          <li>
-            <a
-              href="#component-dialog"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
-            >
-              Dialog
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="#component-command-palette"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
-            >
-              Command Palette
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="#component-dropdown"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
-            >
-              Dropdown
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="#component-tabs"
-              class="text-sm text-sky-600 underline underline-offset-2 hover:text-sky-800 transition-colors"
-            >
-              Tabs
-            </a>
-          </li>
-        </ul>
+                <template x-if="!menuItem.href">
+                  <button
+                    :id="menuItemIds[menuIndex]"
+                    type="button"
+                    :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                    :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                    role="menuitem"
+                    class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                    @click="selectItem(menuItem)"
+                    @mouseenter="focusedIndex = menuIndex"
+                    @focus="focusedIndex = menuIndex"
+                    x-text="menuItem.label"
+                  ></button>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
       </nav>
 
       <details id="component-scroll-spy" open class="group">
@@ -1387,7 +1426,7 @@ Components:
         </div>
       </details>
 
-      <details id="component-dropdown" class="group">
+      <details id="component-dropdown" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -1408,35 +1447,183 @@ Components:
           </svg>
 
           <h2 class="text-xl font-semibold">Dropdown</h2>
-
-          <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
-          >
-            WIP
-          </span>
         </summary>
 
         <div
-          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
           <p class="text-gray-700">
             Menu-ready dropdown behavior with trigger wiring, keyboard support,
             active item management, outside-click close, and easy composability.
+            Supports link navigation, external links, and custom action
+            dispatch.
           </p>
 
-          <p class="text-gray-700">
-            This is now in the active queue and will focus on practical menu
-            patterns (action menus, profile menus, and nested content blocks).
-          </p>
+          <p class="font-semibold"> Config Used for This Demo </p>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
-            Have dropdown edge cases to cover? Open an issue.
-          </a>
+huxDropdown({
+  triggerId: 'options-menu',
+  menuItems: [
+    { label: 'View Profile', href: '#' },
+    { label: 'Account Settings', href: '#' },
+    { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+    { label: 'Copy Page URL', action: 'copyPageUrl' }
+  ]
+})</pre
+          >
+
+          <div
+              x-data="huxDropdown({
+                triggerId: 'options-menu',
+                menuItems: [
+                  { label: 'View Profile', href: '#' },
+                  { label: 'Account Settings', href: '#' },
+                  { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+                  { label: 'Copy Page URL', action: 'copyPageUrl' }
+                ]
+              })"
+              data-hux-copy="dropdownExample"
+              class="relative inline-block"
+              @click.outside="closeMenu()"
+              @hux-dropdown:options-menu:action="
+                (async () => {
+                  if ($event.detail.action !== 'copyPageUrl') return
+                  try {
+                    await navigator.clipboard.writeText(location.href)
+                  } catch (_) {}
+                })()"
+            >
+              <button
+                x-ref="dropdownTrigger"
+                :id="triggerButtonId"
+                type="button"
+                :aria-expanded="isOpen.toString()"
+                aria-haspopup="menu"
+                :aria-controls="menuId"
+                class="inline-flex items-center gap-2 px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+                @click="toggleMenu()"
+                @keydown.down.prevent="openMenu(); focusFirstItem()"
+                @keydown.up.prevent="openMenu(); focusLastItem()"
+                @keydown.escape.prevent="closeMenu(true)"
+                @keydown.tab="if (isOpen) closeMenu()"
+              >
+                <span>Options</span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  class="size-4 transition-transform"
+                  :class="{ 'rotate-180': isOpen }"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </button>
+
+              <div
+                x-cloak
+                x-show="isOpen"
+                x-transition
+                :id="menuId"
+                role="menu"
+                :aria-labelledby="triggerButtonId"
+                class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
+                @keydown.down.prevent="focusNextItem()"
+                @keydown.up.prevent="focusPreviousItem()"
+                @keydown.escape.stop.prevent="closeMenu(true)"
+                @keydown.home.prevent="focusFirstItem()"
+                @keydown.end.prevent="focusLastItem()"
+                @keydown.tab="closeMenu()"
+              >
+                <template
+                  x-for="(menuItem, menuIndex) in menuItems"
+                  :key="menuIndex"
+                >
+                  <div role="none">
+                    <template x-if="menuItem.href">
+                      <a
+                        :id="menuItemIds[menuIndex]"
+                        :href="menuItem.href"
+                        :target="menuItem.target || null"
+                        :rel="menuItem.target === '_blank' ? 'noreferrer' : null"
+                        :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                        :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                        role="menuitem"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        @click="selectItem(menuItem)"
+                        @mouseenter="focusedIndex = menuIndex"
+                        @focus="focusedIndex = menuIndex"
+                        x-text="menuItem.label"
+                      ></a>
+                    </template>
+
+                    <template x-if="!menuItem.href">
+                      <button
+                        :id="menuItemIds[menuIndex]"
+                        type="button"
+                        :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                        :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                        role="menuitem"
+                        class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        @click="selectItem(menuItem)"
+                        @mouseenter="focusedIndex = menuIndex"
+                        @focus="focusedIndex = menuIndex"
+                        x-text="menuItem.label"
+                      ></button>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- menuItems: {label: string, href?: string, action?: string, target?: string}[] (default: [])
+- triggerId: string (optional, scopes emitted event names and IDs)
+Events:
+- hux-dropdown:{triggerId}:open
+- hux-dropdown:{triggerId}:close
+- hux-dropdown:{triggerId}:action
+- hux-dropdown:open (fallback when triggerId is missing)
+- hux-dropdown:close (fallback when triggerId is missing)
+- hux-dropdown:action (fallback when triggerId is missing)</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['dropdownExample', 'dropdownRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
 
@@ -1494,6 +1681,141 @@ Components:
           </a>
         </div>
       </details>
+
+      <script data-hux-copy="dropdownRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxDropdown', (initialConfig = {}) => ({
+            isOpen: false,
+            focusedIndex: -1,
+            menuItems: [],
+            triggerId: null,
+            menuId: null,
+            triggerButtonId: null,
+            menuItemIds: [],
+
+            init() {
+              this.menuItems = (initialConfig.menuItems ?? []).filter(
+                (item) => item?.label && (item?.href || item?.action),
+              )
+
+              this.triggerId = initialConfig.triggerId ?? null
+
+              const idSuffix = this.triggerId ?? crypto.randomUUID()
+
+              this.menuId = `hux-dropdown-menu-${idSuffix}`
+              this.triggerButtonId = `hux-dropdown-trigger-${idSuffix}`
+
+              this.menuItemIds = this.menuItems.map(
+                (_, menuItemIndex) => `${this.menuId}-item-${menuItemIndex}`,
+              )
+            },
+
+            openMenu() {
+              this.isOpen = true
+
+              this.dispatchDropdownEvent('open')
+            },
+
+            closeMenu(restoreFocus = false) {
+              this.isOpen = false
+              this.focusedIndex = -1
+
+              this.dispatchDropdownEvent('close')
+
+              if (restoreFocus) {
+                this.$nextTick(() => this.$refs.dropdownTrigger?.focus())
+              }
+            },
+
+            toggleMenu() {
+              if (this.isOpen) {
+                this.closeMenu(true)
+
+                return
+              }
+
+              this.openMenu()
+            },
+
+            focusItem(itemIndex) {
+              this.focusedIndex = itemIndex
+
+              this.$nextTick(() => {
+                const menuItemElement = document.getElementById(this.menuItemIds[itemIndex])
+
+                menuItemElement?.focus()
+              })
+            },
+
+            focusFirstItem() {
+              if (this.menuItems.length > 0) {
+                this.focusItem(0)
+              }
+            },
+
+            focusLastItem() {
+              if (this.menuItems.length > 0) {
+                this.focusItem(this.menuItems.length - 1)
+              }
+            },
+
+            focusNextItem() {
+              const menuItemCount = this.menuItems.length
+
+              if (menuItemCount === 0) {
+                return
+              }
+
+              const nextIndex =
+                this.focusedIndex < menuItemCount - 1 ? this.focusedIndex + 1 : 0
+
+              this.focusItem(nextIndex)
+            },
+
+            focusPreviousItem() {
+              const menuItemCount = this.menuItems.length
+
+              if (menuItemCount === 0) {
+                return
+              }
+
+              const prevIndex =
+                this.focusedIndex > 0 ? this.focusedIndex - 1 : menuItemCount - 1
+
+              this.focusItem(prevIndex)
+            },
+
+            selectItem(menuItem) {
+              if (!menuItem) {
+                return
+              }
+
+              if (!menuItem.href && menuItem.action) {
+                this.$dispatch(
+                  this.triggerId
+                    ? `hux-dropdown:${this.triggerId}:action`
+                    : 'hux-dropdown:action',
+                  { action: menuItem.action, item: menuItem },
+                )
+
+                this.closeMenu(true)
+
+                return
+              }
+
+              this.closeMenu()
+            },
+
+            dispatchDropdownEvent(eventName) {
+              const scopedEventName = this.triggerId
+                ? `hux-dropdown:${this.triggerId}:${eventName}`
+                : `hux-dropdown:${eventName}`
+
+              this.$dispatch(scopedEventName, { triggerId: this.triggerId })
+            },
+          }))
+        })
+      </script>
 
       <script data-hux-copy="scrollSpyRegistrationCode">
         document.addEventListener('alpine:init', () => {
@@ -1746,12 +2068,8 @@ Components:
               return this.optionItemId(focusedOptionItem.sourceIndex)
             },
 
-            randomIdSegment() {
-              return Math.random().toString(36).slice(2, 10)
-            },
-
             ensureElementId(targetElement, fallbackPrefix, templateRefName) {
-              const fallbackId = `${fallbackPrefix}-${this.randomIdSegment()}`
+              const fallbackId = `${fallbackPrefix}-${crypto.randomUUID()}`
 
               if (!targetElement) {
                 console.error(
