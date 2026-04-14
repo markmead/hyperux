@@ -1663,7 +1663,6 @@ Events:
             class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 huxTabs({
-  tabsId: 'account-settings',
   tabItems: [
     { label: 'General', id: 'general' },
     { label: 'Security', id: 'security' },
@@ -1674,7 +1673,6 @@ huxTabs({
 
           <div
             x-data="huxTabs({
-              tabsId: 'account-settings',
               tabItems: [
                 { label: 'General', id: 'general' },
                 { label: 'Security', id: 'security' },
@@ -1691,9 +1689,9 @@ huxTabs({
             >
               <template x-for="(tabItem, tabIndex) in tabItems" :key="tabItem.id">
                 <button
-                  :id="tabIds[tabIndex]"
+                  :id="'tab-' + tabItem.id"
                   :aria-selected="(activeTabId === tabItem.id).toString()"
-                  :aria-controls="panelIds[tabIndex]"
+                  :aria-controls="'panel-' + tabItem.id"
                   :tabindex="activeTabId === tabItem.id ? '0' : '-1'"
                   role="tab"
                   type="button"
@@ -1714,8 +1712,8 @@ huxTabs({
             </div>
 
             <div
-              :id="getPanelId('general')"
-              :aria-labelledby="getTabId('general')"
+              id="panel-general"
+              aria-labelledby="tab-general"
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'general'"
@@ -1737,8 +1735,8 @@ huxTabs({
             </div>
 
             <div
-              :id="getPanelId('security')"
-              :aria-labelledby="getTabId('security')"
+              id="panel-security"
+              aria-labelledby="tab-security"
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'security'"
@@ -1757,8 +1755,8 @@ huxTabs({
             </div>
 
             <div
-              :id="getPanelId('notifications')"
-              :aria-labelledby="getTabId('notifications')"
+              id="panel-notifications"
+              aria-labelledby="tab-notifications"
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'notifications'"
@@ -1782,7 +1780,6 @@ huxTabs({
           >
 Options:
 - tabItems: {label: string, id: string}[] (default: [])
-- tabsId: string (optional, scopes generated element IDs)
 - activeTab: string (optional, id of the initially active tab)</pre
           >
 
@@ -1814,24 +1811,11 @@ Options:
         document.addEventListener('alpine:init', () => {
           Alpine.data('huxTabs', (initialConfig = {}) => ({
             activeTabId: initialConfig.activeTab ?? null,
-            tabsId: initialConfig.tabsId ?? null,
             tabItems: [],
-            tabIds: [],
-            panelIds: [],
 
             init() {
               this.tabItems = (initialConfig.tabItems ?? []).filter(
                 (tabItem) => tabItem?.label && tabItem?.id,
-              )
-
-              const idSuffix = this.tabsId ?? crypto.randomUUID()
-
-              this.tabIds = this.tabItems.map(
-                (tabItem) => `hux-tabs-tab-${idSuffix}-${tabItem.id}`,
-              )
-
-              this.panelIds = this.tabItems.map(
-                (tabItem) => `hux-tabs-panel-${idSuffix}-${tabItem.id}`,
               )
 
               const validIds = this.tabItems.map((tabItem) => tabItem.id)
@@ -1851,18 +1835,6 @@ Options:
               return this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
             },
 
-            getTabId(tabId) {
-              const tabIndex = this.findTabIndex(tabId)
-
-              return tabIndex >= 0 ? this.tabIds[tabIndex] : null
-            },
-
-            getPanelId(tabId) {
-              const tabIndex = this.findTabIndex(tabId)
-
-              return tabIndex >= 0 ? this.panelIds[tabIndex] : null
-            },
-
             selectTab(tabId) {
               const tabExists = this.findTabIndex(tabId) >= 0
 
@@ -1875,9 +1847,9 @@ Options:
 
             focusTab(tabIndex) {
               this.$nextTick(() => {
-                const tabElement = document.getElementById(this.tabIds[tabIndex])
+                const tabElements = this.$el.querySelectorAll('[role="tab"]')
 
-                tabElement?.focus()
+                tabElements[tabIndex]?.focus()
               })
             },
 
