@@ -1841,12 +1841,14 @@ Options:
               const validIds = this.tabItems.map((tab) => tab.id)
 
               if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
-                this.activeTabId = this.tabItems[0]?.id ?? null
+                this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
               }
             },
 
             get activeTabIndex() {
-              return this.tabItems.findIndex((tab) => tab.id === this.activeTabId)
+              const index = this.tabItems.findIndex((tab) => tab.id === this.activeTabId)
+
+              return index >= 0 ? index : 0
             },
 
             selectTab(tabId) {
