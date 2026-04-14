@@ -1655,8 +1655,7 @@ Events:
         >
           <p class="text-gray-700">
             Accessible tabs behavior with arrow-key navigation, roving tabindex,
-            panel association, and first-class support for horizontal and
-            vertical tab lists. Follows the WAI-ARIA tabs pattern with
+            and panel association. Follows the WAI-ARIA tabs pattern with
             <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tablist"</code>,
             <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tab"</code>, and
             <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tabpanel"</code>.
@@ -1670,9 +1669,9 @@ Events:
 huxTabs({
   tabsId: 'account-settings',
   tabItems: [
-    { label: 'General' },
-    { label: 'Security' },
-    { label: 'Notifications' }
+    { label: 'General', id: 'general' },
+    { label: 'Security', id: 'security' },
+    { label: 'Notifications', id: 'notifications' }
   ]
 })</pre
           >
@@ -1681,9 +1680,9 @@ huxTabs({
             x-data="huxTabs({
               tabsId: 'account-settings',
               tabItems: [
-                { label: 'General' },
-                { label: 'Security' },
-                { label: 'Notifications' }
+                { label: 'General', id: 'general' },
+                { label: 'Security', id: 'security' },
+                { label: 'Notifications', id: 'notifications' }
               ]
             })"
             data-hux-copy="tabsExample"
@@ -1691,27 +1690,26 @@ huxTabs({
           >
             <div
               role="tablist"
-              :aria-orientation="orientation"
               aria-label="Account settings"
               class="flex gap-1 border-b border-gray-200"
             >
-              <template x-for="(tab, tabIndex) in tabItems" :key="tabIndex">
+              <template x-for="(tab, tabIndex) in tabItems" :key="tab.id">
                 <button
                   :id="tabIds[tabIndex]"
-                  :aria-selected="(activeIndex === tabIndex).toString()"
+                  :aria-selected="(activeTabId === tab.id).toString()"
                   :aria-controls="panelIds[tabIndex]"
-                  :tabindex="activeIndex === tabIndex ? '0' : '-1'"
+                  :tabindex="activeTabId === tab.id ? '0' : '-1'"
                   role="tab"
                   type="button"
                   class="-mb-px px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-                  :class="activeIndex === tabIndex
+                  :class="activeTabId === tab.id
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                  @click="selectTab(tabIndex)"
-                  @keydown.right.prevent="handleInlineNavKey('next', 'horizontal')"
-                  @keydown.left.prevent="handleInlineNavKey('prev', 'horizontal')"
-                  @keydown.down.prevent="handleInlineNavKey('next', 'vertical')"
-                  @keydown.up.prevent="handleInlineNavKey('prev', 'vertical')"
+                  @click="selectTab(tab.id)"
+                  @keydown.right.prevent="focusNextTab()"
+                  @keydown.left.prevent="focusPreviousTab()"
+                  @keydown.down.prevent="focusNextTab()"
+                  @keydown.up.prevent="focusPreviousTab()"
                   @keydown.home.prevent="focusFirstTab()"
                   @keydown.end.prevent="focusLastTab()"
                   x-text="tab.label"
@@ -1724,7 +1722,7 @@ huxTabs({
               :aria-labelledby="tabIds[0]"
               role="tabpanel"
               tabindex="0"
-              x-show="activeIndex === 0"
+              x-show="activeTabId === 'general'"
               class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
@@ -1747,7 +1745,7 @@ huxTabs({
               :aria-labelledby="tabIds[1]"
               role="tabpanel"
               tabindex="0"
-              x-show="activeIndex === 1"
+              x-show="activeTabId === 'security'"
               class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
@@ -1767,7 +1765,7 @@ huxTabs({
               :aria-labelledby="tabIds[2]"
               role="tabpanel"
               tabindex="0"
-              x-show="activeIndex === 2"
+              x-show="activeTabId === 'notifications'"
               class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
@@ -1787,14 +1785,9 @@ huxTabs({
             class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 Options:
-- tabItems: {label: string}[] (default: [])
-- tabsId: string (optional, scopes emitted event names and IDs)
-- activeIndex: number (default: 0)
-- orientation: 'horizontal' | 'vertical' (default: 'horizontal')
-Events:
-- hux-tabs:{tabsId}:change
-- hux-tabs:change (fallback when tabsId is missing)
-Event detail: { tabsId, activeIndex, activeTab }</pre
+- tabItems: {label: string, id: string}[] (default: [])
+- tabsId: string (optional, scopes generated element IDs)
+- activeTab: string (optional, id of the initially active tab)</pre
           >
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
@@ -1824,8 +1817,7 @@ Event detail: { tabsId, activeIndex, activeTab }</pre
       <script data-hux-copy="tabsRegistrationCode">
         document.addEventListener('alpine:init', () => {
           Alpine.data('huxTabs', (initialConfig = {}) => ({
-            activeIndex: initialConfig.activeIndex ?? 0,
-            orientation: initialConfig.orientation ?? 'horizontal',
+            activeTabId: initialConfig.activeTab ?? null,
             tabsId: initialConfig.tabsId ?? null,
             tabItems: [],
             tabIds: [],
@@ -1833,32 +1825,38 @@ Event detail: { tabsId, activeIndex, activeTab }</pre
 
             init() {
               this.tabItems = (initialConfig.tabItems ?? []).filter(
-                (item) => item?.label,
+                (item) => item?.label && item?.id,
               )
 
               const idSuffix = this.tabsId ?? crypto.randomUUID()
 
               this.tabIds = this.tabItems.map(
-                (_, tabIndex) => `hux-tabs-tab-${idSuffix}-${tabIndex}`,
+                (tab) => `hux-tabs-tab-${idSuffix}-${tab.id}`,
               )
 
               this.panelIds = this.tabItems.map(
-                (_, tabIndex) => `hux-tabs-panel-${idSuffix}-${tabIndex}`,
+                (tab) => `hux-tabs-panel-${idSuffix}-${tab.id}`,
               )
 
-              if (this.activeIndex >= this.tabItems.length || this.activeIndex < 0) {
-                this.activeIndex = 0
+              const validIds = this.tabItems.map((tab) => tab.id)
+
+              if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
+                this.activeTabId = this.tabItems[0]?.id ?? null
               }
             },
 
-            selectTab(tabIndex) {
-              if (tabIndex < 0 || tabIndex >= this.tabItems.length) {
+            get activeTabIndex() {
+              return this.tabItems.findIndex((tab) => tab.id === this.activeTabId)
+            },
+
+            selectTab(tabId) {
+              const exists = this.tabItems.some((tab) => tab.id === tabId)
+
+              if (!exists) {
                 return
               }
 
-              this.activeIndex = tabIndex
-
-              this.dispatchTabsEvent('change')
+              this.activeTabId = tabId
             },
 
             focusTab(tabIndex) {
@@ -1870,59 +1868,33 @@ Event detail: { tabsId, activeIndex, activeTab }</pre
             },
 
             focusNextTab() {
+              const currentIndex = this.activeTabIndex
               const nextIndex =
-                this.activeIndex < this.tabItems.length - 1
-                  ? this.activeIndex + 1
-                  : 0
+                currentIndex < this.tabItems.length - 1 ? currentIndex + 1 : 0
 
-              this.selectTab(nextIndex)
+              this.selectTab(this.tabItems[nextIndex].id)
               this.focusTab(nextIndex)
             },
 
             focusPreviousTab() {
+              const currentIndex = this.activeTabIndex
               const prevIndex =
-                this.activeIndex > 0
-                  ? this.activeIndex - 1
-                  : this.tabItems.length - 1
+                currentIndex > 0 ? currentIndex - 1 : this.tabItems.length - 1
 
-              this.selectTab(prevIndex)
+              this.selectTab(this.tabItems[prevIndex].id)
               this.focusTab(prevIndex)
             },
 
-            handleInlineNavKey(direction, requiredOrientation) {
-              if (this.orientation !== requiredOrientation) {
-                return
-              }
-
-              if (direction === 'next') {
-                this.focusNextTab()
-              } else {
-                this.focusPreviousTab()
-              }
-            },
-
             focusFirstTab() {
-              this.selectTab(0)
+              this.selectTab(this.tabItems[0].id)
               this.focusTab(0)
             },
 
             focusLastTab() {
               const lastIndex = this.tabItems.length - 1
 
-              this.selectTab(lastIndex)
+              this.selectTab(this.tabItems[lastIndex].id)
               this.focusTab(lastIndex)
-            },
-
-            dispatchTabsEvent(eventName) {
-              const scopedEventName = this.tabsId
-                ? `hux-tabs:${this.tabsId}:${eventName}`
-                : `hux-tabs:${eventName}`
-
-              this.$dispatch(scopedEventName, {
-                tabsId: this.tabsId,
-                activeIndex: this.activeIndex,
-                activeTab: this.tabItems[this.activeIndex],
-              })
             },
           }))
         })
