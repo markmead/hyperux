@@ -1708,10 +1708,10 @@ huxTabs({
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                   @click="selectTab(tabIndex)"
-                  @keydown.right.prevent="if (orientation === 'horizontal') focusNextTab()"
-                  @keydown.left.prevent="if (orientation === 'horizontal') focusPreviousTab()"
-                  @keydown.down.prevent="if (orientation === 'vertical') focusNextTab()"
-                  @keydown.up.prevent="if (orientation === 'vertical') focusPreviousTab()"
+                  @keydown.right.prevent="handleInlineNavKey('next', 'horizontal')"
+                  @keydown.left.prevent="handleInlineNavKey('prev', 'horizontal')"
+                  @keydown.down.prevent="handleInlineNavKey('next', 'vertical')"
+                  @keydown.up.prevent="handleInlineNavKey('prev', 'vertical')"
                   @keydown.home.prevent="focusFirstTab()"
                   @keydown.end.prevent="focusLastTab()"
                   x-text="tab.label"
@@ -1846,7 +1846,7 @@ Event detail: { tabsId, activeIndex, activeTab }</pre
                 (_, tabIndex) => `hux-tabs-panel-${idSuffix}-${tabIndex}`,
               )
 
-              if (this.activeIndex >= this.tabItems.length) {
+              if (this.activeIndex >= this.tabItems.length || this.activeIndex < 0) {
                 this.activeIndex = 0
               }
             },
@@ -1887,6 +1887,18 @@ Event detail: { tabsId, activeIndex, activeTab }</pre
 
               this.selectTab(prevIndex)
               this.focusTab(prevIndex)
+            },
+
+            handleInlineNavKey(direction, requiredOrientation) {
+              if (this.orientation !== requiredOrientation) {
+                return
+              }
+
+              if (direction === 'next') {
+                this.focusNextTab()
+              } else {
+                this.focusPreviousTab()
+              }
             },
 
             focusFirstTab() {
