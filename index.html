@@ -1595,11 +1595,7 @@ Options:
 - menuItems: {label: string, href?: string, action?: string, target?: string}[] (default: [])
 - triggerId: string (optional, scopes emitted event names and IDs)
 Events:
-- hux-dropdown:{triggerId}:open
-- hux-dropdown:{triggerId}:close
 - hux-dropdown:{triggerId}:action
-- hux-dropdown:open (fallback when triggerId is missing)
-- hux-dropdown:close (fallback when triggerId is missing)
 - hux-dropdown:action (fallback when triggerId is missing)</pre
           >
 
@@ -1693,26 +1689,26 @@ huxTabs({
               aria-label="Account settings"
               class="flex gap-1 border-b border-gray-200"
             >
-              <template x-for="(tab, tabIndex) in tabItems" :key="tab.id">
+              <template x-for="(tabItem, tabIndex) in tabItems" :key="tabItem.id">
                 <button
                   :id="tabIds[tabIndex]"
-                  :aria-selected="(activeTabId === tab.id).toString()"
+                  :aria-selected="(activeTabId === tabItem.id).toString()"
                   :aria-controls="panelIds[tabIndex]"
-                  :tabindex="activeTabId === tab.id ? '0' : '-1'"
+                  :tabindex="activeTabId === tabItem.id ? '0' : '-1'"
                   role="tab"
                   type="button"
                   class="-mb-px px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-                  :class="activeTabId === tab.id
+                  :class="activeTabId === tabItem.id
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                  @click="selectTab(tab.id)"
+                  @click="selectTab(tabItem.id)"
                   @keydown.right.prevent="focusNextTab()"
                   @keydown.left.prevent="focusPreviousTab()"
                   @keydown.down.prevent="focusNextTab()"
                   @keydown.up.prevent="focusPreviousTab()"
                   @keydown.home.prevent="focusFirstTab()"
                   @keydown.end.prevent="focusLastTab()"
-                  x-text="tab.label"
+                  x-text="tabItem.label"
                 ></button>
               </template>
             </div>
@@ -1825,20 +1821,20 @@ Options:
 
             init() {
               this.tabItems = (initialConfig.tabItems ?? []).filter(
-                (item) => item?.label && item?.id,
+                (tabItem) => tabItem?.label && tabItem?.id,
               )
 
               const idSuffix = this.tabsId ?? crypto.randomUUID()
 
               this.tabIds = this.tabItems.map(
-                (tab) => `hux-tabs-tab-${idSuffix}-${tab.id}`,
+                (tabItem) => `hux-tabs-tab-${idSuffix}-${tabItem.id}`,
               )
 
               this.panelIds = this.tabItems.map(
-                (tab) => `hux-tabs-panel-${idSuffix}-${tab.id}`,
+                (tabItem) => `hux-tabs-panel-${idSuffix}-${tabItem.id}`,
               )
 
-              const validIds = this.tabItems.map((tab) => tab.id)
+              const validIds = this.tabItems.map((tabItem) => tabItem.id)
 
               if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
                 this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
@@ -1846,15 +1842,15 @@ Options:
             },
 
             get activeTabIndex() {
-              const index = this.tabItems.findIndex((tab) => tab.id === this.activeTabId)
+              const foundIndex = this.tabItems.findIndex((tabItem) => tabItem.id === this.activeTabId)
 
-              return index >= 0 ? index : 0
+              return foundIndex >= 0 ? foundIndex : 0
             },
 
             selectTab(tabId) {
-              const exists = this.tabItems.some((tab) => tab.id === tabId)
+              const tabExists = this.tabItems.some((tabItem) => tabItem.id === tabId)
 
-              if (!exists) {
+              if (!tabExists) {
                 return
               }
 
@@ -1932,15 +1928,11 @@ Options:
 
             openMenu() {
               this.isOpen = true
-
-              this.dispatchDropdownEvent('open')
             },
 
             closeMenu(restoreFocus = false) {
               this.isOpen = false
               this.focusedIndex = -1
-
-              this.dispatchDropdownEvent('close')
 
               if (restoreFocus) {
                 this.$nextTick(() => this.$refs.dropdownTrigger?.focus())
@@ -2024,14 +2016,6 @@ Options:
               }
 
               this.closeMenu()
-            },
-
-            dispatchDropdownEvent(eventName) {
-              const scopedEventName = this.triggerId
-                ? `hux-dropdown:${this.triggerId}:${eventName}`
-                : `hux-dropdown:${eventName}`
-
-              this.$dispatch(scopedEventName, { triggerId: this.triggerId })
             },
           }))
         })
