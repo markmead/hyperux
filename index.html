@@ -1595,11 +1595,7 @@ Options:
 - menuItems: {label: string, href?: string, action?: string, target?: string}[] (default: [])
 - triggerId: string (optional, scopes emitted event names and IDs)
 Events:
-- hux-dropdown:{triggerId}:open
-- hux-dropdown:{triggerId}:close
 - hux-dropdown:{triggerId}:action
-- hux-dropdown:open (fallback when triggerId is missing)
-- hux-dropdown:close (fallback when triggerId is missing)
 - hux-dropdown:action (fallback when triggerId is missing)</pre
           >
 
@@ -1627,7 +1623,7 @@ Events:
         </div>
       </details>
 
-      <details id="component-tabs" class="group">
+      <details id="component-tabs" open class="group">
         <summary
           class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
         >
@@ -1648,39 +1644,277 @@ Events:
           </svg>
 
           <h2 class="text-xl font-semibold">Tabs</h2>
-
-          <span
-            class="inline-flex items-center rounded-full border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-gray-600"
-          >
-            WIP
-          </span>
         </summary>
 
         <div
-          class="border border-dashed border-gray-300 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
         >
           <p class="text-gray-700">
             Accessible tabs behavior with arrow-key navigation, roving tabindex,
-            panel association, and first-class support for horizontal and
-            vertical tab lists.
+            and panel association. Follows the WAI-ARIA tabs pattern with
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tablist"</code>,
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tab"</code>, and
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tabpanel"</code>.
           </p>
 
-          <p class="text-gray-700">
-            This experiment is in progress. The goal is a practical tabs pattern
-            for settings pages, dashboards, and docs-style layouts that stays
-            ergonomic to adapt.
-          </p>
+          <p class="font-semibold"> Config Used for This Demo </p>
 
-          <a
-            href="https://github.com/markmead/hyperux/issues/new"
-            target="_blank"
-            rel="noreferrer"
-            class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
-            Want this sooner or have a use case? Open an issue.
-          </a>
+huxTabs({
+  tabItems: [
+    { label: 'General', id: 'general' },
+    { label: 'Security', id: 'security' },
+    { label: 'Notifications', id: 'notifications' }
+  ],
+  useHash: true
+})</pre
+          >
+
+          <div
+            x-data="huxTabs({
+              tabItems: [
+                { label: 'General', id: 'general' },
+                { label: 'Security', id: 'security' },
+                { label: 'Notifications', id: 'notifications' }
+              ],
+              useHash: true
+            })"
+            data-hux-copy="tabsExample"
+            class="space-y-4"
+          >
+            <div
+              role="tablist"
+              aria-label="Account settings"
+              class="flex gap-1 border-b border-gray-200"
+            >
+              <template x-for="(tabItem, tabIndex) in tabItems" :key="tabItem.id">
+                <button
+                  :id="`tab-${tabItem.id}`"
+                  :aria-selected="(activeTabId === tabItem.id).toString()"
+                  :aria-controls="`panel-${tabItem.id}`"
+                  :tabindex="activeTabId === tabItem.id ? '0' : '-1'"
+                  role="tab"
+                  type="button"
+                  class="-mb-px px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                  :class="activeTabId === tabItem.id
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                  @click="selectTab(tabItem.id)"
+                  @keydown.right.prevent="focusNextTab()"
+                  @keydown.left.prevent="focusPreviousTab()"
+                  @keydown.down.prevent="focusNextTab()"
+                  @keydown.up.prevent="focusPreviousTab()"
+                  @keydown.home.prevent="focusFirstTab()"
+                  @keydown.end.prevent="focusLastTab()"
+                  x-text="tabItem.label"
+                ></button>
+              </template>
+            </div>
+
+            <div
+              id="panel-general"
+              aria-labelledby="tab-general"
+              role="tabpanel"
+              tabindex="0"
+              x-show="activeTabId === 'general'"
+              x-cloak
+            >
+              <div class="space-y-3">
+                <h3 class="font-semibold text-gray-900">General Settings</h3>
+                <p class="text-sm text-gray-600">Manage your account name, email, and preferences.</p>
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700" for="settings-name">Display name</label>
+                  <input
+                    id="settings-name"
+                    type="text"
+                    placeholder="Your name"
+                    class="w-full max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div
+              id="panel-security"
+              aria-labelledby="tab-security"
+              role="tabpanel"
+              tabindex="0"
+              x-show="activeTabId === 'security'"
+              x-cloak
+            >
+              <div class="space-y-3">
+                <h3 class="font-semibold text-gray-900">Security Settings</h3>
+                <p class="text-sm text-gray-600">Update your password and two-factor authentication options.</p>
+                <button
+                  type="button"
+                  class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+                >
+                  Change Password
+                </button>
+              </div>
+            </div>
+
+            <div
+              id="panel-notifications"
+              aria-labelledby="tab-notifications"
+              role="tabpanel"
+              tabindex="0"
+              x-show="activeTabId === 'notifications'"
+              x-cloak
+            >
+              <div class="space-y-3">
+                <h3 class="font-semibold text-gray-900">Notification Settings</h3>
+                <p class="text-sm text-gray-600">Choose which notifications you want to receive.</p>
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" class="rounded border-gray-300" checked />
+                  Email me about product updates
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- tabItems: {label: string, id: string}[] (default: [])
+- activeTab: string (optional, id of the initially active tab)
+- useHash: boolean (default: false, initialize active tab from and update URL hash)</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['tabsExample', 'tabsRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
         </div>
       </details>
+
+      <script data-hux-copy="tabsRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxTabs', (initialConfig = {}) => ({
+            activeTabId: initialConfig.activeTab ?? null,
+            tabItems: [],
+            useHash: initialConfig.useHash ?? false,
+
+            init() {
+              this.tabItems = (initialConfig.tabItems ?? []).filter(
+                (tabItem) => tabItem?.label && tabItem?.id,
+              )
+
+              const validIds = this.tabItems.map((tabItem) => tabItem.id)
+
+              if (this.useHash && typeof globalThis.location !== 'undefined') {
+                let hashId = globalThis.location.hash.slice(1)
+
+                try {
+                  hashId = decodeURIComponent(hashId)
+                } catch {
+                  // malformed percent-encoding; use raw hash value
+                }
+
+                if (hashId && validIds.includes(hashId)) {
+                  this.activeTabId = hashId
+                }
+              }
+
+              if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
+                this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
+              }
+            },
+
+            get activeTabIndex() {
+              const foundIndex = this.findTabIndex(this.activeTabId)
+
+              return foundIndex >= 0 ? foundIndex : 0
+            },
+
+            findTabIndex(tabId) {
+              return this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+            },
+
+            selectTab(tabId) {
+              const tabExists = this.findTabIndex(tabId) >= 0
+
+              if (!tabExists) {
+                return
+              }
+
+              this.activeTabId = tabId
+
+              if (this.useHash && typeof globalThis.history !== 'undefined') {
+                history.replaceState(null, '', `#${encodeURIComponent(tabId)}`)
+              }
+            },
+
+            focusTab(tabId) {
+              this.$nextTick(() => {
+                const tabIndex = this.findTabIndex(tabId)
+
+                if (tabIndex === -1) return
+
+                const tabElements = this.$el.querySelectorAll('[role="tab"]')
+
+                tabElements[tabIndex]?.focus()
+              })
+            },
+
+            focusNextTab() {
+              const currentIndex = this.activeTabIndex
+              const nextIndex =
+                currentIndex < this.tabItems.length - 1 ? currentIndex + 1 : 0
+              const nextTabId = this.tabItems[nextIndex].id
+
+              this.selectTab(nextTabId)
+              this.focusTab(nextTabId)
+            },
+
+            focusPreviousTab() {
+              const currentIndex = this.activeTabIndex
+              const prevIndex =
+                currentIndex > 0 ? currentIndex - 1 : this.tabItems.length - 1
+              const prevTabId = this.tabItems[prevIndex].id
+
+              this.selectTab(prevTabId)
+              this.focusTab(prevTabId)
+            },
+
+            focusFirstTab() {
+              const firstTabId = this.tabItems[0].id
+
+              this.selectTab(firstTabId)
+              this.focusTab(firstTabId)
+            },
+
+            focusLastTab() {
+              const lastTabId = this.tabItems.at(-1).id
+
+              this.selectTab(lastTabId)
+              this.focusTab(lastTabId)
+            },
+          }))
+        })
+      </script>
 
       <script data-hux-copy="dropdownRegistrationCode">
         document.addEventListener('alpine:init', () => {
@@ -1712,15 +1946,11 @@ Events:
 
             openMenu() {
               this.isOpen = true
-
-              this.dispatchDropdownEvent('open')
             },
 
             closeMenu(restoreFocus = false) {
               this.isOpen = false
               this.focusedIndex = -1
-
-              this.dispatchDropdownEvent('close')
 
               if (restoreFocus) {
                 this.$nextTick(() => this.$refs.dropdownTrigger?.focus())
@@ -1804,14 +2034,6 @@ Events:
               }
 
               this.closeMenu()
-            },
-
-            dispatchDropdownEvent(eventName) {
-              const scopedEventName = this.triggerId
-                ? `hux-dropdown:${this.triggerId}:${eventName}`
-                : `hux-dropdown:${eventName}`
-
-              this.$dispatch(scopedEventName, { triggerId: this.triggerId })
             },
           }))
         })
