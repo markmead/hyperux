@@ -2827,7 +2827,8 @@ huxResizable({
     { label: 'xl', minWidth: 1024 }
   ],
   minWidth: 200,
-  maxWidth: null
+  maxWidth: null,
+  preventOverflow: true
 })</pre
           >
 
@@ -2841,7 +2842,8 @@ huxResizable({
                 { label: 'xl', minWidth: 1024 }
               ],
               minWidth: 200,
-              maxWidth: null
+              maxWidth: null,
+              preventOverflow: true
             })"
             data-hux-copy="resizableExample"
             class="space-y-3"
@@ -2936,6 +2938,7 @@ Options:
 - breakpoints: { label: string, minWidth: number }[] (default: Tailwind-like xs/sm/md/lg/xl)
 - minWidth: number (default: 200, minimum drag width in px)
 - maxWidth: number | null (default: null, maximum drag width in px — null means unrestricted)
+- preventOverflow: boolean (default: true, clamp width to the parent element's width)
 
 Reactive properties (accessible in your template via x-bind / x-text / :class etc.):
 - currentWidth: number — current pixel width of the container
@@ -2976,6 +2979,7 @@ Methods (available for keyboard / programmatic control):
             currentWidth: 0,
             minWidth: initialConfig.minWidth ?? 200,
             maxWidth: initialConfig.maxWidth ?? null,
+            preventOverflow: initialConfig.preventOverflow ?? true,
             breakpoints: [],
             activeBreakpoint: null,
 
@@ -3042,6 +3046,15 @@ Methods (available for keyboard / programmatic control):
 
               if (this.maxWidth !== null && this.maxWidth > 0) {
                 clamped = Math.min(clamped, this.maxWidth)
+              }
+
+              if (this.preventOverflow) {
+                const container = this.$refs.resizableContainer
+                const parentWidth = container?.parentElement?.offsetWidth ?? null
+
+                if (parentWidth !== null && parentWidth > 0) {
+                  clamped = Math.min(clamped, parentWidth)
+                }
               }
 
               return clamped
