@@ -1715,9 +1715,7 @@ huxTabs({
               id="panel-general"
               aria-labelledby="tab-general"
               role="tabpanel"
-              tabindex="0"
               x-show="activeTabId === 'general'"
-              class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">General Settings</h3>
@@ -1738,9 +1736,7 @@ huxTabs({
               id="panel-security"
               aria-labelledby="tab-security"
               role="tabpanel"
-              tabindex="0"
               x-show="activeTabId === 'security'"
-              class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">Security Settings</h3>
@@ -1758,9 +1754,7 @@ huxTabs({
               id="panel-notifications"
               aria-labelledby="tab-notifications"
               role="tabpanel"
-              tabindex="0"
               x-show="activeTabId === 'notifications'"
-              class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">Notification Settings</h3>
@@ -1780,7 +1774,8 @@ huxTabs({
           >
 Options:
 - tabItems: {label: string, id: string}[] (default: [])
-- activeTab: string (optional, id of the initially active tab)</pre
+- activeTab: string (optional, id of the initially active tab)
+- useHash: boolean (default: false, sync active tab with URL hash)</pre
           >
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
@@ -1812,6 +1807,7 @@ Options:
           Alpine.data('huxTabs', (initialConfig = {}) => ({
             activeTabId: initialConfig.activeTab ?? null,
             tabItems: [],
+            useHash: initialConfig.useHash ?? false,
 
             init() {
               this.tabItems = (initialConfig.tabItems ?? []).filter(
@@ -1819,6 +1815,14 @@ Options:
               )
 
               const validIds = this.tabItems.map((tabItem) => tabItem.id)
+
+              if (this.useHash) {
+                const hashId = decodeURIComponent(window.location.hash.slice(1))
+
+                if (hashId && validIds.includes(hashId)) {
+                  this.activeTabId = hashId
+                }
+              }
 
               if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
                 this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
@@ -1843,6 +1847,10 @@ Options:
               }
 
               this.activeTabId = tabId
+
+              if (this.useHash) {
+                history.replaceState(null, '', `#${encodeURIComponent(tabId)}`)
+              }
             },
 
             focusTab(tabId) {
