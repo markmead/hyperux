@@ -1717,6 +1717,7 @@ huxTabs({
               id="panel-general"
               aria-labelledby="tab-general"
               role="tabpanel"
+              tabindex="0"
               x-show="activeTabId === 'general'"
             >
               <div class="space-y-3">
@@ -1738,6 +1739,7 @@ huxTabs({
               id="panel-security"
               aria-labelledby="tab-security"
               role="tabpanel"
+              tabindex="0"
               x-show="activeTabId === 'security'"
             >
               <div class="space-y-3">
@@ -1756,6 +1758,7 @@ huxTabs({
               id="panel-notifications"
               aria-labelledby="tab-notifications"
               role="tabpanel"
+              tabindex="0"
               x-show="activeTabId === 'notifications'"
             >
               <div class="space-y-3">
@@ -1777,7 +1780,7 @@ huxTabs({
 Options:
 - tabItems: {label: string, id: string}[] (default: [])
 - activeTab: string (optional, id of the initially active tab)
-- useHash: boolean (default: false, sync active tab with URL hash)</pre
+- useHash: boolean (default: false, initialize active tab from and update URL hash)</pre
           >
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
@@ -1818,8 +1821,14 @@ Options:
 
               const validIds = this.tabItems.map((tabItem) => tabItem.id)
 
-              if (this.useHash) {
-                const hashId = decodeURIComponent(globalThis.location.hash.slice(1))
+              if (this.useHash && typeof globalThis.location !== 'undefined') {
+                let hashId = globalThis.location.hash.slice(1)
+
+                try {
+                  hashId = decodeURIComponent(hashId)
+                } catch {
+                  // malformed percent-encoding; use raw hash value
+                }
 
                 if (hashId && validIds.includes(hashId)) {
                   this.activeTabId = hashId
@@ -1850,7 +1859,7 @@ Options:
 
               this.activeTabId = tabId
 
-              if (this.useHash) {
+              if (this.useHash && typeof globalThis.history !== 'undefined') {
                 history.replaceState(null, '', `#${encodeURIComponent(tabId)}`)
               }
             },
