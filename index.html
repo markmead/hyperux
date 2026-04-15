@@ -155,7 +155,8 @@
               { label: 'Dialog', href: '#component-dialog' },
               { label: 'Command Palette', href: '#component-command-palette' },
               { label: 'Dropdown', href: '#component-dropdown' },
-              { label: 'Tabs', href: '#component-tabs' }
+              { label: 'Tabs', href: '#component-tabs' },
+              { label: 'Resizable', href: '#component-resizable' }
             ]
           })"
           class="relative inline-block"
@@ -2772,6 +2773,336 @@ Options:
                 }, this.timeoutDuration)
               } catch (copyError) {
                 console.error('[huxCopy] Copy failed', copyError)
+              }
+            },
+          }))
+        })
+      </script>
+      <details id="component-resizable" open class="group">
+        <summary
+          class="inline-flex items-center gap-2 cursor-pointer [&::-webkit-details-marker]:hidden"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            class="size-5 group-open:rotate-180 shrink-0"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+
+          <h2 class="text-xl font-semibold">Resizable</h2>
+        </summary>
+
+        <div
+          class="border border-gray-200 rounded-lg p-6 bg-white space-y-4 shadow-sm mt-4"
+        >
+          <p class="text-gray-700">
+            Drag-to-resize container that tracks its own width against
+            configurable breakpoints. The current breakpoint label updates live
+            as you drag, letting you visually test responsive layouts without
+            relying on the browser window size or CSS
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">@container</code>
+            queries.
+          </p>
+
+          <p class="font-semibold"> Config Used for This Demo </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+huxResizable({
+  breakpoints: [
+    { label: 'xs', minWidth: 0 },
+    { label: 'sm', minWidth: 384 },
+    { label: 'md', minWidth: 512 },
+    { label: 'lg', minWidth: 768 },
+    { label: 'xl', minWidth: 1024 }
+  ],
+  minWidth: 200,
+  maxWidth: null
+})</pre
+          >
+
+          <div
+            x-data="huxResizable({
+              breakpoints: [
+                { label: 'xs', minWidth: 0 },
+                { label: 'sm', minWidth: 384 },
+                { label: 'md', minWidth: 512 },
+                { label: 'lg', minWidth: 768 },
+                { label: 'xl', minWidth: 1024 }
+              ],
+              minWidth: 200,
+              maxWidth: null
+            })"
+            data-hux-copy="resizableExample"
+            class="space-y-3"
+          >
+            <div
+              x-ref="resizableContainer"
+              class="relative overflow-hidden rounded-lg border border-gray-300 bg-gray-50"
+              :style="`width: ${currentWidth}px; min-width: ${minWidth}px;`"
+            >
+              <div class="p-4 space-y-3">
+                <div class="flex items-center justify-between gap-2">
+                  <p class="text-sm text-gray-500">Current breakpoint:</p>
+
+                  <span
+                    class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                    :class="{
+                      'border-gray-300 bg-white text-gray-700': activeBreakpoint === 'xs',
+                      'border-green-300 bg-green-100 text-green-800': activeBreakpoint === 'sm',
+                      'border-blue-300 bg-blue-100 text-blue-800': activeBreakpoint === 'md',
+                      'border-purple-300 bg-purple-100 text-purple-800': activeBreakpoint === 'lg',
+                      'border-amber-300 bg-amber-100 text-amber-800': activeBreakpoint === 'xl'
+                    }"
+                    x-text="activeBreakpoint"
+                    aria-live="polite"
+                    aria-label="Current breakpoint"
+                  ></span>
+                </div>
+
+                <div
+                  class="grid gap-3"
+                  :class="{
+                    'grid-cols-1': activeBreakpoint === 'xs',
+                    'grid-cols-2': activeBreakpoint === 'sm' || activeBreakpoint === 'md',
+                    'grid-cols-3': activeBreakpoint === 'lg' || activeBreakpoint === 'xl'
+                  }"
+                >
+                  <div class="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+                    <p class="text-sm font-medium text-gray-900">Card One</p>
+                    <p class="text-xs text-gray-500 mt-1">First example card.</p>
+                  </div>
+
+                  <div class="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+                    <p class="text-sm font-medium text-gray-900">Card Two</p>
+                    <p class="text-xs text-gray-500 mt-1">Second example card.</p>
+                  </div>
+
+                  <div class="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+                    <p class="text-sm font-medium text-gray-900">Card Three</p>
+                    <p class="text-xs text-gray-500 mt-1">Third example card.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Drag to resize"
+                class="absolute right-0 top-0 flex h-full w-3 cursor-col-resize items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+                @mousedown.prevent="startDrag($event)"
+                @touchstart.prevent="startDrag($event)"
+                @keydown.right.prevent="nudgeWidth(8)"
+                @keydown.left.prevent="nudgeWidth(-8)"
+                @keydown.shift.right.prevent="nudgeWidth(32)"
+                @keydown.shift.left.prevent="nudgeWidth(-32)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  class="size-3 text-gray-500"
+                >
+                  <path d="M8 5a1 1 0 1 0 0 14A1 1 0 0 0 8 5Zm8 0a1 1 0 1 0 0 14 1 1 0 0 0 0-14Z" />
+                </svg>
+              </button>
+            </div>
+
+            <p class="text-xs text-gray-400">
+              Drag the right edge — or focus it and use arrow keys — to resize the container.
+            </p>
+          </div>
+
+          <p class="font-semibold"> All Options </p>
+
+          <pre
+            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
+          >
+Options:
+- breakpoints: { label: string, minWidth: number }[] (default: Tailwind-like xs/sm/md/lg/xl)
+- minWidth: number (default: 200, minimum drag width in px)
+- maxWidth: number | null (default: null, maximum drag width in px — null means unrestricted)
+
+Reactive properties (accessible in your template via x-bind / x-text / :class etc.):
+- currentWidth: number — current pixel width of the container
+- activeBreakpoint: string | null — label of the matched breakpoint (e.g. 'sm', 'md')
+
+Methods (available for keyboard / programmatic control):
+- nudgeWidth(delta: number) — adjust currentWidth by delta px (clamped to minWidth/maxWidth)</pre
+          >
+
+          <div class="flex gap-4 flex-wrap justify-between items-center">
+            <button
+              x-data="huxCopy({ sourceNames: ['resizableExample', 'resizableRegistrationCode'] })"
+              class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100"
+              @click="copyToClipboard()"
+            >
+              <span
+                aria-live="polite"
+                x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
+              ></span>
+            </button>
+
+            <a
+              href="https://github.com/markmead/hyperux/issues/new"
+              target="_blank"
+              rel="noreferrer"
+              class="text-sky-600 inline-block underline underline-offset-2 hover:text-sky-700"
+            >
+              Found a bug or improvement? Open an issue.
+            </a>
+          </div>
+        </div>
+      </details>
+
+      <script data-hux-copy="resizableRegistrationCode">
+        document.addEventListener('alpine:init', () => {
+          Alpine.data('huxResizable', (initialConfig = {}) => ({
+            currentWidth: 0,
+            minWidth: initialConfig.minWidth ?? 200,
+            maxWidth: initialConfig.maxWidth ?? null,
+            breakpoints: [],
+            activeBreakpoint: null,
+
+            _dragStartX: 0,
+            _dragStartWidth: 0,
+            _boundOnDragMove: null,
+            _boundOnDragEnd: null,
+
+            init() {
+              const defaultBreakpoints = [
+                { label: 'xs', minWidth: 0 },
+                { label: 'sm', minWidth: 384 },
+                { label: 'md', minWidth: 512 },
+                { label: 'lg', minWidth: 768 },
+                { label: 'xl', minWidth: 1024 },
+              ]
+
+              const rawBreakpoints = Array.isArray(initialConfig.breakpoints)
+                ? initialConfig.breakpoints
+                : defaultBreakpoints
+
+              this.breakpoints = rawBreakpoints
+                .filter(
+                  (bp) =>
+                    bp &&
+                    typeof bp.label === 'string' &&
+                    typeof bp.minWidth === 'number',
+                )
+                .sort((a, b) => a.minWidth - b.minWidth)
+
+              this.$nextTick(() => {
+                const containerElement = this.$refs.resizableContainer
+
+                if (containerElement) {
+                  this.currentWidth = containerElement.offsetWidth
+                } else {
+                  this.currentWidth = this.minWidth
+                }
+
+                this._updateBreakpoint()
+              })
+            },
+
+            _updateBreakpoint() {
+              if (this.breakpoints.length === 0) {
+                this.activeBreakpoint = null
+
+                return
+              }
+
+              let matched = this.breakpoints[0]
+
+              for (const bp of this.breakpoints) {
+                if (this.currentWidth >= bp.minWidth) {
+                  matched = bp
+                }
+              }
+
+              this.activeBreakpoint = matched.label
+            },
+
+            _clampWidth(rawWidth) {
+              let clamped = Math.max(rawWidth, this.minWidth)
+
+              if (this.maxWidth !== null && this.maxWidth > 0) {
+                clamped = Math.min(clamped, this.maxWidth)
+              }
+
+              return clamped
+            },
+
+            startDrag(pointerEvent) {
+              const clientX =
+                pointerEvent.touches
+                  ? pointerEvent.touches[0].clientX
+                  : pointerEvent.clientX
+
+              this._dragStartX = clientX
+              this._dragStartWidth = this.currentWidth
+
+              this._boundOnDragMove = this._onDragMove.bind(this)
+              this._boundOnDragEnd = this._onDragEnd.bind(this)
+
+              document.addEventListener('mousemove', this._boundOnDragMove)
+              document.addEventListener('mouseup', this._boundOnDragEnd)
+              document.addEventListener('touchmove', this._boundOnDragMove, {
+                passive: false,
+              })
+              document.addEventListener('touchend', this._boundOnDragEnd)
+            },
+
+            _onDragMove(pointerEvent) {
+              if (pointerEvent.cancelable) {
+                pointerEvent.preventDefault()
+              }
+
+              const clientX =
+                pointerEvent.touches
+                  ? pointerEvent.touches[0].clientX
+                  : pointerEvent.clientX
+
+              const delta = clientX - this._dragStartX
+              const rawWidth = this._dragStartWidth + delta
+
+              this.currentWidth = this._clampWidth(rawWidth)
+              this._updateBreakpoint()
+            },
+
+            _onDragEnd() {
+              document.removeEventListener('mousemove', this._boundOnDragMove)
+              document.removeEventListener('mouseup', this._boundOnDragEnd)
+              document.removeEventListener('touchmove', this._boundOnDragMove)
+              document.removeEventListener('touchend', this._boundOnDragEnd)
+
+              this._boundOnDragMove = null
+              this._boundOnDragEnd = null
+            },
+
+            nudgeWidth(delta) {
+              this.currentWidth = this._clampWidth(this.currentWidth + delta)
+              this._updateBreakpoint()
+            },
+
+            destroy() {
+              if (this._boundOnDragMove) {
+                document.removeEventListener('mousemove', this._boundOnDragMove)
+                document.removeEventListener('touchmove', this._boundOnDragMove)
+              }
+
+              if (this._boundOnDragEnd) {
+                document.removeEventListener('mouseup', this._boundOnDragEnd)
+                document.removeEventListener('touchend', this._boundOnDragEnd)
               }
             },
           }))
