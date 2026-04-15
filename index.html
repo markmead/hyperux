@@ -750,7 +750,7 @@ huxCopy({
             class="rounded-md border border-gray-200 bg-gray-50 p-4 space-y-4"
           >
             <div data-hux-copy="copyExample" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
                   class="p-4 border border-dashed border-gray-200 bg-white rounded-md space-y-4"
                   data-hux-copy="copyExampleA"
@@ -1477,7 +1477,7 @@ huxDropdown({
           >
 
           <div
-              x-data="huxDropdown({
+            x-data="huxDropdown({
                 triggerId: 'options-menu',
                 menuItems: [
                   { label: 'View Profile', href: '#' },
@@ -1486,106 +1486,106 @@ huxDropdown({
                   { label: 'Copy Page URL', action: 'copyPageUrl' }
                 ]
               })"
-              data-hux-copy="dropdownExample"
-              class="relative inline-block"
-              @click.outside="closeMenu()"
-              @hux-dropdown:options-menu:action="
+            data-hux-copy="dropdownExample"
+            class="relative inline-block"
+            @click.outside="closeMenu()"
+            @hux-dropdown:options-menu:action="
                 (async () => {
                   if ($event.detail.action !== 'copyPageUrl') return
                   try {
                     await navigator.clipboard.writeText(location.href)
                   } catch (_) {}
                 })()"
+          >
+            <button
+              x-ref="dropdownTrigger"
+              :id="triggerButtonId"
+              type="button"
+              :aria-expanded="isOpen.toString()"
+              aria-haspopup="menu"
+              :aria-controls="menuId"
+              class="inline-flex items-center gap-2 px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
+              @click="toggleMenu()"
+              @keydown.down.prevent="openMenu(); focusFirstItem()"
+              @keydown.up.prevent="openMenu(); focusLastItem()"
+              @keydown.escape.prevent="closeMenu(true)"
+              @keydown.tab="if (isOpen) closeMenu()"
             >
-              <button
-                x-ref="dropdownTrigger"
-                :id="triggerButtonId"
-                type="button"
-                :aria-expanded="isOpen.toString()"
-                aria-haspopup="menu"
-                :aria-controls="menuId"
-                class="inline-flex items-center gap-2 px-4 py-2 font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
-                @click="toggleMenu()"
-                @keydown.down.prevent="openMenu(); focusFirstItem()"
-                @keydown.up.prevent="openMenu(); focusLastItem()"
-                @keydown.escape.prevent="closeMenu(true)"
-                @keydown.tab="if (isOpen) closeMenu()"
+              <span>Options</span>
+
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+                class="size-4 transition-transform"
+                :class="{ 'rotate-180': isOpen }"
               >
-                <span>Options</span>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                />
+              </svg>
+            </button>
 
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                  class="size-4 transition-transform"
-                  :class="{ 'rotate-180': isOpen }"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </button>
-
-              <div
-                x-cloak
-                x-show="isOpen"
-                x-transition
-                :id="menuId"
-                role="menu"
-                :aria-labelledby="triggerButtonId"
-                class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
-                @keydown.down.prevent="focusNextItem()"
-                @keydown.up.prevent="focusPreviousItem()"
-                @keydown.escape.stop.prevent="closeMenu(true)"
-                @keydown.home.prevent="focusFirstItem()"
-                @keydown.end.prevent="focusLastItem()"
-                @keydown.tab="closeMenu()"
+            <div
+              x-cloak
+              x-show="isOpen"
+              x-transition
+              :id="menuId"
+              role="menu"
+              :aria-labelledby="triggerButtonId"
+              class="absolute left-0 z-10 mt-2 min-w-48 border border-gray-200 rounded-md bg-white shadow-md overflow-hidden"
+              @keydown.down.prevent="focusNextItem()"
+              @keydown.up.prevent="focusPreviousItem()"
+              @keydown.escape.stop.prevent="closeMenu(true)"
+              @keydown.home.prevent="focusFirstItem()"
+              @keydown.end.prevent="focusLastItem()"
+              @keydown.tab="closeMenu()"
+            >
+              <template
+                x-for="(menuItem, menuIndex) in menuItems"
+                :key="menuIndex"
               >
-                <template
-                  x-for="(menuItem, menuIndex) in menuItems"
-                  :key="menuIndex"
-                >
-                  <div role="none">
-                    <template x-if="menuItem.href">
-                      <a
-                        :id="menuItemIds[menuIndex]"
-                        :href="menuItem.href"
-                        :target="menuItem.target || null"
-                        :rel="menuItem.target === '_blank' ? 'noreferrer' : null"
-                        :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
-                        :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
-                        role="menuitem"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                        @click="selectItem(menuItem)"
-                        @mouseenter="focusedIndex = menuIndex"
-                        @focus="focusedIndex = menuIndex"
-                        x-text="menuItem.label"
-                      ></a>
-                    </template>
+                <div role="none">
+                  <template x-if="menuItem.href">
+                    <a
+                      :id="menuItemIds[menuIndex]"
+                      :href="menuItem.href"
+                      :target="menuItem.target || null"
+                      :rel="menuItem.target === '_blank' ? 'noreferrer' : null"
+                      :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                      :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                      role="menuitem"
+                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                      @click="selectItem(menuItem)"
+                      @mouseenter="focusedIndex = menuIndex"
+                      @focus="focusedIndex = menuIndex"
+                      x-text="menuItem.label"
+                    ></a>
+                  </template>
 
-                    <template x-if="!menuItem.href">
-                      <button
-                        :id="menuItemIds[menuIndex]"
-                        type="button"
-                        :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
-                        :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
-                        role="menuitem"
-                        class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                        @click="selectItem(menuItem)"
-                        @mouseenter="focusedIndex = menuIndex"
-                        @focus="focusedIndex = menuIndex"
-                        x-text="menuItem.label"
-                      ></button>
-                    </template>
-                  </div>
-                </template>
-              </div>
+                  <template x-if="!menuItem.href">
+                    <button
+                      :id="menuItemIds[menuIndex]"
+                      type="button"
+                      :tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                      :class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                      role="menuitem"
+                      class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                      @click="selectItem(menuItem)"
+                      @mouseenter="focusedIndex = menuIndex"
+                      @focus="focusedIndex = menuIndex"
+                      x-text="menuItem.label"
+                    ></button>
+                  </template>
+                </div>
+              </template>
             </div>
+          </div>
 
           <p class="font-semibold"> All Options </p>
 
@@ -1653,9 +1653,15 @@ Events:
           <p class="text-gray-700">
             Accessible tabs behavior with arrow-key navigation, roving tabindex,
             and panel association. Follows the WAI-ARIA tabs pattern with
-            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tablist"</code>,
-            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tab"</code>, and
-            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">role="tabpanel"</code>.
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >role="tablist"</code
+            >,
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >role="tab"</code
+            >, and
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >role="tabpanel"</code
+            >.
           </p>
 
           <p class="font-semibold"> Config Used for This Demo </p>
@@ -1690,7 +1696,10 @@ huxTabs({
               aria-label="Account settings"
               class="flex gap-1 border-b border-gray-200"
             >
-              <template x-for="(tabItem, tabIndex) in tabItems" :key="tabItem.id">
+              <template
+                x-for="(tabItem, tabIndex) in tabItems"
+                :key="tabItem.id"
+              >
                 <button
                   :id="`tab-${tabItem.id}`"
                   :aria-selected="(activeTabId === tabItem.id).toString()"
@@ -1724,9 +1733,15 @@ huxTabs({
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">General Settings</h3>
-                <p class="text-sm text-gray-600">Manage your account name, email, and preferences.</p>
+                <p class="text-sm text-gray-600"
+                  >Manage your account name, email, and preferences.</p
+                >
                 <div class="space-y-2">
-                  <label class="block text-sm font-medium text-gray-700" for="settings-name">Display name</label>
+                  <label
+                    class="block text-sm font-medium text-gray-700"
+                    for="settings-name"
+                    >Display name</label
+                  >
                   <input
                     id="settings-name"
                     type="text"
@@ -1747,7 +1762,10 @@ huxTabs({
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">Security Settings</h3>
-                <p class="text-sm text-gray-600">Update your password and two-factor authentication options.</p>
+                <p class="text-sm text-gray-600"
+                  >Update your password and two-factor authentication
+                  options.</p
+                >
                 <button
                   type="button"
                   class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors"
@@ -1766,10 +1784,18 @@ huxTabs({
               x-cloak
             >
               <div class="space-y-3">
-                <h3 class="font-semibold text-gray-900">Notification Settings</h3>
-                <p class="text-sm text-gray-600">Choose which notifications you want to receive.</p>
+                <h3 class="font-semibold text-gray-900"
+                  >Notification Settings</h3
+                >
+                <p class="text-sm text-gray-600"
+                  >Choose which notifications you want to receive.</p
+                >
                 <label class="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" class="rounded border-gray-300" checked />
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300"
+                    checked
+                  />
                   Email me about product updates
                 </label>
               </div>
@@ -1840,7 +1866,8 @@ Options:
               }
 
               if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
-                this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
+                this.activeTabId =
+                  this.tabItems.length > 0 ? this.tabItems[0].id : null
               }
             },
 
@@ -1972,7 +1999,9 @@ Options:
               this.focusedIndex = itemIndex
 
               this.$nextTick(() => {
-                const menuItemElement = document.getElementById(this.menuItemIds[itemIndex])
+                const menuItemElement = document.getElementById(
+                  this.menuItemIds[itemIndex],
+                )
 
                 menuItemElement?.focus()
               })
@@ -1998,7 +2027,9 @@ Options:
               }
 
               const nextIndex =
-                this.focusedIndex < menuItemCount - 1 ? this.focusedIndex + 1 : 0
+                this.focusedIndex < menuItemCount - 1
+                  ? this.focusedIndex + 1
+                  : 0
 
               this.focusItem(nextIndex)
             },
@@ -2011,7 +2042,9 @@ Options:
               }
 
               const prevIndex =
-                this.focusedIndex > 0 ? this.focusedIndex - 1 : menuItemCount - 1
+                this.focusedIndex > 0
+                  ? this.focusedIndex - 1
+                  : menuItemCount - 1
 
               this.focusItem(prevIndex)
             },
@@ -2809,7 +2842,9 @@ Options:
             configurable breakpoints. The current breakpoint label updates live
             as you drag, letting you visually test responsive layouts without
             relying on the browser window size or CSS
-            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">@container</code>
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >@container</code
+            >
             queries.
           </p>
 
@@ -2819,7 +2854,7 @@ Options:
             class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 huxResizable({
-  breakpoints: [
+  breakpointItems: [
     { label: 'xs', minWidth: 0 },
     { label: 'sm', minWidth: 384 },
     { label: 'md', minWidth: 512 },
@@ -2834,7 +2869,7 @@ huxResizable({
 
           <div
             x-data="huxResizable({
-              breakpoints: [
+              breakpointItems: [
                 { label: 'xs', minWidth: 0 },
                 { label: 'sm', minWidth: 384 },
                 { label: 'md', minWidth: 512 },
@@ -2850,12 +2885,12 @@ huxResizable({
           >
             <div
               x-ref="resizableContainer"
-              class="relative overflow-hidden rounded-lg border border-gray-300 bg-gray-50"
+              class="relative overflow-hidden rounded-lg border border-gray-300 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
               :style="`width: ${currentWidth}px; min-width: ${minWidth}px;`"
             >
               <div class="p-4 space-y-3">
-                <div class="flex items-center justify-between gap-2">
-                  <p class="text-sm text-gray-500">Current breakpoint:</p>
+                <div class="flex items-center gap-2">
+                  <p class="text-sm text-gray-500"> Current breakpoint: </p>
 
                   <span
                     class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide"
@@ -2880,19 +2915,34 @@ huxResizable({
                     'grid-cols-3': activeBreakpoint === 'lg' || activeBreakpoint === 'xl'
                   }"
                 >
-                  <div class="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+                  <div
+                    class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
+                  >
                     <p class="text-sm font-medium text-gray-900">Card One</p>
-                    <p class="text-xs text-gray-500 mt-1">First example card.</p>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                      First example card.
+                    </p>
                   </div>
 
-                  <div class="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+                  <div
+                    class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
+                  >
                     <p class="text-sm font-medium text-gray-900">Card Two</p>
-                    <p class="text-xs text-gray-500 mt-1">Second example card.</p>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                      Second example card.
+                    </p>
                   </div>
 
-                  <div class="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
+                  <div
+                    class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
+                  >
                     <p class="text-sm font-medium text-gray-900">Card Three</p>
-                    <p class="text-xs text-gray-500 mt-1">Third example card.</p>
+
+                    <p class="text-xs text-gray-500 mt-1">
+                      Third example card.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2900,7 +2950,7 @@ huxResizable({
               <button
                 type="button"
                 aria-label="Drag to resize"
-                class="absolute right-0 top-0 flex h-full w-3 cursor-col-resize items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+                class="absolute right-0 top-0 flex h-full w-3 cursor-col-resize items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus:outline-none"
                 @mousedown="startDrag($event)"
                 @touchstart.prevent="startDrag($event)"
                 @keydown.right.prevent="nudgeWidth(8)"
@@ -2912,20 +2962,16 @@ huxResizable({
                 @keydown.home.prevent="jumpToBreakpoint('first')"
                 @keydown.end.prevent="jumpToBreakpoint('last')"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  class="size-3 text-gray-500"
-                >
-                  <path d="M8 5a1 1 0 1 0 0 14A1 1 0 0 0 8 5Zm8 0a1 1 0 1 0 0 14 1 1 0 0 0 0-14Z" />
-                </svg>
               </button>
             </div>
 
             <p class="text-xs text-gray-400">
-              Drag the right edge to resize. Focus it and use <kbd class="font-mono">←</kbd><kbd class="font-mono">→</kbd> to nudge, <kbd class="font-mono">↑</kbd><kbd class="font-mono">↓</kbd> to jump between breakpoints, or <kbd class="font-mono">Home</kbd>/<kbd class="font-mono">End</kbd> for the smallest/largest.
+              Drag the right edge to resize. Focus it and use
+              <kbd class="font-mono">←</kbd><kbd class="font-mono">→</kbd> to
+              nudge, <kbd class="font-mono">↑</kbd
+              ><kbd class="font-mono">↓</kbd> to jump between breakpoints, or
+              <kbd class="font-mono">Home</kbd>/<kbd class="font-mono">End</kbd>
+              for the smallest/largest.
             </p>
           </div>
 
@@ -2935,7 +2981,7 @@ huxResizable({
             class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 Options:
-- breakpoints: { label: string, minWidth: number }[] (default: Tailwind-like xs/sm/md/lg/xl)
+- breakpointItems: { label: string, minWidth: number }[] (default: Tailwind-like xs/sm/md/lg/xl)
 - minWidth: number (default: 200, minimum drag width in px)
 - maxWidth: number | null (default: null, maximum drag width in px — null means unrestricted)
 - preventOverflow: boolean (default: true, clamp width to the parent element's width)
@@ -2980,7 +3026,7 @@ Methods (available for keyboard / programmatic control):
             minWidth: initialConfig.minWidth ?? 200,
             maxWidth: initialConfig.maxWidth ?? null,
             preventOverflow: initialConfig.preventOverflow ?? true,
-            breakpoints: [],
+            breakpointItems: [],
             activeBreakpoint: null,
 
             _dragStartX: 0,
@@ -2997,80 +3043,83 @@ Methods (available for keyboard / programmatic control):
                 { label: 'xl', minWidth: 1024 },
               ]
 
-              const rawBreakpoints = Array.isArray(initialConfig.breakpoints)
-                ? initialConfig.breakpoints
+              const rawBreakpoints = Array.isArray(
+                initialConfig.breakpointItems,
+              )
+                ? initialConfig.breakpointItems
                 : defaultBreakpoints
 
-              this.breakpoints = rawBreakpoints
+              this.breakpointItems = rawBreakpoints
                 .filter(
-                  (bp) =>
-                    bp &&
-                    typeof bp.label === 'string' &&
-                    typeof bp.minWidth === 'number',
+                  (breakpointItem) =>
+                    breakpointItem &&
+                    typeof breakpointItem.label === 'string' &&
+                    typeof breakpointItem.minWidth === 'number',
                 )
-                .sort((a, b) => a.minWidth - b.minWidth)
+                .sort((itemA, itemB) => itemA.minWidth - itemB.minWidth)
 
               this.$nextTick(() => {
                 const containerElement = this.$refs.resizableContainer
 
-                if (containerElement) {
-                  this.currentWidth = containerElement.offsetWidth
-                } else {
-                  this.currentWidth = this.minWidth
-                }
+                this.currentWidth = containerElement
+                  ? containerElement.offsetWidth
+                  : this.minWidth
 
                 this._updateBreakpoint()
               })
             },
 
             _updateBreakpoint() {
-              if (this.breakpoints.length === 0) {
+              if (this.breakpointItems.length === 0) {
                 this.activeBreakpoint = null
 
                 return
               }
 
-              let matched = this.breakpoints[0]
+              let [matchedBreakpoint] = this.breakpointItems
 
-              for (const bp of this.breakpoints) {
-                if (this.currentWidth >= bp.minWidth) {
-                  matched = bp
+              for (const breakpointItem of this.breakpointItems) {
+                if (this.currentWidth >= breakpointItem.minWidth) {
+                  matchedBreakpoint = breakpointItem
                 }
               }
 
-              this.activeBreakpoint = matched.label
+              this.activeBreakpoint = matchedBreakpoint.label
             },
 
             _clampWidth(rawWidth) {
-              let clamped = Math.max(rawWidth, this.minWidth)
+              let clampedWidth = Math.max(rawWidth, this.minWidth)
 
               if (this.maxWidth !== null && this.maxWidth > 0) {
-                clamped = Math.min(clamped, this.maxWidth)
+                clampedWidth = Math.min(clampedWidth, this.maxWidth)
               }
 
               if (this.preventOverflow) {
-                const container = this.$refs.resizableContainer
-                const parentWidth = container?.parentElement?.offsetWidth ?? null
+                const containerElement = this.$refs.resizableContainer
+                const parentWidth =
+                  containerElement?.parentElement?.offsetWidth ?? null
 
                 if (parentWidth !== null && parentWidth > 0) {
-                  clamped = Math.min(clamped, parentWidth)
+                  clampedWidth = Math.min(clampedWidth, parentWidth)
                 }
               }
 
-              return clamped
+              return clampedWidth
             },
 
             startDrag(pointerEvent) {
-              if (pointerEvent.type === 'mousedown' && pointerEvent.button !== 0) {
+              if (
+                pointerEvent.type === 'mousedown' &&
+                pointerEvent.button !== 0
+              ) {
                 return
               }
 
               pointerEvent.preventDefault()
 
-              const clientX =
-                pointerEvent.touches
-                  ? pointerEvent.touches[0].clientX
-                  : pointerEvent.clientX
+              const clientX = pointerEvent.touches
+                ? pointerEvent.touches[0].clientX
+                : pointerEvent.clientX
 
               this._dragStartX = clientX
               this._dragStartWidth = this.currentWidth
@@ -3091,13 +3140,12 @@ Methods (available for keyboard / programmatic control):
                 pointerEvent.preventDefault()
               }
 
-              const clientX =
-                pointerEvent.touches
-                  ? pointerEvent.touches[0].clientX
-                  : pointerEvent.clientX
+              const clientX = pointerEvent.touches
+                ? pointerEvent.touches[0].clientX
+                : pointerEvent.clientX
 
-              const delta = clientX - this._dragStartX
-              const rawWidth = this._dragStartWidth + delta
+              const xDelta = clientX - this._dragStartX
+              const rawWidth = this._dragStartWidth + xDelta
 
               this.currentWidth = this._clampWidth(rawWidth)
               this._updateBreakpoint()
@@ -3113,33 +3161,45 @@ Methods (available for keyboard / programmatic control):
               this._boundOnDragEnd = null
             },
 
-            nudgeWidth(delta) {
-              this.currentWidth = this._clampWidth(this.currentWidth + delta)
+            nudgeWidth(xDelta) {
+              this.currentWidth = this._clampWidth(this.currentWidth + xDelta)
               this._updateBreakpoint()
             },
 
-            jumpToBreakpoint(direction) {
-              if (this.breakpoints.length === 0) {
+            jumpToBreakpoint(xDirection) {
+              if (this.breakpointItems.length === 0) {
                 return
               }
 
-              const currentIndex = this.breakpoints.findIndex(
-                (bp) => bp.label === this.activeBreakpoint,
+              const currentIndex = this.breakpointItems.findIndex(
+                (breakpointItem) =>
+                  breakpointItem.label === this.activeBreakpoint,
               )
 
               let targetIndex = currentIndex
 
-              if (direction === 'next') {
-                targetIndex = Math.min(currentIndex + 1, this.breakpoints.length - 1)
-              } else if (direction === 'prev') {
-                targetIndex = Math.max(currentIndex - 1, 0)
-              } else if (direction === 'first') {
-                targetIndex = 0
-              } else if (direction === 'last') {
-                targetIndex = this.breakpoints.length - 1
+              if (xDirection === 'next') {
+                targetIndex = Math.min(
+                  currentIndex + 1,
+                  this.breakpointItems.length - 1,
+                )
               }
 
-              this.currentWidth = this._clampWidth(this.breakpoints[targetIndex].minWidth)
+              if (xDirection === 'prev') {
+                targetIndex = Math.max(currentIndex - 1, 0)
+              }
+
+              if (xDirection === 'first') {
+                targetIndex = 0
+              }
+
+              if (xDirection === 'last') {
+                targetIndex = this.breakpointItems.length - 1
+              }
+
+              this.currentWidth = this._clampWidth(
+                this.breakpointItems[targetIndex].minWidth,
+              )
               this._updateBreakpoint()
             },
 
