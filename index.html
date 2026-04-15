@@ -1667,7 +1667,8 @@ huxTabs({
     { label: 'General', id: 'general' },
     { label: 'Security', id: 'security' },
     { label: 'Notifications', id: 'notifications' }
-  ]
+  ],
+  useHash: true
 })</pre
           >
 
@@ -1677,7 +1678,8 @@ huxTabs({
                 { label: 'General', id: 'general' },
                 { label: 'Security', id: 'security' },
                 { label: 'Notifications', id: 'notifications' }
-              ]
+              ],
+              useHash: true
             })"
             data-hux-copy="tabsExample"
             class="space-y-4"
@@ -1689,9 +1691,9 @@ huxTabs({
             >
               <template x-for="(tabItem, tabIndex) in tabItems" :key="tabItem.id">
                 <button
-                  :id="'tab-' + tabItem.id"
+                  :id="`tab-${tabItem.id}`"
                   :aria-selected="(activeTabId === tabItem.id).toString()"
-                  :aria-controls="'panel-' + tabItem.id"
+                  :aria-controls="`panel-${tabItem.id}`"
                   :tabindex="activeTabId === tabItem.id ? '0' : '-1'"
                   role="tab"
                   type="button"
@@ -1717,7 +1719,6 @@ huxTabs({
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'general'"
-              class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">General Settings</h3>
@@ -1740,7 +1741,6 @@ huxTabs({
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'security'"
-              class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">Security Settings</h3>
@@ -1760,7 +1760,6 @@ huxTabs({
               role="tabpanel"
               tabindex="0"
               x-show="activeTabId === 'notifications'"
-              class="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
             >
               <div class="space-y-3">
                 <h3 class="font-semibold text-gray-900">Notification Settings</h3>
@@ -1780,7 +1779,8 @@ huxTabs({
           >
 Options:
 - tabItems: {label: string, id: string}[] (default: [])
-- activeTab: string (optional, id of the initially active tab)</pre
+- activeTab: string (optional, id of the initially active tab)
+- useHash: boolean (default: false, initialize active tab from and update URL hash)</pre
           >
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
@@ -1812,6 +1812,7 @@ Options:
           Alpine.data('huxTabs', (initialConfig = {}) => ({
             activeTabId: initialConfig.activeTab ?? null,
             tabItems: [],
+            useHash: initialConfig.useHash ?? false,
 
             init() {
               this.tabItems = (initialConfig.tabItems ?? []).filter(
@@ -1819,6 +1820,20 @@ Options:
               )
 
               const validIds = this.tabItems.map((tabItem) => tabItem.id)
+
+              if (this.useHash && typeof globalThis.location !== 'undefined') {
+                let hashId = globalThis.location.hash.slice(1)
+
+                try {
+                  hashId = decodeURIComponent(hashId)
+                } catch {
+                  // malformed percent-encoding; use raw hash value
+                }
+
+                if (hashId && validIds.includes(hashId)) {
+                  this.activeTabId = hashId
+                }
+              }
 
               if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
                 this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
@@ -1843,10 +1858,18 @@ Options:
               }
 
               this.activeTabId = tabId
+
+              if (this.useHash && typeof globalThis.history !== 'undefined') {
+                history.replaceState(null, '', `#${encodeURIComponent(tabId)}`)
+              }
             },
 
-            focusTab(tabIndex) {
+            focusTab(tabId) {
               this.$nextTick(() => {
+                const tabIndex = this.findTabIndex(tabId)
+
+                if (tabIndex === -1) return
+
                 const tabElements = this.$el.querySelectorAll('[role="tab"]')
 
                 tabElements[tabIndex]?.focus()
@@ -1857,30 +1880,34 @@ Options:
               const currentIndex = this.activeTabIndex
               const nextIndex =
                 currentIndex < this.tabItems.length - 1 ? currentIndex + 1 : 0
+              const nextTabId = this.tabItems[nextIndex].id
 
-              this.selectTab(this.tabItems[nextIndex].id)
-              this.focusTab(nextIndex)
+              this.selectTab(nextTabId)
+              this.focusTab(nextTabId)
             },
 
             focusPreviousTab() {
               const currentIndex = this.activeTabIndex
               const prevIndex =
                 currentIndex > 0 ? currentIndex - 1 : this.tabItems.length - 1
+              const prevTabId = this.tabItems[prevIndex].id
 
-              this.selectTab(this.tabItems[prevIndex].id)
-              this.focusTab(prevIndex)
+              this.selectTab(prevTabId)
+              this.focusTab(prevTabId)
             },
 
             focusFirstTab() {
-              this.selectTab(this.tabItems[0].id)
-              this.focusTab(0)
+              const firstTabId = this.tabItems[0].id
+
+              this.selectTab(firstTabId)
+              this.focusTab(firstTabId)
             },
 
             focusLastTab() {
-              const lastIndex = this.tabItems.length - 1
+              const lastTabId = this.tabItems.at(-1).id
 
-              this.selectTab(this.tabItems[lastIndex].id)
-              this.focusTab(lastIndex)
+              this.selectTab(lastTabId)
+              this.focusTab(lastTabId)
             },
           }))
         })
