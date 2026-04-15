@@ -1667,7 +1667,8 @@ huxTabs({
     { label: 'General', id: 'general' },
     { label: 'Security', id: 'security' },
     { label: 'Notifications', id: 'notifications' }
-  ]
+  ],
+  useHash: true
 })</pre
           >
 
@@ -1677,7 +1678,8 @@ huxTabs({
                 { label: 'General', id: 'general' },
                 { label: 'Security', id: 'security' },
                 { label: 'Notifications', id: 'notifications' }
-              ]
+              ],
+              useHash: true
             })"
             data-hux-copy="tabsExample"
             class="space-y-4"
@@ -1817,7 +1819,7 @@ Options:
               const validIds = this.tabItems.map((tabItem) => tabItem.id)
 
               if (this.useHash) {
-                const hashId = decodeURIComponent(window.location.hash.slice(1))
+                const hashId = decodeURIComponent(globalThis.location.hash.slice(1))
 
                 if (hashId && validIds.includes(hashId)) {
                   this.activeTabId = hashId
