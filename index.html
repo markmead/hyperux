@@ -2899,12 +2899,16 @@ huxResizable({
                 type="button"
                 aria-label="Drag to resize"
                 class="absolute right-0 top-0 flex h-full w-3 cursor-col-resize items-center justify-center bg-gray-200 hover:bg-gray-300 active:bg-gray-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
-                @mousedown.prevent="startDrag($event)"
+                @mousedown="startDrag($event)"
                 @touchstart.prevent="startDrag($event)"
                 @keydown.right.prevent="nudgeWidth(8)"
                 @keydown.left.prevent="nudgeWidth(-8)"
                 @keydown.shift.right.prevent="nudgeWidth(32)"
                 @keydown.shift.left.prevent="nudgeWidth(-32)"
+                @keydown.up.prevent="jumpToBreakpoint('next')"
+                @keydown.down.prevent="jumpToBreakpoint('prev')"
+                @keydown.home.prevent="jumpToBreakpoint('first')"
+                @keydown.end.prevent="jumpToBreakpoint('last')"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -2919,7 +2923,7 @@ huxResizable({
             </div>
 
             <p class="text-xs text-gray-400">
-              Drag the right edge — or focus it and use arrow keys — to resize the container.
+              Drag the right edge to resize. Focus it and use <kbd class="font-mono">←</kbd><kbd class="font-mono">→</kbd> to nudge, <kbd class="font-mono">↑</kbd><kbd class="font-mono">↓</kbd> to jump between breakpoints, or <kbd class="font-mono">Home</kbd>/<kbd class="font-mono">End</kbd> for the smallest/largest.
             </p>
           </div>
 
@@ -2938,7 +2942,8 @@ Reactive properties (accessible in your template via x-bind / x-text / :class et
 - activeBreakpoint: string | null — label of the matched breakpoint (e.g. 'sm', 'md')
 
 Methods (available for keyboard / programmatic control):
-- nudgeWidth(delta: number) — adjust currentWidth by delta px (clamped to minWidth/maxWidth)</pre
+- nudgeWidth(delta: number) — adjust currentWidth by delta px (clamped to minWidth/maxWidth)
+- jumpToBreakpoint(direction: 'next' | 'prev' | 'first' | 'last') — jump to an adjacent or boundary breakpoint</pre
           >
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
@@ -3043,6 +3048,12 @@ Methods (available for keyboard / programmatic control):
             },
 
             startDrag(pointerEvent) {
+              if (pointerEvent.type === 'mousedown' && pointerEvent.button !== 0) {
+                return
+              }
+
+              pointerEvent.preventDefault()
+
               const clientX =
                 pointerEvent.touches
                   ? pointerEvent.touches[0].clientX
@@ -3091,6 +3102,31 @@ Methods (available for keyboard / programmatic control):
 
             nudgeWidth(delta) {
               this.currentWidth = this._clampWidth(this.currentWidth + delta)
+              this._updateBreakpoint()
+            },
+
+            jumpToBreakpoint(direction) {
+              if (this.breakpoints.length === 0) {
+                return
+              }
+
+              const currentIndex = this.breakpoints.findIndex(
+                (bp) => bp.label === this.activeBreakpoint,
+              )
+
+              let targetIndex = currentIndex
+
+              if (direction === 'next') {
+                targetIndex = Math.min(currentIndex + 1, this.breakpoints.length - 1)
+              } else if (direction === 'prev') {
+                targetIndex = Math.max(currentIndex - 1, 0)
+              } else if (direction === 'first') {
+                targetIndex = 0
+              } else if (direction === 'last') {
+                targetIndex = this.breakpoints.length - 1
+              }
+
+              this.currentWidth = this._clampWidth(this.breakpoints[targetIndex].minWidth)
               this._updateBreakpoint()
             },
 
