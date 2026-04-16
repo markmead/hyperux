@@ -3174,6 +3174,7 @@ Methods (available for keyboard / programmatic control):
                 passive: false,
               })
               document.addEventListener('touchend', this._boundOnDragEnd)
+              document.addEventListener('touchcancel', this._boundOnDragEnd)
             },
 
             _onDragMove(pointerEvent) {
@@ -3197,6 +3198,7 @@ Methods (available for keyboard / programmatic control):
               document.removeEventListener('mouseup', this._boundOnDragEnd)
               document.removeEventListener('touchmove', this._boundOnDragMove)
               document.removeEventListener('touchend', this._boundOnDragEnd)
+              document.removeEventListener('touchcancel', this._boundOnDragEnd)
 
               this._boundOnDragMove = null
               this._boundOnDragEnd = null
@@ -3272,6 +3274,7 @@ Methods (available for keyboard / programmatic control):
               if (this._boundOnDragEnd) {
                 document.removeEventListener('mouseup', this._boundOnDragEnd)
                 document.removeEventListener('touchend', this._boundOnDragEnd)
+                document.removeEventListener('touchcancel', this._boundOnDragEnd)
               }
 
               if (this._resizeObserver) {
