@@ -46,6 +46,17 @@
       [x-cloak] {
         display: none !important;
       }
+
+      /* huxResizable: class-based container breakpoints.
+         The component adds cumulative labels (xs, sm, md, lg, xl) as CSS classes
+         to the [data-hux-resizable] element when its width crosses each threshold.
+         The rules below reset any viewport-media-query version of a breakpoint
+         utility inside the container, then reactivate it via the container class
+         so that sm:, lg: etc. respond to the container's width instead. */
+      [data-hux-resizable] .sm\:grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      [data-hux-resizable].sm .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      [data-hux-resizable] .lg\:grid-cols-3 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+      [data-hux-resizable].lg .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     </style>
   </head>
   <body class="bg-gray-50 text-gray-900 font-sans text-pretty antialiased">
@@ -2840,12 +2851,18 @@ Options:
           <p class="text-gray-700">
             Drag-to-resize container that tracks its own width against
             configurable breakpoints. The current breakpoint label updates live
-            as you drag, letting you visually test responsive layouts without
-            relying on the browser window size or CSS
+            as you drag — and cumulative breakpoint classes (e.g.
             <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
-              >@container</code
+              >sm</code
+            >,
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >lg</code
+            >) are added to the container element so that standard Tailwind
+            utilities like
+            <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
+              >sm:grid-cols-2</code
             >
-            queries.
+            respond to the container's width instead of the viewport.
           </p>
 
           <p class="font-semibold"> Config Used for This Demo </p>
@@ -2869,7 +2886,8 @@ huxResizable({
           >
             <div
               x-ref="resizableContainer"
-              class="@container relative overflow-hidden rounded-lg border border-gray-300 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
+              data-hux-resizable
+              class="relative overflow-hidden rounded-lg border border-gray-300 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2"
               :style="`width: ${currentWidth}px; min-width: ${minWidth}px;`"
             >
               <div class="p-4 space-y-3">
@@ -2912,7 +2930,7 @@ huxResizable({
                 </div>
 
                 <div
-                  class="grid gap-3 grid-cols-1 @[384px]:grid-cols-2 @[768px]:grid-cols-3"
+                  class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                 >
                   <div
                     class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
@@ -2989,6 +3007,11 @@ Options:
 Reactive properties (accessible in your template via x-bind / x-text / :class etc.):
 - currentWidth: number — current pixel width of the container
 - activeBreakpoint: string | null — label of the matched breakpoint (e.g. 'sm', 'md')
+
+Container element classes (set automatically by the component):
+- All breakpoint labels up to and including the active one are added as CSS classes
+  to the [data-hux-resizable] element (e.g. at 'lg' width: xs, sm, md, lg are present).
+  Pair with scoped CSS rules to make sm:, lg: etc. respond to container width.
 
 Methods (available for keyboard / programmatic control):
 - nudgeWidth(delta: number) — adjust currentWidth by delta px (clamped to minWidth/maxWidth)
@@ -3092,15 +3115,23 @@ Methods (available for keyboard / programmatic control):
                 return
               }
 
-              let [matchedBreakpoint] = this.breakpointItems
+              let matchedIndex = 0
 
-              for (const breakpointItem of this.breakpointItems) {
-                if (this.currentWidth >= breakpointItem.minWidth) {
-                  matchedBreakpoint = breakpointItem
+              for (let i = 0; i < this.breakpointItems.length; i++) {
+                if (this.currentWidth >= this.breakpointItems[i].minWidth) {
+                  matchedIndex = i
                 }
               }
 
-              this.activeBreakpoint = matchedBreakpoint.label
+              this.activeBreakpoint = this.breakpointItems[matchedIndex].label
+
+              const containerEl = this.$refs?.resizableContainer
+
+              if (containerEl) {
+                this.breakpointItems.forEach((bp, i) => {
+                  containerEl.classList.toggle(bp.label, i <= matchedIndex)
+                })
+              }
             },
 
             _clampWidth(rawWidth) {
