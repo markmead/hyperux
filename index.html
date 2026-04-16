@@ -97,8 +97,8 @@
           UI patterns you can adapt to your own markup and styles.
         </p>
 
-        <time datetime="2026-04-15" class="text-gray-500">
-          Last updated: 15 April 2026
+        <time datetime="2026-04-16" class="text-gray-500">
+          Last updated: 16 April 2026
         </time>
       </header>
 
@@ -2849,7 +2849,7 @@ Options:
             respond to the container's width automatically — no custom CSS or
             developer involvement required. Provide your HTML inside a
             <code class="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded"
-              >&lt;template data-hux-resizable-template&gt;</code
+              >&lt;template x-ref="resizableTemplate"&gt;</code
             >
             and the component takes care of the rest.
           </p>
@@ -2873,15 +2873,17 @@ huxResizable({
             data-hux-copy="resizableExample"
             class="space-y-3"
           >
-            <template data-hux-resizable-template>
-              <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <template x-ref="resizableTemplate">
+              <script src="https://cdn.tailwindcss.com"></script>
+              <style>body { margin: 0; padding: 1rem; background: rgb(249 250 251); }</style>
+              <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 <div
                   class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
                 >
                   <p class="text-sm font-medium text-gray-900">Card One</p>
 
                   <p class="text-xs text-gray-500 mt-1">
-                    First example card.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                   </p>
                 </div>
 
@@ -2891,7 +2893,7 @@ huxResizable({
                   <p class="text-sm font-medium text-gray-900">Card Two</p>
 
                   <p class="text-xs text-gray-500 mt-1">
-                    Second example card.
+                    Sed do eiusmod tempor incididunt ut labore et dolore magna.
                   </p>
                 </div>
 
@@ -2901,7 +2903,27 @@ huxResizable({
                   <p class="text-sm font-medium text-gray-900">Card Three</p>
 
                   <p class="text-xs text-gray-500 mt-1">
-                    Third example card.
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco.
+                  </p>
+                </div>
+
+                <div
+                  class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
+                >
+                  <p class="text-sm font-medium text-gray-900">Card Four</p>
+
+                  <p class="text-xs text-gray-500 mt-1">
+                    Duis aute irure dolor in reprehenderit in voluptate velit.
+                  </p>
+                </div>
+
+                <div
+                  class="rounded-md border border-gray-200 bg-white p-3 shadow-sm"
+                >
+                  <p class="text-sm font-medium text-gray-900">Card Five</p>
+
+                  <p class="text-xs text-gray-500 mt-1">
+                    Excepteur sint occaecat cupidatat non proident sunt culpa.
                   </p>
                 </div>
               </div>
@@ -2938,23 +2960,23 @@ huxResizable({
                 </div>
 
                 <div class="flex flex-wrap gap-1.5">
-                  <template x-for="bp in breakpointItems" :key="bp.label">
+                  <template x-for="breakpointItem in breakpointItems" :key="breakpointItem.label">
                     <button
                       type="button"
-                      @click="jumpToLabel(bp.label)"
+                      @click="jumpToLabel(breakpointItem.label)"
                       class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors"
-                      :class="activeBreakpoint === bp.label
+                      :class="activeBreakpoint === breakpointItem.label
                         ? 'border-blue-500 bg-blue-500 text-white'
                         : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'"
-                      x-text="bp.label"
+                      x-text="breakpointItem.label"
                     ></button>
                   </template>
                 </div>
 
                 <iframe
                   x-ref="iframeEl"
-                  class="w-full block border-0 rounded"
-                  style="height: 200px;"
+                  class="w-full block border-none rounded"
+                  style="height: 400px;"
                   title="Component preview"
                 ></iframe>
               </div>
@@ -2989,29 +3011,45 @@ huxResizable({
 
           <p class="font-semibold"> All Options </p>
 
-          <pre
-            class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
-          >
-Options:
-- breakpointItems: { label: string, minWidth: number }[] (default: Tailwind-like xs/sm/md/lg/xl)
-- minWidth: number (default: 200, minimum drag width in px)
-- maxWidth: number | null (default: null, maximum drag width in px — null means unrestricted)
-- preventOverflow: boolean (default: true, clamp width to the parent element's width)
-- stopAtLastBreakpoint: boolean (default: false, automatically cap width at the last breakpoint's minWidth)
+          <div class="space-y-4 text-sm text-gray-700">
+            <div>
+              <p class="font-medium text-gray-900">Config options</p>
+              <ul class="mt-2 space-y-1 list-disc list-inside text-gray-600">
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">breakpointItems</code> — <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">{"{ label: string, minWidth: number }[]"}</code>, defaults to xs / sm / md / lg / xl</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">minWidth</code> — minimum drag width in px (default: 375)</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">maxWidth</code> — maximum drag width in px, or <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">null</code> for unrestricted (default: null)</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">preventOverflow</code> — clamp width to the parent element's width (default: true)</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">stopAtLastBreakpoint</code> — cap width at the last breakpoint's minWidth (default: false)</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">src</code> — URL of a full HTML file to load in the iframe; takes priority over the inline template</li>
+              </ul>
+            </div>
 
-Reactive properties (accessible in your template via x-bind / x-text / :class etc.):
-- currentWidth: number — current pixel width of the container
-- activeBreakpoint: string | null — label of the matched breakpoint (e.g. 'sm', 'md')
+            <div>
+              <p class="font-medium text-gray-900">Reactive properties</p>
+              <ul class="mt-2 space-y-1 list-disc list-inside text-gray-600">
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">currentWidth</code> — current pixel width of the container</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">activeBreakpoint</code> — label of the matched breakpoint (e.g. <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">sm</code>, <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">md</code>)</li>
+              </ul>
+            </div>
 
-Methods (available for keyboard / programmatic control):
-- nudgeWidth(delta: number) — adjust currentWidth by delta px (clamped to minWidth/maxWidth)
-- jumpToBreakpoint(direction: 'next' | 'prev' | 'first' | 'last') — jump to an adjacent or boundary breakpoint
-- jumpToLabel(label: string) — jump directly to a specific breakpoint by label (e.g. 'lg')
+            <div>
+              <p class="font-medium text-gray-900">Methods</p>
+              <ul class="mt-2 space-y-1 list-disc list-inside text-gray-600">
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">nudgeWidth(delta)</code> — adjust width by delta px</li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">jumpToBreakpoint(direction)</code> — <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">'next'</code> / <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">'prev'</code> / <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">'first'</code> / <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">'last'</code></li>
+                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">jumpToLabel(label)</code> — jump directly to a named breakpoint</li>
+              </ul>
+            </div>
 
-Content template:
-- Add a &lt;template data-hux-resizable-template&gt; anywhere inside the component wrapper.
-  Its innerHTML is injected into an iframe (with Tailwind CSS) automatically on init.</pre
-          >
+            <div>
+              <p class="font-medium text-gray-900">Iframe content</p>
+              <p class="mt-1 text-gray-600">
+                Pass a <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">src</code> config option pointing to a full HTML file, or add a
+                <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">&lt;template x-ref="resizableTemplate"&gt;</code>
+                inside the component wrapper. The template's HTML is used as the iframe's content — include any CSS and JS you need directly inside it.
+              </p>
+            </div>
+          </div>
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
             <button
@@ -3041,8 +3079,9 @@ Content template:
         document.addEventListener('alpine:init', () => {
           Alpine.data('huxResizable', (initialConfig = {}) => ({
             currentWidth: 0,
-            minWidth: initialConfig.minWidth ?? 200,
+            minWidth: initialConfig.minWidth ?? 375,
             maxWidth: initialConfig.maxWidth ?? null,
+            src: initialConfig.src ?? null,
             preventOverflow: initialConfig.preventOverflow ?? true,
             stopAtLastBreakpoint: initialConfig.stopAtLastBreakpoint ?? false,
             breakpointItems: [],
@@ -3100,25 +3139,18 @@ Content template:
                   this._resizeObserver.observe(containerElement.parentElement)
                 }
 
-                const templateEl = this.$el.querySelector(
-                  '[data-hux-resizable-template]',
-                )
                 const iframeEl = this.$refs.iframeEl
 
-                if (templateEl && iframeEl) {
-                  iframeEl.srcdoc = [
-                    '<!DOCTYPE html>',
-                    '<html lang="en">',
-                    '<head>',
-                    '<meta charset="UTF-8">',
-                    '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-                    '<script src="https://cdn.tailwindcss.com"><\/script>',
-                    '</head>',
-                    '<body class="bg-gray-50 p-4">',
-                    templateEl.innerHTML.trim(),
-                    '</body>',
-                    '</html>',
-                  ].join('')
+                if (iframeEl) {
+                  if (this.src) {
+                    iframeEl.src = this.src
+                  } else {
+                    const templateEl = this.$refs.resizableTemplate
+
+                    if (templateEl) {
+                      iframeEl.srcdoc = templateEl.innerHTML.trim()
+                    }
+                  }
                 }
               })
             },
@@ -3130,13 +3162,12 @@ Content template:
                 return
               }
 
-              let matchedIndex = 0
-
-              for (let i = 0; i < this.breakpointItems.length; i++) {
-                if (this.currentWidth >= this.breakpointItems[i].minWidth) {
-                  matchedIndex = i
-                }
-              }
+              const matchedIndex = Math.max(
+                this.breakpointItems.findLastIndex(
+                  (breakpointItem) => this.currentWidth >= breakpointItem.minWidth,
+                ),
+                0,
+              )
 
               this.activeBreakpoint = this.breakpointItems[matchedIndex].label
             },
@@ -3237,9 +3268,9 @@ Content template:
               this._updateBreakpoint()
             },
 
-            jumpToLabel(xLabel) {
+            jumpToLabel(breakpointLabel) {
               const targetIndex = this.breakpointItems.findIndex(
-                (breakpointItem) => breakpointItem.label === xLabel,
+                (breakpointItem) => breakpointItem.label === breakpointLabel,
               )
 
               if (targetIndex === -1) {
