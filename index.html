@@ -2907,6 +2907,20 @@ huxResizable({
                   ></span>
                 </div>
 
+                <div class="flex flex-wrap gap-1.5">
+                  <template x-for="bp in breakpointItems" :key="bp.label">
+                    <button
+                      type="button"
+                      @click="jumpToLabel(bp.label)"
+                      class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition-colors"
+                      :class="activeBreakpoint === bp.label
+                        ? 'border-blue-500 bg-blue-500 text-white'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'"
+                      x-text="bp.label"
+                    ></button>
+                  </template>
+                </div>
+
                 <div
                   class="grid gap-3"
                   :class="{
@@ -2992,7 +3006,8 @@ Reactive properties (accessible in your template via x-bind / x-text / :class et
 
 Methods (available for keyboard / programmatic control):
 - nudgeWidth(delta: number) — adjust currentWidth by delta px (clamped to minWidth/maxWidth)
-- jumpToBreakpoint(direction: 'next' | 'prev' | 'first' | 'last') — jump to an adjacent or boundary breakpoint</pre
+- jumpToBreakpoint(direction: 'next' | 'prev' | 'first' | 'last') — jump to an adjacent or boundary breakpoint
+- jumpToLabel(label: string) — jump directly to a specific breakpoint by label (e.g. 'lg')</pre
           >
 
           <div class="flex gap-4 flex-wrap justify-between items-center">
@@ -3183,6 +3198,21 @@ Methods (available for keyboard / programmatic control):
 
             nudgeWidth(xDelta) {
               this.currentWidth = this._clampWidth(this.currentWidth + xDelta)
+              this._updateBreakpoint()
+            },
+
+            jumpToLabel(xLabel) {
+              const targetIndex = this.breakpointItems.findIndex(
+                (breakpointItem) => breakpointItem.label === xLabel,
+              )
+
+              if (targetIndex === -1) {
+                return
+              }
+
+              this.currentWidth = this._clampWidth(
+                this.breakpointItems[targetIndex].minWidth,
+              )
               this._updateBreakpoint()
             },
 
