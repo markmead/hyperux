@@ -2863,7 +2863,7 @@ huxResizable({
   ],
   minWidth: 200,
   maxWidth: null,
-  preventOverflow: false
+  stopAtLastBreakpoint: true
 })</pre
           >
 
@@ -2878,7 +2878,7 @@ huxResizable({
               ],
               minWidth: 200,
               maxWidth: null,
-              preventOverflow: false
+              stopAtLastBreakpoint: true
             })"
             data-hux-copy="resizableExample"
             class="space-y-3"
@@ -3005,6 +3005,7 @@ Options:
 - minWidth: number (default: 200, minimum drag width in px)
 - maxWidth: number | null (default: null, maximum drag width in px — null means unrestricted)
 - preventOverflow: boolean (default: true, clamp width to the parent element's width)
+- stopAtLastBreakpoint: boolean (default: false, automatically cap width at the last breakpoint's minWidth)
 
 Reactive properties (accessible in your template via x-bind / x-text / :class etc.):
 - currentWidth: number — current pixel width of the container
@@ -3047,6 +3048,7 @@ Methods (available for keyboard / programmatic control):
             minWidth: initialConfig.minWidth ?? 200,
             maxWidth: initialConfig.maxWidth ?? null,
             preventOverflow: initialConfig.preventOverflow ?? true,
+            stopAtLastBreakpoint: initialConfig.stopAtLastBreakpoint ?? false,
             breakpointItems: [],
             activeBreakpoint: null,
 
@@ -3127,6 +3129,15 @@ Methods (available for keyboard / programmatic control):
 
               if (this.maxWidth !== null && this.maxWidth > 0) {
                 clampedWidth = Math.min(clampedWidth, this.maxWidth)
+              }
+
+              if (this.stopAtLastBreakpoint && this.breakpointItems.length > 0) {
+                const lastBreakpointWidth =
+                  this.breakpointItems[this.breakpointItems.length - 1].minWidth
+
+                if (lastBreakpointWidth > 0) {
+                  clampedWidth = Math.min(clampedWidth, lastBreakpointWidth)
+                }
               }
 
               if (this.preventOverflow) {
