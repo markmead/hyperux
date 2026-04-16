@@ -3020,7 +3020,6 @@ huxResizable({
                 <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">maxWidth</code> — maximum drag width in px, or <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">null</code> for unrestricted (default: null)</li>
                 <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">preventOverflow</code> — clamp width to the parent element's width (default: true)</li>
                 <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">stopAtLastBreakpoint</code> — cap width at the last breakpoint's minWidth (default: false)</li>
-                <li><code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">src</code> — URL of a full HTML file to load in the iframe; takes priority over the inline template</li>
               </ul>
             </div>
 
@@ -3044,9 +3043,10 @@ huxResizable({
             <div>
               <p class="font-medium text-gray-900">Iframe content</p>
               <p class="mt-1 text-gray-600">
-                Pass a <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">src</code> config option pointing to a full HTML file, or add a
-                <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">&lt;template x-ref="resizableTemplate"&gt;</code>
-                inside the component wrapper. The template's HTML is used as the iframe's content — include any CSS and JS you need directly inside it.
+                Add a <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">&lt;template x-ref="resizableTemplate"&gt;</code>
+                inside the component wrapper and include any CSS and JS you need directly inside it — the template's HTML becomes the iframe's content.
+                To load from a URL, add <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">src="/path/to/preview.html"</code>
+                directly on the <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">&lt;iframe&gt;</code> element; the template is ignored when <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">src</code> is set.
               </p>
             </div>
           </div>
@@ -3081,7 +3081,6 @@ huxResizable({
             currentWidth: 0,
             minWidth: initialConfig.minWidth ?? 375,
             maxWidth: initialConfig.maxWidth ?? null,
-            src: initialConfig.src ?? null,
             preventOverflow: initialConfig.preventOverflow ?? true,
             stopAtLastBreakpoint: initialConfig.stopAtLastBreakpoint ?? false,
             breakpointItems: [],
@@ -3142,9 +3141,7 @@ huxResizable({
                 const iframeEl = this.$refs.iframeEl
 
                 if (iframeEl) {
-                  if (this.src) {
-                    iframeEl.src = this.src
-                  } else {
+                  if (!iframeEl.src) {
                     const templateEl = this.$refs.resizableTemplate
 
                     if (templateEl) {
