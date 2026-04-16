@@ -2854,31 +2854,15 @@ Options:
             class="rounded-md bg-gray-800 text-gray-100 p-4 text-sm overflow-x-auto"
           >
 huxResizable({
-  breakpointItems: [
-    { label: 'xs', minWidth: 0 },
-    { label: 'sm', minWidth: 384 },
-    { label: 'md', minWidth: 512 },
-    { label: 'lg', minWidth: 768 },
-    { label: 'xl', minWidth: 1024 }
-  ],
-  minWidth: 200,
-  maxWidth: null,
-  stopAtLastBreakpoint: true
+  stopAtLastBreakpoint: true,
+  preventOverflow: false
 })</pre
           >
 
           <div
             x-data="huxResizable({
-              breakpointItems: [
-                { label: 'xs', minWidth: 0 },
-                { label: 'sm', minWidth: 384 },
-                { label: 'md', minWidth: 512 },
-                { label: 'lg', minWidth: 768 },
-                { label: 'xl', minWidth: 1024 }
-              ],
-              minWidth: 200,
-              maxWidth: null,
-              stopAtLastBreakpoint: true
+              stopAtLastBreakpoint: true,
+              preventOverflow: false
             })"
             data-hux-copy="resizableExample"
             class="space-y-3"
