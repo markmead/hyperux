@@ -1,0 +1,34 @@
+---
+import SiteHeader from '../components/SiteHeader.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+import BaseHead from '../components/BaseHead.astro'
+
+interface Props {
+  title: string
+  description: string
+}
+
+const { title, description } = Astro.props
+---
+
+<html lang="en" class="scroll-pt-16 scroll-smooth">
+  <head>
+    <BaseHead {title} {description} />
+
+    <slot name="head" />
+  </head>
+  <body class="bg-gray-50 font-sans text-pretty text-gray-900 antialiased">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-1/2 focus:z-60 focus:-translate-x-1/2 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-gray-900 focus:shadow-lg"
+    >
+      Skip to content
+    </a>
+
+    <SiteHeader />
+
+    <slot />
+
+    <SiteFooter />
+  </body>
+</html>
