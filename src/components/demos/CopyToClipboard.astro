@@ -22,7 +22,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div
           class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
-          data-hux-copy="copyExampleA"
+          data-hux-copy="contentExampleA"
         >
           <p class="text-gray-700">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quaerat obcaecati hic
@@ -33,7 +33,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
 
         <div
           class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
-          data-hux-copy="copyExampleB"
+          data-hux-copy="contentExampleB"
         >
           <p class="text-gray-700">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus praesentium quasi
@@ -44,7 +44,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
 
       <button
         type="button"
-        x-data="huxCopy({ sourceNames: ['copyExampleA', 'copyExampleB'] })"
+        x-data="huxCopy({ sourceNames: ['contentExampleA', 'contentExampleB'] })"
         class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
         x-on:click="copyToClipboard()"
       >
@@ -55,7 +55,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
       </button>
     </div>
 
-    <hr class="my-4 h-px w-full border-none bg-gray-200" />
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
 
     <div class="space-y-4">
       <div class="prose">
@@ -71,7 +71,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
       <div class="relative inline-flex">
         <input
           id="hux-copy-input-demo"
-          data-hux-copy="copyInputExample"
+          data-hux-copy="inputExample"
           type="text"
           value="Hello there 👋"
           class="h-10 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -79,7 +79,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
 
         <button
           type="button"
-          x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
+          x-data="huxCopy({ valueSourceNames: ['inputExample'] })"
           aria-label="Copy input value"
           class="absolute top-1 right-1 grid size-8 place-content-center rounded text-gray-700 transition-colors hover:bg-gray-100"
           x-bind:class="{ 'bg-gray-100': hasCopied }"
@@ -96,10 +96,34 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
         </button>
       </div>
     </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['componentRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span aria-live="polite" x-text="hasCopied ? 'Copied Alpine.js' : 'Copy Alpine.js'"
+          >Copy Alpine.js</span
+        >
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
   </div>
 </div>
 
-<script data-hux-copy="copyRegistrationCode">
+<script data-hux-copy="componentRegistration">
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxCopy', (initialConfig = {}) => ({
       hasCopied: false,
