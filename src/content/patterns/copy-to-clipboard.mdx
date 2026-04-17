@@ -1,0 +1,135 @@
+---
+slug: copy-to-clipboard
+title: Copy to Clipboard
+description: Copy HTML and input values from data-hux-copy sources with huxCopy for Alpine.js.
+terms:
+  - clipboard
+  - alpinejs
+  - utility
+  - copy-button
+  - data-attributes
+  - ux-pattern
+pubDate: 2026-04-12
+modDate: 2026-04-17
+---
+
+import Demo from '../../components/demos/CopyToClipboard.astro'
+
+<Demo />
+
+<div class="prose prose-headings:font-semibold mx-auto">
+
+The `huxCopy` utility copies HTML and form values from live DOM elements identified by
+`data-hux-copy`. It supports multi-source composition, configurable separators, and copy status via
+`hasCopied`.
+
+Clipboard writes usually require HTTPS and a user gesture (for example, a click). In unsupported
+or blocked environments, copy attempts fail safely and log an error.
+
+## API
+
+### `huxCopy(config)`
+
+Returns an Alpine data object with:
+
+- `hasCopied: boolean`
+- `copyToClipboard(): Promise<void>`
+- `resolveCopyContent(): string | null`
+- `getSourceElement(sourceName): Element | null`
+
+## Options
+
+- `sourceNames: string[]` (default: `[]`)
+  Copies each matched source element's trimmed `outerHTML`.
+- `valueSourceNames: string[]` (default: `[]`)
+  Copies each matched source element's trimmed `.value` when available, otherwise trimmed
+  `textContent`.
+- `contentSeparator: string` (default: `'\\n\\n'`)
+  Joins all resolved copy chunks in array order.
+- `timeoutDuration: number` (default: `2000`)
+  Milliseconds before `hasCopied` resets to `false`.
+
+## Quick Start
+
+### Minimal
+
+```html
+<div data-hux-copy="copyExample">Hello from HyperUX</div>
+
+<button
+  type="button"
+  x-data="huxCopy({ sourceNames: ['copyExample'] })"
+  x-on:click="copyToClipboard()"
+>
+  <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy'"></span>
+</button>
+```
+
+### Typical Multi-Source Setup
+
+```js
+huxCopy({
+  sourceNames: ['copyExampleA', 'copyExampleB'],
+})
+```
+
+## Common Usage Patterns
+
+### Copy Markup from Multiple Sources
+
+```html
+<div data-hux-copy="copyExampleA">...</div>
+<div data-hux-copy="copyExampleB">...</div>
+
+<button
+  type="button"
+  x-data="huxCopy({ sourceNames: ['copyExampleA', 'copyExampleB'] })"
+  x-on:click="copyToClipboard()"
+>
+  <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy'"></span>
+</button>
+```
+
+### Copy Input Value
+
+```html
+<input id="hux-copy-input-demo" data-hux-copy="copyInputExample" type="text" value="Hello there" />
+
+<button
+  type="button"
+  x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
+  x-on:click="copyToClipboard()"
+>
+  <span aria-live="polite" x-text="hasCopied ? 'Copied input value' : 'Copy input value'"></span>
+</button>
+```
+
+## Behavior Contract
+
+- `sourceNames` and `valueSourceNames` are processed left-to-right.
+- Empty or missing chunks are filtered out.
+- If no chunks resolve, `copyToClipboard()` exits without writing.
+- On success, `hasCopied` flips to `true`, then resets after `timeoutDuration`.
+- Copy uses `navigator.clipboard.writeText(resolvedContent)`.
+
+## Error Handling
+
+- If both `sourceNames` and `valueSourceNames` are empty, the component logs:
+  `[huxCopy] No sourceNames or valueSourceNames configured`
+- If a configured source is missing, the component logs a source-specific lookup error.
+- If clipboard write throws, the component logs `[huxCopy] Copy failed` and keeps running.
+
+## Accessibility Notes
+
+- Expose status changes with `aria-live` text (for example: `Copied`, `Copy input value`).
+- Keep copy actions on explicit interactive controls (`button`) for keyboard and screen reader
+  compatibility.
+- Preserve clear labels (`aria-label`) for icon-only copy buttons.
+- Use `type="button"` on copy buttons to avoid accidental form submission in embedded demos.
+
+## Notes
+
+- Use `valueSourceNames` for inputs and textareas to avoid copying wrapper markup.
+- Use `sourceNames` when you want copy-ready HTML snippets for demos and docs.
+
+</div>

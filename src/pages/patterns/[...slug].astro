@@ -1,0 +1,22 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content'
+
+import PatternPost from '../../layouts/PatternPost.astro'
+
+export async function getStaticPaths() {
+  return (await getCollection('patterns')).map((component) => ({
+    params: { slug: component.data.slug },
+    props: component,
+  }))
+}
+
+type Props = CollectionEntry<'patterns'>
+
+const collection = Astro.props
+
+const { Content } = await render(collection)
+---
+
+<PatternPost {...collection.data}>
+  <Content />
+</PatternPost>

@@ -21,6 +21,15 @@ import DemoBlock from '../components/DemoBlock.astro'
         Behavior-first Alpine.js patterns you can copy, adapt, and ship.
       </p>
 
+      <p>
+        <a
+          href="/patterns/copy-to-clipboard"
+          class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+        >
+          Read the Copy to Clipboard documentation
+        </a>
+      </p>
+
       <p class="text-lg/relaxed text-gray-700">
         HyperUX is not about repackaging HTML elements and functionality as components. It focuses
         on developer-friendly APIs for behavior-heavy UI patterns you can adapt to your own markup
@@ -73,7 +82,7 @@ import DemoBlock from '../components/DemoBlock.astro'
             menuItems: [
               { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
               { label: 'Combobox', href: '#component-combobox' },
-              { label: 'Copy to Clipboard', href: '#component-copy' },
+              { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
               { label: 'Dialog', href: '#component-dialog' },
               { label: 'Command Palette', href: '#component-command-palette' },
               { label: 'Dropdown', href: '#component-dropdown' },
@@ -510,160 +519,6 @@ import DemoBlock from '../components/DemoBlock.astro'
       </div>
     </DemoBlock>
 
-    <DemoBlock id="component-copy" title="Copy to Clipboard">
-      <p class="text-gray-700">
-        Utility component that copies multiple markup and value sources from live DOM elements by
-        their data-hux-copy identifier. It preserves array order and joins sources using
-        contentSeparator.
-      </p>
-
-      <strong class="block font-semibold">Demo Config</strong>
-
-      <pre
-        class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100">{`huxCopy({
-  sourceNames: ['copyExample', 'copyRegistrationCode']
-})`}</pre>
-
-      <div class="space-y-4 rounded-md border border-gray-200 bg-gray-50 p-4">
-        <div data-hux-copy="copyExample" class="space-y-4">
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div
-              class="space-y-4 rounded-md border border-dashed border-gray-200 bg-white p-4"
-              data-hux-copy="copyExampleA"
-            >
-              <span
-                class="inline-flex items-center rounded-full border border-teal-300 bg-teal-100 px-2 py-1 text-xs font-semibold tracking-wide text-teal-900 uppercase"
-              >
-                Element A
-              </span>
-
-              <p class="text-gray-700">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error quaerat obcaecati
-                hic exercitationem? Libero unde dolorem est nostrum qui distinctio cum modi minima
-                laudantium quia. Itaque consectetur totam adipisci magnam?
-              </p>
-            </div>
-
-            <div
-              class="space-y-4 rounded-md border border-dashed border-gray-200 bg-white p-4"
-              data-hux-copy="copyExampleB"
-            >
-              <span
-                class="inline-flex items-center rounded-full border border-teal-300 bg-teal-100 px-2 py-1 text-xs font-semibold tracking-wide text-teal-900 uppercase"
-              >
-                Element B
-              </span>
-
-              <p class="text-gray-700">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus praesentium quasi
-                aliquid molestiae at accusantium veritatis, minima dicta sed voluptatem.
-              </p>
-            </div>
-          </div>
-
-          <button
-            x-data="huxCopy({ sourceNames: ['copyExampleA', 'copyExampleB'] })"
-            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
-            x-on:click="copyToClipboard()"
-          >
-            <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy'"></span>
-          </button>
-
-          <div>
-            <label for="hux-copy-input-demo" class="block font-medium text-gray-700">
-              Input Value
-            </label>
-
-            <div class="relative mt-2">
-              <input
-                id="hux-copy-input-demo"
-                data-hux-copy="copyInputExample"
-                type="text"
-                value="Hello there 👋"
-                class="w-full rounded-md border border-gray-300 bg-white py-2 pr-12 pl-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
-
-              <button
-                type="button"
-                x-data="huxCopy({ valueSourceNames: ['copyInputExample'] })"
-                aria-label="Copy input value"
-                class="absolute top-1.25 right-1.25 grid size-8 place-content-center rounded text-gray-700 transition-colors hover:bg-gray-100"
-                x-bind:class="{ 'bg-gray-100': hasCopied }"
-                x-on:click="copyToClipboard()"
-              >
-                <span
-                  aria-live="polite"
-                  class="sr-only"
-                  x-text="hasCopied ? 'Copied input value' : 'Copy input value'"></span>
-
-                <svg
-                  x-cloak
-                  x-show="!hasCopied"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                  class="size-5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                  ></path>
-                </svg>
-
-                <svg
-                  x-cloak
-                  x-show="hasCopied"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                  class="size-5"
-                >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p class="font-semibold">All Options</p>
-
-      <pre
-        class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100">{`Options:
-- sourceNames: string[] (default: [])
-- valueSourceNames: string[] (default: [])
-- contentSeparator: string (default: '\\n\\n')
-- timeoutDuration: number (default: 2000)`}</pre>
-
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <button
-          x-data="huxCopy({ sourceNames: ['copyExample', 'copyRegistrationCode'] })"
-          class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
-          x-on:click="copyToClipboard()"
-        >
-          <span aria-live="polite" x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-          ></span>
-        </button>
-
-        <a
-          href="https://github.com/markmead/hyperux/issues/new"
-          target="_blank"
-          rel="noreferrer"
-          class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-        >
-          Found a bug or improvement? Open an issue.
-        </a>
-      </div>
-    </DemoBlock>
-
     <DemoBlock id="component-dialog" title="Dialog">
       <p class="text-gray-700">
         Focus-trapped dialog with scroll locking, Escape dismiss, backdrop dismiss, and focus
@@ -834,7 +689,7 @@ Events:
     { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
     { label: 'Open Google', href: 'https://google.com', target: '_blank' },
     { label: 'Combobox', href: '#component-combobox' },
-    { label: 'Copy to Clipboard', href: '#component-copy' },
+    { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
     { label: 'Dialog', href: '#component-dialog' },
     { label: 'Command Palette', href: '#component-command-palette' },
     { label: 'Dropdown', href: '#component-dropdown' },
@@ -851,7 +706,7 @@ Events:
                 { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
                 { label: 'Open Google', href: 'https://google.com', target: '_blank' },
                 { label: 'Combobox', href: '#component-combobox' },
-                { label: 'Copy to Clipboard', href: '#component-copy' },
+                { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
                 { label: 'Dialog', href: '#component-dialog' },
                 { label: 'Command Palette', href: '#component-command-palette' },
                 { label: 'Dropdown', href: '#component-dropdown' },
@@ -2399,112 +2254,6 @@ Events:
             })
 
             return selectedItem
-          },
-        }))
-      })
-    </script>
-
-    <script data-hux-copy="copyRegistrationCode">
-      document.addEventListener('alpine:init', () => {
-        Alpine.data('huxCopy', (initialConfig = {}) => ({
-          hasCopied: false,
-          sourceNames: initialConfig.sourceNames ?? [],
-          valueSourceNames: initialConfig.valueSourceNames ?? [],
-          contentSeparator: initialConfig.contentSeparator ?? '\n\n',
-          timeoutDuration: initialConfig.timeoutDuration ?? 2000,
-
-          getSourceElement(sourceName) {
-            if (sourceName) {
-              const sourceElement = document.querySelector(
-                `[data-hux-copy="${CSS.escape(sourceName)}"]`,
-              )
-
-              if (sourceElement) {
-                return sourceElement
-              }
-            }
-
-            return null
-          },
-
-          resolveElementValue(sourceElement) {
-            if ('value' in sourceElement) {
-              return sourceElement.value
-            }
-
-            return sourceElement.textContent?.trim() ?? ''
-          },
-
-          resolveCopyContent() {
-            if (this.sourceNames.length === 0 && this.valueSourceNames.length === 0) {
-              console.error('[huxCopy] No sourceNames or valueSourceNames configured')
-
-              return null
-            }
-
-            const htmlCopyChunks = this.sourceNames
-              .map((sourceName) => {
-                const sourceElement = this.getSourceElement(sourceName)
-
-                if (!sourceElement) {
-                  console.error(
-                    `[huxCopy] Could not find source element for data-hux-copy: ${sourceName}`,
-                  )
-
-                  return null
-                }
-
-                return sourceElement.outerHTML
-              })
-              .filter((contentChunk) => typeof contentChunk === 'string')
-              .map((contentChunk) => contentChunk.trim())
-              .filter((contentChunk) => contentChunk.length > 0)
-
-            const valueCopyChunks = this.valueSourceNames
-              .map((sourceName) => {
-                const sourceElement = this.getSourceElement(sourceName)
-
-                if (!sourceElement) {
-                  console.error(
-                    `[huxCopy] Could not find value source element for data-hux-copy: ${sourceName}`,
-                  )
-
-                  return null
-                }
-
-                return this.resolveElementValue(sourceElement)
-              })
-              .filter((valueChunk) => typeof valueChunk === 'string')
-              .map((valueChunk) => valueChunk.trim())
-              .filter((valueChunk) => valueChunk.length > 0)
-
-            const copyChunks = [...htmlCopyChunks, ...valueCopyChunks]
-
-            if (copyChunks.length === 0) {
-              return null
-            }
-
-            return copyChunks.join(this.contentSeparator)
-          },
-
-          async copyToClipboard() {
-            try {
-              const contentToCopy = this.resolveCopyContent()
-
-              if (!contentToCopy) {
-                return
-              }
-
-              await navigator.clipboard.writeText(contentToCopy)
-
-              this.hasCopied = true
-
-              setTimeout(() => {
-                this.hasCopied = false
-              }, this.timeoutDuration)
-            } catch (copyError) {
-              console.error('[huxCopy] Copy failed', copyError)
-            }
           },
         }))
       })
