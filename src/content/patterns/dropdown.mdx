@@ -1,0 +1,144 @@
+---
+slug: dropdown
+title: Dropdown
+description: Build keyboard-friendly action and link menus with huxDropdown for Alpine.js.
+terms:
+  - dropdown
+  - menu
+  - alpinejs
+  - keyboard-navigation
+  - menu-button
+  - action-dispatch
+pubDate: 2026-04-20
+modDate: 2026-04-20
+---
+
+import Demo from '../../components/demos/Dropdown.astro'
+
+<Demo />
+
+<div class="prose prose-headings:font-semibold mx-auto">
+
+`huxDropdown` provides menu-button behavior with open/close state, focus movement, and menu item selection handling for link and action items.
+
+## API
+
+### `huxDropdown(config)`
+
+Returns an Alpine data object with:
+
+- `isOpen: boolean`
+- `focusedIndex: number`
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string }>`
+- `menuId: string | null`
+- `triggerButtonId: string | null`
+- `menuItemIds: string[]`
+- `openMenu(): void`
+- `closeMenu(restoreFocus?: boolean): void`
+- `toggleMenu(): void`
+- `focusFirstItem(): void`
+- `focusLastItem(): void`
+- `focusNextItem(): void`
+- `focusPreviousItem(): void`
+- `selectItem(menuItem): void`
+
+_Internal id bookkeeping helpers are private implementation details and not part of the supported API contract._
+
+## Options
+
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string }>` (default: `[]`)
+- `triggerId: string` (optional, scopes generated ids and action event names)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxDropdown({
+    triggerId: 'user-menu',
+    menuItems: [
+      { label: 'Profile', href: '/profile' },
+      { label: 'Billing', href: '/billing' },
+      { label: 'Copy Link', action: 'copyLink' }
+    ]
+  })"
+  x-on:click.outside="closeMenu()"
+>
+  <button
+    x-ref="dropdownTrigger"
+    type="button"
+    x-bind:id="triggerButtonId"
+    x-bind:aria-expanded="isOpen.toString()"
+    x-bind:aria-controls="menuId"
+    aria-haspopup="menu"
+    x-on:click="toggleMenu()"
+    x-on:keydown.down.prevent="openMenu(); focusFirstItem()"
+    x-on:keydown.up.prevent="openMenu(); focusLastItem()"
+  >
+    Open menu
+  </button>
+
+  <div x-show="isOpen" role="menu" x-bind:id="menuId" x-bind:aria-labelledby="triggerButtonId">
+    <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
+      <button
+        type="button"
+        role="menuitem"
+        x-bind:id="menuItemIds[menuIndex]"
+        x-on:click="selectItem(menuItem)"
+        x-text="menuItem.label"
+      ></button>
+    </template>
+  </div>
+</div>
+```
+
+## Common Usage Patterns
+
+### Scoped Action Events
+
+```js
+huxDropdown({
+  triggerId: 'options-menu',
+  menuItems: [{ label: 'Copy Page URL', action: 'copyPageUrl' }],
+})
+```
+
+### Mixed Internal and External Links
+
+```js
+huxDropdown({
+  menuItems: [
+    { label: 'Docs', href: '/patterns/dropdown' },
+    { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+  ],
+})
+```
+
+## Behavior Contract
+
+- `menuItems` are filtered to entries with a label and either `href` or `action`.
+- Generated ids are based on `triggerId` when provided; otherwise a random uuid suffix is used.
+- `closeMenu(true)` restores focus to the trigger button on next tick.
+- `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
+- `selectItem()` dispatches action events for `action` entries and closes the menu.
+- Link entries close the menu without dispatching action events.
+
+## Error Handling
+
+- Empty or invalid `menuItems` produce an empty menu model without throwing.
+- `selectItem()` exits early for missing items.
+- Missing action listeners do not interrupt menu state changes.
+
+## Accessibility Notes
+
+- Keep trigger button wired with `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.
+- Keep menu container `role="menu"` and items `role="menuitem"`.
+- Use keyboard bindings for Up/Down/Home/End and Escape to maintain expected menu behavior.
+- Keep action items as real `button type="button"` elements; use anchors for navigation items.
+
+## Notes
+
+- Action event names:
+  - `hux-dropdown:{triggerId}:action`
+  - `hux-dropdown:action` when no `triggerId` is provided
+
+</div>

@@ -1,0 +1,157 @@
+---
+slug: combobox
+title: Combobox
+description: Build searchable single- and multi-select listbox inputs with huxCombobox for Alpine.js.
+terms:
+  - combobox
+  - listbox
+  - alpinejs
+  - autocomplete
+  - keyboard-navigation
+  - multiselect
+pubDate: 2026-04-20
+modDate: 2026-04-20
+---
+
+import Demo from '../../components/demos/Combobox.astro'
+
+<Demo />
+
+<div class="prose prose-headings:font-semibold mx-auto">
+
+`huxCombobox` provides combobox behavior for Alpine.js with filtered option rendering, keyboard navigation, and optional multiple selection. Use it when you need behavior-only combobox logic that you can pair with your own markup and styles.
+
+## API
+
+### `huxCombobox(config)`
+
+Returns an Alpine data object with:
+
+- `isOpen: boolean`
+- `searchQuery: string`
+- `selectedValue: string`
+- `selectedValues: string[]`
+- `comboboxInputId: string | null`
+- `listboxId: string | null`
+- `filteredOptionItems: Array<{ optionItem: { label: string, value: string }, sourceIndex: number }>`
+- `activeDescendantId: string | null`
+- `openList(): void`
+- `closeList(): void`
+- `onInputChange(): void`
+- `focusNextOptionItem(): void`
+- `focusPreviousOptionItem(): void`
+- `selectFocusedOptionItem(): void`
+- `toggleOptionItem(optionItem): void`
+- `clearSelection(): void`
+
+_Internal helpers such as `ensureElementId()` and `configureTemplateRefs()` are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `optionItems: Array<{ label: string, value: string }>` (default: `[]`)
+- `acceptMultiple: boolean` (default: `false`)
+- `multiple: boolean` (alias for `acceptMultiple`, default: `false`)
+- `clearSelectionOnInputClear: boolean` (default: `false`)
+- `hideOptionItemsWhenSearchQueryEmpty: boolean` (default: `false`)
+- `inputTemplateRef: string` (default: `'comboboxInput'`)
+- `listboxTemplateRef: string` (default: `'comboboxListbox'`)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxCombobox({
+    optionItems: [
+      { label: 'Apple', value: 'apple' },
+      { label: 'Banana', value: 'banana' },
+      { label: 'Cherry', value: 'cherry' }
+    ]
+  })"
+  x-on:click.outside="closeList()"
+>
+  <label x-bind:for="comboboxInputId">Fruit</label>
+
+  <input
+    x-ref="comboboxInput"
+    x-model="searchQuery"
+    x-bind:id="comboboxInputId"
+    x-bind:aria-expanded="isOpen.toString()"
+    x-bind:aria-controls="listboxId"
+    role="combobox"
+    aria-autocomplete="list"
+    aria-haspopup="listbox"
+    x-on:input="onInputChange()"
+    x-on:keydown.down.prevent="focusNextOptionItem()"
+    x-on:keydown.up.prevent="focusPreviousOptionItem()"
+    x-on:keydown.enter.prevent="selectFocusedOptionItem()"
+    x-on:keydown.escape.stop.prevent="closeList()"
+  />
+
+  <div x-ref="comboboxListbox" x-bind:id="listboxId" role="listbox" x-show="isOpen">
+    <template x-for="({ optionItem, sourceIndex }) in filteredOptionItems" x-bind:key="sourceIndex">
+      <button
+        type="button"
+        role="option"
+        x-bind:id="optionItemId(sourceIndex)"
+        x-on:click="toggleOptionItem(optionItem)"
+        x-text="optionItem.label"
+      ></button>
+    </template>
+  </div>
+</div>
+```
+
+## Common Usage Patterns
+
+### Multiple Selection
+
+```js
+huxCombobox({
+  optionItems: [
+    { label: 'Apple', value: 'apple' },
+    { label: 'Apricot', value: 'apricot' },
+  ],
+  acceptMultiple: true,
+})
+```
+
+### Keep List Closed Until Search Starts
+
+```js
+huxCombobox({
+  optionItems: [
+    { label: 'Apple', value: 'apple' },
+    { label: 'Banana', value: 'banana' },
+  ],
+  hideOptionItemsWhenSearchQueryEmpty: true,
+})
+```
+
+## Behavior Contract
+
+- `optionItems` are normalized to an array before filtering.
+- `filteredOptionItems` matches options by case-insensitive label includes.
+- `onInputChange()` opens the list and resets focused option to `-1`.
+- `clearSelectionOnInputClear` only clears for single-select mode.
+- In single-select mode, selecting an option sets `selectedValue`, mirrors label into `searchQuery`, and closes the list.
+- In multi-select mode, `toggleOptionItem()` mutates `selectedValues` and keeps or closes the list depending on `hideOptionItemsWhenSearchQueryEmpty`.
+- `activeDescendantId` is `null` unless the list is open and a focused option exists.
+
+## Error Handling
+
+- Missing input/listbox refs do not throw. The component logs a `comboBox` missing-ref error and falls back to generated ids.
+- Unknown or malformed option data is tolerated by filtering and string conversion behavior; operations no-op when target options are unavailable.
+
+## Accessibility Notes
+
+- Keep the input wired with `role="combobox"`, `aria-autocomplete="list"`, and `aria-controls` pointing at the listbox id.
+- Keep options keyboard reachable via arrow keys and Enter bindings (`focusNextOptionItem()`, `focusPreviousOptionItem()`, `selectFocusedOptionItem()`).
+- Ensure option row active/selected states use visible contrast and not color alone.
+- Keep remove/clear controls as `button` elements with `type="button"` and clear labels (`aria-label`).
+
+## Notes
+
+- `multiple` is accepted as a compatibility alias for `acceptMultiple`.
+- The component generates ids when refs have no `id`, so explicit ids are optional.
+
+</div>

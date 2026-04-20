@@ -1,0 +1,133 @@
+---
+slug: resizable
+title: Resizable Container
+description: Build drag-to-resize preview containers with huxResizable for Alpine.js including breakpoint-aware width controls.
+terms:
+  - resizable
+  - drag-to-resize
+  - alpinejs
+  - breakpoints
+  - iframe-preview
+  - responsive-testing
+pubDate: 2026-04-20
+modDate: 2026-04-20
+---
+
+import Demo from '../../components/demos/Resizable.astro'
+
+<Demo />
+
+<div class="prose prose-headings:font-semibold mx-auto">
+
+`huxResizable` controls a container width with pointer and keyboard interactions, tracks the currently matched breakpoint, and can clamp width to min/max or parent bounds.
+
+## API
+
+### `huxResizable(config)`
+
+Returns an Alpine data object with:
+
+- `currentWidth: number`
+- `minWidth: number`
+- `maxWidth: number | null`
+- `preventOverflow: boolean`
+- `stopAtLastBreakpoint: boolean`
+- `breakpointItems: Array<{ label: string, minWidth: number }>`
+- `activeBreakpoint: string | null`
+- `startDrag(pointerEvent): void`
+- `nudgeWidth(xDelta: number): void`
+- `jumpToLabel(breakpointLabel: string): void`
+- `jumpToBreakpoint(xDirection: 'next' | 'prev' | 'first' | 'last'): void`
+- `destroy(): void`
+
+_Internal methods prefixed with `_` are private implementation details and not part of the supported API contract.\_
+
+## Options
+
+- `breakpointItems: Array<{ label: string, minWidth: number }>` (default: xs/sm/md/lg/xl)
+- `minWidth: number` (default: `375`)
+- `maxWidth: number | null` (default: `null`)
+- `preventOverflow: boolean` (default: `true`)
+- `stopAtLastBreakpoint: boolean` (default: `false`)
+
+## Quick Start
+
+```html
+<div x-data="huxResizable({ stopAtLastBreakpoint: true })">
+  <div
+    x-ref="resizableContainer"
+    x-bind:style="`width: ${currentWidth}px; min-width: ${minWidth}px;`"
+  >
+    <iframe x-ref="iframeEl" src="/examples/resizable.html" title="Preview"></iframe>
+
+    <button
+      type="button"
+      aria-label="Drag to resize"
+      x-on:mousedown="startDrag($event)"
+      x-on:touchstart.prevent="startDrag($event)"
+      x-on:keydown.right.prevent="nudgeWidth(8)"
+      x-on:keydown.left.prevent="nudgeWidth(-8)"
+      x-on:keydown.up.prevent="jumpToBreakpoint('next')"
+      x-on:keydown.down.prevent="jumpToBreakpoint('prev')"
+    ></button>
+  </div>
+</div>
+```
+
+## Common Usage Patterns
+
+### Clamp to Parent Width
+
+```js
+huxResizable({
+  preventOverflow: true,
+})
+```
+
+### Cap at Largest Breakpoint
+
+```js
+huxResizable({
+  stopAtLastBreakpoint: true,
+})
+```
+
+### Custom Breakpoints
+
+```js
+huxResizable({
+  breakpointItems: [
+    { label: 'mobile', minWidth: 360 },
+    { label: 'tablet', minWidth: 768 },
+    { label: 'desktop', minWidth: 1200 },
+  ],
+})
+```
+
+## Behavior Contract
+
+- `maxWidth` lower than `minWidth` is normalized up to `minWidth` during init.
+- `breakpointItems` are filtered to valid shape and sorted by `minWidth` ascending.
+- `currentWidth` initializes from `resizableContainer.offsetWidth` when available.
+- `nudgeWidth()`, `jumpToLabel()`, and `jumpToBreakpoint()` always apply clamp logic before updating width.
+- `jumpToBreakpoint()` no-ops when direction is invalid or no breakpoints exist.
+- `destroy()` removes pointer listeners and disconnects resize observer.
+
+## Error Handling
+
+- Invalid breakpoint entries are ignored.
+- Missing container refs fall back safely to width defaults; keyboard methods still no-op safely where needed.
+- Unknown breakpoint labels in `jumpToLabel()` no-op.
+
+## Accessibility Notes
+
+- Keep the drag handle as `button type="button"` with an explicit `aria-label`.
+- Support keyboard resizing (`ArrowLeft`/`ArrowRight`) and breakpoint jumps (`ArrowUp`/`ArrowDown`, `Home`, `End`).
+- Expose current breakpoint changes with `aria-live="polite"` status text.
+- Ensure the active resize affordance has visible focus styles.
+
+## Notes
+
+- `destroy()` is part of the supported API here because it performs listener and observer cleanup for long-lived contexts.
+
+</div>

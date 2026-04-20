@@ -1,0 +1,537 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+      <strong>Note:</strong>
+      This pattern is extra experimental because it composes other HyperUX primitives.
+    </p>
+
+    <div
+      x-data="(() => {
+            const dialogComponent = huxDialog({ dialogId: 'command-palette' })
+            const paletteComponent = huxCommandPalette({
+              paletteItems: [
+                { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
+                { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
+                { label: 'Combobox Docs', href: '/patterns/combobox' },
+                { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+                { label: 'Copy Page URL', action: 'copyPageUrl' }
+              ]
+            })
+            return {
+              ...dialogComponent,
+              ...paletteComponent,
+              init() {
+                dialogComponent.init.call(this)
+                paletteComponent.init.call(this)
+              },
+            }
+          })()"
+      class="space-y-2"
+      x-on:keydown.window="handleGlobalShortcut($event)"
+      x-on:hux-command-palette:close.window="closeDialog()"
+      x-on:hux-command-palette:action.window="if ($event.detail.action === 'copyPageUrl') navigator.clipboard.writeText(globalThis.location.href)"
+    >
+      <button
+        type="button"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
+        x-on:click="openDialog()"
+      >
+        Open Command Palette
+      </button>
+
+      <p class="text-sm text-gray-600">
+        Press <span class="font-medium" x-text="shortcutHint"></span> to open from anywhere.
+      </p>
+
+      <template x-teleport="body">
+        <div
+          x-cloak
+          x-show="isOpen"
+          class="fixed inset-0 z-50 overflow-y-auto"
+          x-on:keydown.escape.stop="handleEscape()"
+        >
+          <div class="flex min-h-full items-start justify-center p-4 pt-24">
+            <template x-if="showBackdrop">
+              <div
+                x-cloak
+                x-show="isOpen"
+                x-transition.opacity.duration.200ms
+                class="fixed inset-0 bg-gray-900/60"
+                aria-hidden="true"
+                x-on:click="handleBackdropClick()"
+              >
+              </div>
+            </template>
+
+            <div
+              x-cloak
+              x-show="isOpen"
+              x-trap.noscroll="isOpen"
+              x-transition.duration.200ms
+              x-bind:aria-labelledby="dialogTitleId || null"
+              role="dialog"
+              aria-modal="true"
+              class="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-4 shadow-xl"
+            >
+              <h3 x-bind:id="dialogTitleId || null" class="sr-only">Command palette</h3>
+
+              <div
+                x-data="{
+                    ...huxCombobox({
+                      optionItems: paletteItems.map((paletteItem) => ({ label: paletteItem.label, value: paletteItem.label })),
+                      inputTemplateRef: 'commandPaletteInput',
+                      listboxTemplateRef: 'commandPaletteListbox',
+                      clearSelectionOnInputClear: true
+                    }),
+                    get filteredOptionItems() {
+                      const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
+                      const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
+                      if (normalizedSearchQuery === '') {
+                        return []
+                      }
+                      return normalizedOptionItems
+                        .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+                        .filter(({ optionItem }) => optionItem.label.toLowerCase().includes(normalizedSearchQuery))
+                    },
+                    get activeDescendantId() {
+                      if (!this.isOpen || this.focusedIndex < 0) {
+                        return null
+                      }
+                      const focusedOptionItem = this.filteredOptionItems[this.focusedIndex]
+                      if (!focusedOptionItem) {
+                        return null
+                      }
+                      return this.optionItemId(focusedOptionItem.sourceIndex)
+                    },
+                    onPaletteOpen() {
+                      this.searchQuery = ''
+                      this.focusedIndex = -1
+                      this.closeList()
+                      this.$nextTick(() => this.$refs.commandPaletteInput?.focus())
+                    },
+                    onPaletteClose() {
+                      this.closeList()
+                      this.clearSelection()
+                    },
+                  }"
+                class="space-y-2"
+                x-on:hux-dialog:command-palette:open.window="onPaletteOpen()"
+                x-on:hux-dialog:command-palette:close.window="onPaletteClose()"
+              >
+                <label x-bind:for="comboboxInputId" class="sr-only">
+                  Search links and actions
+                </label>
+
+                <div class="relative">
+                  <input
+                    x-ref="commandPaletteInput"
+                    x-model="searchQuery"
+                    x-bind:id="comboboxInputId"
+                    x-bind:aria-expanded="(isOpen && searchQuery.trim() !== '').toString()"
+                    x-bind:aria-controls="listboxId"
+                    x-bind:aria-activedescendant="activeDescendantId"
+                    type="text"
+                    placeholder="Search links and actions..."
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-haspopup="listbox"
+                    autocomplete="off"
+                    class="w-full rounded-md border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    x-on:input="onInputChange()"
+                    x-on:keydown.down.prevent="if (searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
+                    x-on:keydown.up.prevent="if (searchQuery.trim() === '') return; focusPreviousOptionItem()"
+                    x-on:keydown.enter.prevent="
+                        const focusedOptionItem = filteredOptionItems[focusedIndex];
+                        if (!focusedOptionItem) return;
+                        toggleOptionItem(focusedOptionItem.optionItem);
+                        const selectedItem = selectItem(focusedOptionItem.optionItem.value);
+                        if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                    x-on:keydown.escape.stop.prevent="closeList(); $dispatch('hux-command-palette:close')"
+                  />
+
+                  <div
+                    x-cloak
+                    x-transition
+                    x-show="isOpen && searchQuery.trim() !== ''"
+                    x-ref="commandPaletteListbox"
+                    x-bind:id="listboxId"
+                    role="listbox"
+                    class="mt-2 max-h-72 w-full overflow-y-auto rounded-md border border-gray-300 bg-white"
+                  >
+                    <template x-if="searchQuery.trim() !== '' && filteredOptionItems.length === 0">
+                      <p class="px-4 py-3 text-gray-500">No results found.</p>
+                    </template>
+
+                    <template
+                      x-for="({ optionItem, sourceIndex }, optionIndex) in filteredOptionItems"
+                      x-bind:key="`${optionItem.value}-${sourceIndex}`"
+                    >
+                      <button
+                        type="button"
+                        x-bind:id="optionItemId(sourceIndex)"
+                        x-bind:aria-selected="isOptionSelected(optionItem).toString()"
+                        x-bind:class="{
+                              'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                              'hover:bg-gray-100': focusedIndex !== optionIndex
+                            }"
+                        role="option"
+                        tabindex="-1"
+                        class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors"
+                        x-on:click="
+                              toggleOptionItem(optionItem);
+                              const selectedItem = selectItem(optionItem.value);
+                              if (selectedItem) {
+                                closeList();
+                                $dispatch('hux-command-palette:close')
+                              }"
+                        x-on:mouseenter="focusedIndex = optionIndex"
+                      >
+                        <span x-text="optionItem.label"></span>
+                        <span
+                          x-data="{ paletteItem: findPaletteItem(optionItem.value) }"
+                          x-show="paletteItem"
+                          x-bind:class="{
+                                'bg-blue-100 text-blue-700': paletteItem?.href && paletteItem?.target !== '_blank',
+                                'bg-green-100 text-green-700': paletteItem?.target === '_blank',
+                                'bg-purple-100 text-purple-700': paletteItem?.action
+                              }"
+                          class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                          x-text="paletteItem?.target === '_blank' ? 'External link' : paletteItem?.href ? 'Internal link' : 'Action'"
+                        ></span>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <a
+      href="https://github.com/markmead/hyperux/issues/new"
+      target="_blank"
+      rel="noreferrer"
+      class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+    >
+      Found a bug or improvement? Open an issue.
+    </a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxDialog', (initialConfig = {}) => ({
+      isOpen: initialConfig.startsOpen ?? false,
+      dialogId: initialConfig.dialogId ?? null,
+      isPersistent: initialConfig.isPersistent ?? false,
+      isSeamless: initialConfig.isSeamless ?? false,
+      dialogTitleId: null,
+
+      get closeOnBackdrop() {
+        return !this.isPersistent
+      },
+
+      get closeOnEscape() {
+        return !this.isPersistent
+      },
+
+      get showBackdrop() {
+        return !this.isSeamless
+      },
+
+      init() {
+        this.dialogTitleId = this.dialogId ? `${this.dialogId}-title` : null
+      },
+
+      openDialog() {
+        this.isOpen = true
+        this.dispatchDialogEvent('open')
+      },
+
+      closeDialog() {
+        this.isOpen = false
+        this.dispatchDialogEvent('close')
+      },
+
+      handleBackdropClick() {
+        if (this.closeOnBackdrop) {
+          this.closeDialog()
+        }
+      },
+
+      handleEscape() {
+        if (this.closeOnEscape) {
+          this.closeDialog()
+        }
+      },
+
+      dispatchDialogEvent(eventName) {
+        const scopedEventName = this.dialogId
+          ? `hux-dialog:${this.dialogId}:${eventName}`
+          : `hux-dialog:${eventName}`
+
+        this.$dispatch(scopedEventName, {
+          dialogId: this.dialogId,
+        })
+      },
+    }))
+
+    Alpine.data('huxCombobox', (initialConfig = {}) => ({
+      isOpen: false,
+      searchQuery: '',
+      selectedValue: '',
+      selectedValues: [],
+      acceptMultiple: initialConfig.acceptMultiple ?? initialConfig.multiple ?? false,
+      clearSelectionOnInputClear: initialConfig.clearSelectionOnInputClear ?? false,
+      hideOptionItemsWhenSearchQueryEmpty:
+        initialConfig.hideOptionItemsWhenSearchQueryEmpty ?? false,
+      focusedIndex: -1,
+      comboboxInputId: null,
+      listboxId: null,
+      optionItems: initialConfig.optionItems ?? [],
+      inputTemplateRefName: initialConfig.inputTemplateRef ?? 'comboboxInput',
+      listboxTemplateRefName: initialConfig.listboxTemplateRef ?? 'comboboxListbox',
+
+      init() {
+        this.configureTemplateRefs()
+      },
+
+      get filteredOptionItems() {
+        const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
+        const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
+
+        if (this.hideOptionItemsWhenSearchQueryEmpty && normalizedSearchQuery === '') {
+          return []
+        }
+
+        return normalizedOptionItems
+          .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+          .filter(({ optionItem }) =>
+            optionItem.label.toLowerCase().includes(normalizedSearchQuery),
+          )
+      },
+
+      ensureElementId(targetElement, fallbackPrefix, templateRefName) {
+        const fallbackId = `${fallbackPrefix}-${crypto.randomUUID()}`
+
+        if (!targetElement) {
+          console.error(
+            `[comboBox] Missing x-ref target for ${templateRefName}. Falling back to generated id ${fallbackId}`,
+          )
+
+          return fallbackId
+        }
+
+        if (targetElement.id) {
+          return targetElement.id
+        }
+
+        targetElement.id = fallbackId
+
+        return fallbackId
+      },
+
+      configureTemplateRefs() {
+        const inputElement = this.$refs[this.inputTemplateRefName] ?? null
+        const listboxElement = this.$refs[this.listboxTemplateRefName] ?? null
+
+        this.comboboxInputId = this.ensureElementId(
+          inputElement,
+          'combo-box-input',
+          this.inputTemplateRefName,
+        )
+
+        this.listboxId = this.ensureElementId(
+          listboxElement,
+          'combo-box-listbox',
+          this.listboxTemplateRefName,
+        )
+      },
+
+      optionItemId(sourceIndex) {
+        return `${this.listboxId}-option-${sourceIndex}`
+      },
+
+      openList() {
+        if (this.hideOptionItemsWhenSearchQueryEmpty && this.searchQuery.trim() === '') {
+          return
+        }
+
+        this.isOpen = true
+      },
+
+      closeList() {
+        this.isOpen = false
+        this.focusedIndex = -1
+      },
+
+      onInputChange() {
+        if (
+          this.clearSelectionOnInputClear &&
+          !this.acceptMultiple &&
+          this.searchQuery.trim() === ''
+        ) {
+          this.clearSelection()
+        }
+
+        if (this.hideOptionItemsWhenSearchQueryEmpty && this.searchQuery.trim() === '') {
+          this.closeList()
+
+          return
+        }
+
+        this.isOpen = true
+        this.focusedIndex = -1
+      },
+
+      focusNextOptionItem() {
+        const totalItems = this.filteredOptionItems.length
+
+        if (totalItems === 0) {
+          this.openList()
+          this.focusedIndex = -1
+
+          return
+        }
+
+        this.openList()
+
+        this.focusedIndex = Math.min(this.focusedIndex + 1, totalItems - 1)
+      },
+
+      focusPreviousOptionItem() {
+        const totalItems = this.filteredOptionItems.length
+
+        if (totalItems === 0) {
+          this.openList()
+          this.focusedIndex = -1
+
+          return
+        }
+
+        this.openList()
+
+        if (this.focusedIndex <= 0) {
+          this.focusedIndex = 0
+
+          return
+        }
+
+        this.focusedIndex -= 1
+      },
+
+      isOptionSelected(optionItem) {
+        return this.acceptMultiple
+          ? this.selectedValues.includes(optionItem.value)
+          : this.selectedValue === optionItem.value
+      },
+
+      toggleOptionItem(optionItem) {
+        if (!this.acceptMultiple) {
+          this.selectedValue = optionItem.value
+          this.searchQuery = optionItem.label
+          this.closeList()
+
+          return
+        }
+
+        const selectedItemIndex = this.selectedValues.indexOf(optionItem.value)
+
+        if (selectedItemIndex >= 0) {
+          this.selectedValues.splice(selectedItemIndex, 1)
+        } else {
+          this.selectedValues.push(optionItem.value)
+        }
+      },
+
+      clearSelection() {
+        this.selectedValue = ''
+        this.selectedValues = []
+        this.searchQuery = ''
+        this.focusedIndex = -1
+      },
+    }))
+
+    Alpine.data('huxCommandPalette', (initialConfig = {}) => ({
+      paletteItems: initialConfig.paletteItems ?? [],
+      shortcutKey: (initialConfig.shortcutKey ?? 'k').toLowerCase(),
+      shortcutHint: '',
+
+      init() {
+        this.paletteItems = this.paletteItems.filter(
+          (paletteItem) => paletteItem?.label && (paletteItem?.href || paletteItem?.action),
+        )
+
+        const uppercaseShortcutKey = this.shortcutKey.toUpperCase()
+
+        const platformString = navigator.userAgentData?.platform ?? navigator.platform ?? ''
+
+        this.shortcutHint = /mac/i.test(platformString)
+          ? `Command + ${uppercaseShortcutKey}`
+          : `Control + ${uppercaseShortcutKey}`
+      },
+
+      handleGlobalShortcut(event) {
+        const pressedKey = event.key.toLowerCase()
+
+        if (pressedKey !== this.shortcutKey) {
+          return
+        }
+
+        if (!event.metaKey && !event.ctrlKey) {
+          return
+        }
+
+        const target = event.target
+        const tagName = target?.tagName?.toLowerCase()
+
+        if (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable) {
+          return
+        }
+
+        event.preventDefault()
+
+        this.openDialog()
+      },
+
+      findPaletteItem(itemLabel) {
+        return this.paletteItems.find((paletteItem) => paletteItem.label === itemLabel) ?? null
+      },
+
+      selectItem(itemLabel) {
+        const selectedItem = this.findPaletteItem(itemLabel)
+
+        if (!selectedItem) {
+          return null
+        }
+
+        if (selectedItem.href) {
+          if (selectedItem.target === '_blank') {
+            globalThis.open(selectedItem.href, '_blank', 'noopener,noreferrer')
+
+            return selectedItem
+          }
+
+          globalThis.location.assign(selectedItem.href)
+
+          return selectedItem
+        }
+
+        this.$dispatch('hux-command-palette:action', {
+          action: selectedItem.action,
+          item: selectedItem,
+        })
+
+        return selectedItem
+      },
+    }))
+  })
+</script>
