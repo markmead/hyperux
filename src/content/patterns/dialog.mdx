@@ -59,8 +59,13 @@ _Internal helper methods are private implementation details and are not part of 
   <button type="button" x-on:click="openDialog()">Open dialog</button>
 
   <template x-teleport="body">
-    <div x-show="isOpen" x-on:keydown.escape.stop="handleEscape()">
-      <div x-show="showBackdrop" aria-hidden="true" x-on:click="handleBackdropClick()"></div>
+    <div x-cloak x-show="isOpen" x-on:keydown.escape.stop="handleEscape()">
+      <div
+        x-cloak
+        x-show="showBackdrop"
+        aria-hidden="true"
+        x-on:click="handleBackdropClick()"
+      ></div>
 
       <div
         x-trap.noscroll="isOpen"

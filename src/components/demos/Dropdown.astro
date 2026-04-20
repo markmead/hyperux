@@ -87,7 +87,7 @@
         x-on:keydown.tab="closeMenu()"
       >
         <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
-          <div role="none">
+          <div role="none" x-data="{ dropdownItem: findMenuItem(menuItem.label) }">
             <template x-if="menuItem.href">
               <a
                 x-bind:id="menuItemIds[menuIndex]"
@@ -104,7 +104,7 @@
               >
                 <span x-text="menuItem.label"></span>
                 <span
-                  x-data="{ dropdownItem: findMenuItem(menuItem.label) }"
+                  x-cloak
                   x-show="dropdownItem"
                   x-bind:class="{
                     'bg-blue-100 text-blue-700': dropdownItem?.href && dropdownItem?.target !== '_blank',
@@ -112,7 +112,7 @@
                     'bg-purple-100 text-purple-700': dropdownItem?.action
                   }"
                   class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-                  x-text="dropdownItem?.target === '_blank' ? 'External Link' : dropdownItem?.href ? 'Internal Link' : 'Action'"
+                  x-text="dropdownItem?.target === '_blank' ? 'External link' : dropdownItem?.href ? 'Internal link' : 'Action'"
                 ></span>
               </a>
             </template>
@@ -131,7 +131,7 @@
               >
                 <span x-text="menuItem.label"></span>
                 <span
-                  x-data="{ dropdownItem: findMenuItem(menuItem.label) }"
+                  x-cloak
                   x-show="dropdownItem"
                   x-bind:class="{
                     'bg-blue-100 text-blue-700': dropdownItem?.href && dropdownItem?.target !== '_blank',
@@ -139,7 +139,7 @@
                     'bg-purple-100 text-purple-700': dropdownItem?.action
                   }"
                   class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-                  x-text="dropdownItem?.target === '_blank' ? 'External Link' : dropdownItem?.href ? 'Internal Link' : 'Action'"
+                  x-text="dropdownItem?.target === '_blank' ? 'External link' : dropdownItem?.href ? 'Internal link' : 'Action'"
                 ></span>
               </button>
             </template>
@@ -147,6 +147,8 @@
         </template>
       </div>
     </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
 
     <div class="flex flex-wrap items-center justify-between gap-4">
       <button

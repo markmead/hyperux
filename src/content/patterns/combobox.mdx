@@ -87,7 +87,7 @@ _Internal helper methods are private implementation details and are not part of 
     x-on:keydown.escape.stop.prevent="closeList()"
   />
 
-  <div x-ref="comboboxListbox" x-bind:id="listboxId" role="listbox" x-show="isOpen">
+  <div x-ref="comboboxListbox" x-bind:id="listboxId" role="listbox" x-cloak x-show="isOpen">
     <template x-for="({ optionItem, sourceIndex }) in filteredOptionItems" x-bind:key="sourceIndex">
       <button
         type="button"

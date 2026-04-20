@@ -195,6 +195,7 @@
                       >
                         <span x-text="optionItem.label"></span>
                         <span
+                          x-cloak
                           x-data="{ paletteItem: findPaletteItem(optionItem.value) }"
                           x-show="paletteItem"
                           x-bind:class="{
@@ -215,6 +216,8 @@
         </div>
       </template>
     </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
 
     <div class="flex flex-wrap items-center justify-between gap-4">
       <button

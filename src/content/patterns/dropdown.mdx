@@ -78,7 +78,13 @@ _Internal helper methods are private implementation details and are not part of 
     Open menu
   </button>
 
-  <div x-show="isOpen" role="menu" x-bind:id="menuId" x-bind:aria-labelledby="triggerButtonId">
+  <div
+    x-cloak
+    x-show="isOpen"
+    role="menu"
+    x-bind:id="menuId"
+    x-bind:aria-labelledby="triggerButtonId"
+  >
     <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
       <button
         type="button"
