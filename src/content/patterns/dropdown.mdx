@@ -40,6 +40,7 @@ Returns an Alpine data object with:
 - `focusLastItem(): void`
 - `focusNextItem(): void`
 - `focusPreviousItem(): void`
+- `findMenuItem(itemLabel: string): object | null`
 - `selectItem(menuItem): void`
 
 _Internal id bookkeeping helpers are private implementation details and not part of the supported API contract._
@@ -102,15 +103,26 @@ huxDropdown({
 })
 ```
 
-### Mixed Internal and External Links
+### Internal, External, and Action Items
 
 ```js
 huxDropdown({
   menuItems: [
     { label: 'Docs', href: '/patterns/dropdown' },
     { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+    { label: 'Copy Page URL', action: 'copyPageUrl' },
   ],
 })
+```
+
+When you need to classify an item after lookup, resolve it first and then branch on the returned object in the same style as `huxCommandPalette`:
+
+```js
+const menuItem = this.findMenuItem('GitHub')
+
+if (menuItem?.target === '_blank') {
+  // external link
+}
 ```
 
 ## Behavior Contract
@@ -119,12 +131,14 @@ huxDropdown({
 - Generated ids are based on `triggerId` when provided; otherwise a random uuid suffix is used.
 - `closeMenu(true)` restores focus to the trigger button on next tick.
 - `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
+- `findMenuItem()` returns the matched item when found; otherwise `null`.
 - `selectItem()` dispatches action events for `action` entries and closes the menu.
 - Link entries close the menu without dispatching action events.
 
 ## Error Handling
 
 - Empty or invalid `menuItems` produce an empty menu model without throwing.
+- Unknown labels in `findMenuItem()` return `null`.
 - `selectItem()` exits early for missing items.
 - Missing action listeners do not interrupt menu state changes.
 

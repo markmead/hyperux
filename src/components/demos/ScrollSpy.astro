@@ -19,7 +19,11 @@
     <pre
       class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100">{`huxScrollSpy()`}</pre>
 
-    <div x-data="huxScrollSpy()" class="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div
+      data-hux-copy="huxScrollSpyDemo"
+      x-data="huxScrollSpy()"
+      class="grid grid-cols-1 gap-4 md:grid-cols-3"
+    >
       <div class="col-span-1 rounded-md bg-gray-50 p-4">
         <h3 class="font-semibold">Table of Contents</h3>
 
@@ -108,6 +112,20 @@
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxScrollSpyDemo', 'huxScrollSpyRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
       <a
         href="https://github.com/markmead/hyperux/issues/new"
         target="_blank"
@@ -119,150 +137,3 @@
     </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('huxScrollSpy', (initialConfig = {}) => ({
-      headingItems: [],
-      activeHeadingId: null,
-      scrollContainerElement: null,
-      intersectionObserver: null,
-      observedHeadingElements: [],
-      scrollContainerScrollHandler: null,
-      templateRefName: initialConfig.templateRef ?? 'tocContent',
-      headingSelector: initialConfig.headingSelector ?? 'h2, h3, h4, h5, h6',
-
-      init() {
-        const scrollContainerElement = this.$refs[this.templateRefName]
-
-        if (!scrollContainerElement) {
-          console.error(`[scrollSpy] Missing x-ref target for templateRef: ${this.templateRefName}`)
-
-          return
-        }
-
-        this.scrollContainerElement = scrollContainerElement
-
-        const headingElements = scrollContainerElement.querySelectorAll(this.headingSelector)
-
-        this.observedHeadingElements = Array.from(headingElements)
-
-        this.headingItems = Array.from(headingElements).map((headingElement, headingIndex) => {
-          const headingId = this.ensureHeadingElementId(headingElement, headingIndex)
-
-          return {
-            id: headingId,
-            text: headingElement.textContent,
-            level: parseInt(headingElement.tagName[1]),
-          }
-        })
-
-        this.intersectionObserver = new IntersectionObserver(
-          (observerEntries) => {
-            const visibleEntries = observerEntries.filter(
-              (observerEntry) => observerEntry.isIntersecting,
-            )
-
-            if (visibleEntries.length === 0) {
-              return
-            }
-
-            const lastVisibleEntry = visibleEntries.reduce((currentLastEntry, observerEntry) => {
-              if (!currentLastEntry) {
-                return observerEntry
-              }
-
-              const currentIndex = this.observedHeadingElements.indexOf(currentLastEntry.target)
-              const nextIndex = this.observedHeadingElements.indexOf(observerEntry.target)
-
-              return nextIndex > currentIndex ? observerEntry : currentLastEntry
-            }, null)
-
-            if (lastVisibleEntry) {
-              this.activeHeadingId = lastVisibleEntry.target.id
-            }
-          },
-          {
-            root: scrollContainerElement,
-            rootMargin: initialConfig.rootMargin ?? '0px 0px -60% 0px',
-            threshold: initialConfig.visibilityThreshold ?? 0.1,
-          },
-        )
-
-        headingElements.forEach((headingElement) =>
-          this.intersectionObserver.observe(headingElement),
-        )
-
-        this.scrollContainerScrollHandler = this.handleScrollContainerPosition.bind(this)
-
-        this.scrollContainerElement.addEventListener('scroll', this.scrollContainerScrollHandler)
-
-        if (this.headingItems.length > 0) {
-          this.activeHeadingId = this.headingItems[0].id
-        }
-      },
-
-      scrollToHeadingItem(targetHeadingId) {
-        const targetHeadingElement =
-          this.scrollContainerElement?.querySelector(`#${CSS.escape(targetHeadingId)}`) ?? null
-
-        if (targetHeadingElement) {
-          targetHeadingElement.scrollIntoView({ behavior: 'smooth' })
-        }
-      },
-
-      ensureHeadingElementId(headingElement, headingIndex) {
-        if (headingElement.id) {
-          return headingElement.id
-        }
-
-        const headingSlug = headingElement.textContent
-          .trim()
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '')
-
-        const fallbackHeadingSlug = headingSlug || `generated-heading-${headingIndex + 1}`
-
-        let uniqueHeadingId = fallbackHeadingSlug
-        let duplicateIndex = 1
-
-        while (document.getElementById(uniqueHeadingId)) {
-          duplicateIndex += 1
-          uniqueHeadingId = `${fallbackHeadingSlug}-${duplicateIndex}`
-        }
-
-        headingElement.id = uniqueHeadingId
-
-        return uniqueHeadingId
-      },
-
-      handleScrollContainerPosition() {
-        if (!this.scrollContainerElement || this.headingItems.length === 0) {
-          return
-        }
-
-        const reachedBottomOfContainer =
-          this.scrollContainerElement.scrollTop + this.scrollContainerElement.clientHeight >=
-          this.scrollContainerElement.scrollHeight - 2
-
-        if (reachedBottomOfContainer) {
-          this.activeHeadingId = this.headingItems[this.headingItems.length - 1].id
-        }
-      },
-
-      destroy() {
-        if (this.scrollContainerElement && this.scrollContainerScrollHandler) {
-          this.scrollContainerElement.removeEventListener(
-            'scroll',
-            this.scrollContainerScrollHandler,
-          )
-        }
-
-        if (this.intersectionObserver) {
-          this.intersectionObserver.disconnect()
-        }
-      },
-    }))
-  })
-</script>

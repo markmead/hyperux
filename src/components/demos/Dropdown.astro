@@ -12,11 +12,18 @@
     </p>
 
     <div
+      data-hux-copy="huxDropdownDemo"
       x-data="huxDropdown({
         triggerId: 'options-menu',
         menuItems: [
-          { label: 'View Profile', href: '#' },
-          { label: 'Account Settings', href: '#' },
+          { label: 'API', href: '#api' },
+          { label: 'Options', href: '#options' },
+           { label: 'Quick Start', href: '#quick-start' },
+           { label: 'Common Usage Patterns', href: '#common-usage-patterns' },
+           { label: 'Behavior Contract', href: '#behavior-contract' },
+           { label: 'Error Handling', href: '#error-handling' },
+           { label: 'Accessibility Notes', href: '#accessibility-notes' },
+           { label: 'Notes', href: '#notes' },
           { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
           { label: 'Copy Page URL', action: 'copyPageUrl' }
         ]
@@ -24,7 +31,10 @@
       class="relative inline-block"
       x-on:click.outside="closeMenu()"
       x-on:hux-dropdown:options-menu:action="(async () => {
-          if ($event.detail.action !== 'copyPageUrl') return
+          if ($event.detail.action !== 'copyPageUrl') {
+            return
+          }
+
           try {
             await navigator.clipboard.writeText(location.href)
           } catch (_) {}
@@ -68,7 +78,7 @@
         x-bind:id="menuId"
         role="menu"
         x-bind:aria-labelledby="triggerButtonId"
-        class="absolute left-0 z-10 mt-2 min-w-48 overflow-hidden rounded-md border border-gray-200 bg-white shadow-md"
+        class="absolute left-0 z-10 mt-2 min-w-80 overflow-hidden rounded-md border border-gray-200 bg-white shadow-md"
         x-on:keydown.down.prevent="focusNextItem()"
         x-on:keydown.up.prevent="focusPreviousItem()"
         x-on:keydown.escape.stop.prevent="closeMenu(true)"
@@ -87,11 +97,24 @@
                 x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
                 x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
                 role="menuitem"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                 x-on:click="selectItem(menuItem)"
                 x-on:mouseenter="focusedIndex = menuIndex"
                 x-on:focus="focusedIndex = menuIndex"
-                x-text="menuItem.label"></a>
+              >
+                <span x-text="menuItem.label"></span>
+                <span
+                  x-data="{ dropdownItem: findMenuItem(menuItem.label) }"
+                  x-show="dropdownItem"
+                  x-bind:class="{
+                    'bg-blue-100 text-blue-700': dropdownItem?.href && dropdownItem?.target !== '_blank',
+                    'bg-green-100 text-green-700': dropdownItem?.target === '_blank',
+                    'bg-purple-100 text-purple-700': dropdownItem?.action
+                  }"
+                  class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                  x-text="dropdownItem?.target === '_blank' ? 'External Link' : dropdownItem?.href ? 'Internal Link' : 'Action'"
+                ></span>
+              </a>
             </template>
 
             <template x-if="!menuItem.href">
@@ -101,143 +124,53 @@
                 x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
                 x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
                 role="menuitem"
-                class="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                class="flex w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                 x-on:click="selectItem(menuItem)"
                 x-on:mouseenter="focusedIndex = menuIndex"
                 x-on:focus="focusedIndex = menuIndex"
-                x-text="menuItem.label"></button>
+              >
+                <span x-text="menuItem.label"></span>
+                <span
+                  x-data="{ dropdownItem: findMenuItem(menuItem.label) }"
+                  x-show="dropdownItem"
+                  x-bind:class="{
+                    'bg-blue-100 text-blue-700': dropdownItem?.href && dropdownItem?.target !== '_blank',
+                    'bg-green-100 text-green-700': dropdownItem?.target === '_blank',
+                    'bg-purple-100 text-purple-700': dropdownItem?.action
+                  }"
+                  class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                  x-text="dropdownItem?.target === '_blank' ? 'External Link' : dropdownItem?.href ? 'Internal Link' : 'Action'"
+                ></span>
+              </button>
             </template>
           </div>
         </template>
       </div>
     </div>
 
-    <a
-      href="https://github.com/markmead/hyperux/issues/new"
-      target="_blank"
-      rel="noreferrer"
-      class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-    >
-      Found a bug or improvement? Open an issue.
-    </a>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxDropdownDemo', 'huxDropdownRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('huxDropdown', (initialConfig = {}) => ({
-      isOpen: false,
-      focusedIndex: -1,
-      menuItems: [],
-      triggerId: null,
-      menuId: null,
-      triggerButtonId: null,
-      menuItemIds: [],
-
-      init() {
-        this.menuItems = (initialConfig.menuItems ?? []).filter(
-          (item) => item?.label && (item?.href || item?.action),
-        )
-
-        this.triggerId = initialConfig.triggerId ?? null
-
-        const idSuffix = this.triggerId ?? crypto.randomUUID()
-
-        this.menuId = `hux-dropdown-menu-${idSuffix}`
-        this.triggerButtonId = `hux-dropdown-trigger-${idSuffix}`
-
-        this.menuItemIds = this.menuItems.map(
-          (_, menuItemIndex) => `${this.menuId}-item-${menuItemIndex}`,
-        )
-      },
-
-      openMenu() {
-        this.isOpen = true
-      },
-
-      closeMenu(restoreFocus = false) {
-        this.isOpen = false
-        this.focusedIndex = -1
-
-        if (restoreFocus) {
-          this.$nextTick(() => this.$refs.dropdownTrigger?.focus())
-        }
-      },
-
-      toggleMenu() {
-        if (this.isOpen) {
-          this.closeMenu(true)
-
-          return
-        }
-
-        this.openMenu()
-      },
-
-      focusItem(itemIndex) {
-        this.focusedIndex = itemIndex
-
-        this.$nextTick(() => {
-          const menuItemElement = document.getElementById(this.menuItemIds[itemIndex])
-
-          menuItemElement?.focus()
-        })
-      },
-
-      focusFirstItem() {
-        if (this.menuItems.length > 0) {
-          this.focusItem(0)
-        }
-      },
-
-      focusLastItem() {
-        if (this.menuItems.length > 0) {
-          this.focusItem(this.menuItems.length - 1)
-        }
-      },
-
-      focusNextItem() {
-        const menuItemCount = this.menuItems.length
-
-        if (menuItemCount === 0) {
-          return
-        }
-
-        const nextIndex = this.focusedIndex < menuItemCount - 1 ? this.focusedIndex + 1 : 0
-
-        this.focusItem(nextIndex)
-      },
-
-      focusPreviousItem() {
-        const menuItemCount = this.menuItems.length
-
-        if (menuItemCount === 0) {
-          return
-        }
-
-        const prevIndex = this.focusedIndex > 0 ? this.focusedIndex - 1 : menuItemCount - 1
-
-        this.focusItem(prevIndex)
-      },
-
-      selectItem(menuItem) {
-        if (!menuItem) {
-          return
-        }
-
-        if (!menuItem.href && menuItem.action) {
-          this.$dispatch(
-            this.triggerId ? `hux-dropdown:${this.triggerId}:action` : 'hux-dropdown:action',
-            { action: menuItem.action, item: menuItem },
-          )
-
-          this.closeMenu(true)
-
-          return
-        }
-
-        this.closeMenu()
-      },
-    }))
-  })
-</script>

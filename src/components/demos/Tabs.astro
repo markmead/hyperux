@@ -11,6 +11,7 @@
     </p>
 
     <div
+      data-hux-copy="huxTabsDemo"
       x-data="huxTabs({
         tabItems: [
           { label: 'General', id: 'general' },
@@ -84,117 +85,29 @@
       </div>
     </div>
 
-    <a
-      href="https://github.com/markmead/hyperux/issues/new"
-      target="_blank"
-      rel="noreferrer"
-      class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-    >
-      Found a bug or improvement? Open an issue.
-    </a>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxTabsDemo', 'huxTabsRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('huxTabs', (initialConfig = {}) => ({
-      activeTabId: initialConfig.activeTab ?? null,
-      tabItems: [],
-      useHash: initialConfig.useHash ?? false,
-
-      init() {
-        this.tabItems = (initialConfig.tabItems ?? []).filter(
-          (tabItem) => tabItem?.label && tabItem?.id,
-        )
-
-        const validIds = this.tabItems.map((tabItem) => tabItem.id)
-
-        if (this.useHash && typeof globalThis.location !== 'undefined') {
-          let hashId = globalThis.location.hash.slice(1)
-
-          try {
-            hashId = decodeURIComponent(hashId)
-          } catch {
-            // malformed percent-encoding; use raw hash value
-          }
-
-          if (hashId && validIds.includes(hashId)) {
-            this.activeTabId = hashId
-          }
-        }
-
-        if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
-          this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
-        }
-      },
-
-      get activeTabIndex() {
-        const foundIndex = this.findTabIndex(this.activeTabId)
-
-        return foundIndex >= 0 ? foundIndex : 0
-      },
-
-      findTabIndex(tabId) {
-        return this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
-      },
-
-      selectTab(tabId) {
-        const tabExists = this.findTabIndex(tabId) >= 0
-
-        if (!tabExists) {
-          return
-        }
-
-        this.activeTabId = tabId
-
-        if (this.useHash && typeof globalThis.history !== 'undefined') {
-          history.replaceState(null, '', `#${encodeURIComponent(tabId)}`)
-        }
-      },
-
-      focusTab(tabId) {
-        this.$nextTick(() => {
-          const tabIndex = this.findTabIndex(tabId)
-
-          if (tabIndex === -1) return
-
-          const tabElements = this.$el.querySelectorAll('[role="tab"]')
-
-          tabElements[tabIndex]?.focus()
-        })
-      },
-
-      focusNextTab() {
-        const currentIndex = this.activeTabIndex
-        const nextIndex = currentIndex < this.tabItems.length - 1 ? currentIndex + 1 : 0
-        const nextTabId = this.tabItems[nextIndex].id
-
-        this.selectTab(nextTabId)
-        this.focusTab(nextTabId)
-      },
-
-      focusPreviousTab() {
-        const currentIndex = this.activeTabIndex
-        const prevIndex = currentIndex > 0 ? currentIndex - 1 : this.tabItems.length - 1
-        const prevTabId = this.tabItems[prevIndex].id
-
-        this.selectTab(prevTabId)
-        this.focusTab(prevTabId)
-      },
-
-      focusFirstTab() {
-        const firstTabId = this.tabItems[0].id
-
-        this.selectTab(firstTabId)
-        this.focusTab(firstTabId)
-      },
-
-      focusLastTab() {
-        const lastTabId = this.tabItems.at(-1).id
-
-        this.selectTab(lastTabId)
-        this.focusTab(lastTabId)
-      },
-    }))
-  })
-</script>
