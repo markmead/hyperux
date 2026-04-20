@@ -22,7 +22,8 @@
                 { label: 'Combobox Docs', href: '/patterns/combobox' },
                 { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
                 { label: 'Copy Page URL', action: 'copyPageUrl' }
-              ]
+              ],
+              shortcutKey: 'p',
             })
             return {
               ...dialogComponent,
@@ -88,17 +89,22 @@
                       optionItems: paletteItems.map((paletteItem) => ({ label: paletteItem.label, value: paletteItem.label })),
                       inputTemplateRef: 'commandPaletteInput',
                       listboxTemplateRef: 'commandPaletteListbox',
-                      clearSelectionOnInputClear: true
+                      hideOptionItemsWhenSearchQueryEmpty: true
                     }),
                     get filteredOptionItems() {
                       const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
                       const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
-                      if (normalizedSearchQuery === '') {
+
+                      if (this.shouldHideOptionItemsOnEmptyQuery() && normalizedSearchQuery === '') {
                         return []
                       }
+
                       return normalizedOptionItems
                         .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
                         .filter(({ optionItem }) => optionItem.label.toLowerCase().includes(normalizedSearchQuery))
+                    },
+                    shouldHideOptionItemsOnEmptyQuery() {
+                      return this.clearSelectionOnInputClear || this.hideOptionItemsWhenSearchQueryEmpty
                     },
                     get activeDescendantId() {
                       if (!this.isOpen || this.focusedIndex < 0) {
@@ -113,7 +119,11 @@
                     onPaletteOpen() {
                       this.searchQuery = ''
                       this.focusedIndex = -1
-                      this.closeList()
+                      if (this.shouldHideOptionItemsOnEmptyQuery()) {
+                        this.closeList()
+                      } else {
+                        this.openList()
+                      }
                       this.$nextTick(() => this.$refs.commandPaletteInput?.focus())
                     },
                     onPaletteClose() {
@@ -134,7 +144,7 @@
                     x-ref="commandPaletteInput"
                     x-model="searchQuery"
                     x-bind:id="comboboxInputId"
-                    x-bind:aria-expanded="(isOpen && searchQuery.trim() !== '').toString()"
+                    x-bind:aria-expanded="(isOpen && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '')).toString()"
                     x-bind:aria-controls="listboxId"
                     x-bind:aria-activedescendant="activeDescendantId"
                     type="text"
@@ -145,27 +155,24 @@
                     autocomplete="off"
                     class="w-full rounded-md border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     x-on:input="onInputChange()"
-                    x-on:keydown.down.prevent="if (searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
-                    x-on:keydown.up.prevent="if (searchQuery.trim() === '') return; focusPreviousOptionItem()"
-                    x-on:keydown.enter.prevent="
-                        const focusedOptionItem = filteredOptionItems[focusedIndex];
-                        if (!focusedOptionItem) return;
-                        toggleOptionItem(focusedOptionItem.optionItem);
-                        const selectedItem = selectItem(focusedOptionItem.optionItem.value);
-                        if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                    x-on:keydown.down.prevent="if (shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
+                    x-on:keydown.up.prevent="if (shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') return; focusPreviousOptionItem()"
+                    x-on:keydown.enter.prevent="const focusedOptionItem = filteredOptionItems[focusedIndex]; if (!focusedOptionItem) return; toggleOptionItem(focusedOptionItem.optionItem); const selectedItem = selectItem(focusedOptionItem.optionItem.value); if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
                     x-on:keydown.escape.stop.prevent="closeList(); $dispatch('hux-command-palette:close')"
                   />
 
                   <div
                     x-cloak
                     x-transition
-                    x-show="isOpen && searchQuery.trim() !== ''"
+                    x-show="isOpen && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '')"
                     x-ref="commandPaletteListbox"
                     x-bind:id="listboxId"
                     role="listbox"
                     class="mt-2 max-h-72 w-full overflow-y-auto rounded-md border border-gray-300 bg-white"
                   >
-                    <template x-if="searchQuery.trim() !== '' && filteredOptionItems.length === 0">
+                    <template
+                      x-if="filteredOptionItems.length === 0 && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '')"
+                    >
                       <p class="px-4 py-3 text-gray-500">No results found.</p>
                     </template>
 
