@@ -10,7 +10,7 @@ terms:
   - data-attributes
   - ux-pattern
 pubDate: 2026-04-12
-modDate: 2026-04-17
+modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/CopyToClipboard.astro'
@@ -34,8 +34,9 @@ Returns an Alpine data object with:
 
 - `hasCopied: boolean`
 - `copyToClipboard(): Promise<void>`
-- `resolveCopyContent(): string | null`
-- `getSourceElement(sourceName): Element | null`
+
+_Internal helper methods exist for source lookup and content resolution, but they are private
+implementation details and not part of the supported API contract._
 
 ## Options
 

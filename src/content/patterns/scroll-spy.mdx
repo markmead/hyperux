@@ -1,0 +1,155 @@
+---
+slug: scroll-spy
+title: Scroll Spy
+description: Build a scrollable table of contents with huxScrollSpy for Alpine.js using heading discovery and active section tracking.
+terms:
+  - scroll-spy
+  - table-of-contents
+  - alpinejs
+  - intersection-observer
+  - heading-navigation
+  - documentation-navigation
+pubDate: 2026-04-17
+modDate: 2026-04-20
+---
+
+import Demo from '../../components/demos/ScrollSpy.astro'
+
+<Demo />
+
+<div class="prose prose-headings:font-semibold mx-auto">
+
+The `huxScrollSpy` utility watches headings inside a scrollable container and exposes a reactive
+table of contents model for Alpine.js. It is for documentation sidebars, settings panels, and
+other layouts where content scrolls inside its own region instead of the page.
+
+`huxScrollSpy` requires a valid `x-ref` target for the scroll container and a browser environment
+with `IntersectionObserver`. The component only manages heading discovery, active-state updates,
+and scroll-to-section behavior; you control the TOC markup and styling.
+
+## API
+
+### `huxScrollSpy(config)`
+
+Returns an Alpine data object with:
+
+- `headingItems: Array<{ id: string, text: string | null, level: number }>`
+- `activeHeadingId: string | null`
+- `scrollToHeadingItem(targetHeadingId): void`
+
+_Internal helper methods are used for id generation and scroll-position bookkeeping, but those are
+private implementation details and not part of the supported API contract._
+
+## Options
+
+- `headingSelector: string` (default: `'h2, h3, h4, h5, h6'`)
+  Queries headings inside the scroll container in DOM order.
+- `templateRef: string` (default: `'tocContent'`)
+  Reads the scroll container from `this.$refs[templateRef]`.
+- `rootMargin: string` (default: `'0px 0px -60% 0px'`)
+  Passed to the internal `IntersectionObserver`.
+- `visibilityThreshold: number | number[]` (default: `0.1`)
+  Controls when a heading counts as visible.
+
+## Quick Start
+
+### Minimal
+
+```html
+<div x-data="huxScrollSpy()" class="grid gap-4 md:grid-cols-3">
+  <nav aria-label="Table of contents" class="space-y-2">
+    <template x-for="headingItem in headingItems" x-bind:key="headingItem.id">
+      <button
+        type="button"
+        class="block w-full rounded px-4 py-2 text-left"
+        x-bind:class="{
+          'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
+          'hover:bg-gray-100': activeHeadingId !== headingItem.id
+        }"
+        x-on:click="scrollToHeadingItem(headingItem.id)"
+        x-text="headingItem.text"
+      ></button>
+    </template>
+  </nav>
+
+  <div x-ref="tocContent" class="max-h-96 overflow-y-auto md:col-span-2">
+    <h2 id="overview">Overview</h2>
+    <p>...</p>
+    <h3 id="details">Details</h3>
+    <p>...</p>
+  </div>
+</div>
+```
+
+### Custom Observer Settings
+
+```js
+huxScrollSpy({
+  rootMargin: '0px 0px -50% 0px',
+  visibilityThreshold: [0, 0.25, 0.5],
+})
+```
+
+## Common Usage Patterns
+
+### Watch a Named Content Ref
+
+```html
+<div x-data="huxScrollSpy({ templateRef: 'articleContent' })">
+  <nav aria-label="Article sections">
+    <template x-for="headingItem in headingItems" x-bind:key="headingItem.id">
+      <button
+        type="button"
+        x-on:click="scrollToHeadingItem(headingItem.id)"
+        x-text="headingItem.text"
+      ></button>
+    </template>
+  </nav>
+
+  <article x-ref="articleContent" class="max-h-96 overflow-y-auto">
+    <h2>Introduction</h2>
+    <h3>Requirements</h3>
+    <h2>Implementation</h2>
+  </article>
+</div>
+```
+
+### Restrict Tracked Headings
+
+```js
+huxScrollSpy({
+  headingSelector: 'h2, h3',
+})
+```
+
+## Behavior Contract
+
+- On initialization, the component looks up the scroll container from `$refs[templateRef]`.
+- Matching headings are collected in DOM order and exposed as `headingItems`.
+- Existing heading ids are preserved; missing ids are generated from heading text and de-duplicated.
+- `activeHeadingId` initializes to the first heading id when at least one heading is found.
+- When multiple headings are visible, the component marks the last visible heading in document order as active.
+- When the scroll container reaches the bottom, the last heading is forced active within a 2px tolerance.
+- `scrollToHeadingItem()` scrolls the matching heading into view with `behavior: 'smooth'`.
+- On teardown, the component removes the scroll listener and disconnects the observer.
+
+## Error Handling
+
+- If `templateRef` does not resolve to an `x-ref`, the component logs `[scrollSpy] Missing x-ref target for templateRef: ${this.templateRefName}` and exits initialization.
+- If no headings match `headingSelector`, the component initializes without throwing and leaves `activeHeadingId` as `null`.
+- If `scrollToHeadingItem()` receives an unknown id, it exits without throwing.
+
+## Accessibility Notes
+
+- Wrap the generated TOC inside a labeled `nav` so screen readers can identify the section list.
+- Use real interactive controls for TOC items. `button` works well when you are driving scroll behavior directly.
+- Keep the active item visually distinct with strong contrast and a non-color-only state change.
+- Preserve a meaningful heading hierarchy in the scroll container so indentation and section order remain understandable.
+- If you render links instead of buttons, add `aria-current="location"` to the active item.
+
+## Notes
+
+- This implementation is scoped to a scroll container, not the full page viewport.
+- Duplicate headings still receive unique generated ids through numeric suffixes.
+
+</div>

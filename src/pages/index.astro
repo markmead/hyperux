@@ -23,6 +23,15 @@ import DemoBlock from '../components/DemoBlock.astro'
 
       <p>
         <a
+          href="/patterns/scroll-spy"
+          class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+        >
+          Read the Scroll Spy documentation
+        </a>
+      </p>
+
+      <p>
+        <a
           href="/patterns/copy-to-clipboard"
           class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
         >
@@ -36,7 +45,7 @@ import DemoBlock from '../components/DemoBlock.astro'
         and styles.
       </p>
 
-      <time datetime="2026-04-16" class="text-gray-500"> Last updated: 16 April 2026 </time>
+      <time datetime="2026-04-17" class="text-gray-500"> Last updated: 17 April 2026 </time>
     </article>
 
     <article class="space-y-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-300">
@@ -80,7 +89,7 @@ import DemoBlock from '../components/DemoBlock.astro'
           x-data="huxDropdown({
             triggerId: 'component-nav',
             menuItems: [
-              { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+              { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
               { label: 'Combobox', href: '#component-combobox' },
               { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
               { label: 'Dialog', href: '#component-dialog' },
@@ -174,159 +183,6 @@ import DemoBlock from '../components/DemoBlock.astro'
         </div>
       </nav>
     </article>
-
-    <DemoBlock id="component-scroll-spy" title="Scroll Spy + TOC">
-      <p class="text-gray-700">
-        This example demonstrates a scroll spy component that tracks the visibility of heading
-        elements within a scrollable container and updates the active state of corresponding items
-        in a table of contents (TOC) navigation. The TOC allows users to click on items to smoothly
-        scroll to the associated heading within the content area.
-      </p>
-
-      <p>
-        <strong class="font-semibold">Demo Config</strong>
-      </p>
-
-      <pre
-        class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100">{`huxScrollSpy()`}</pre>
-
-      <div
-        x-data="huxScrollSpy"
-        data-hux-copy="scrollSpyExample"
-        class="grid grid-cols-1 gap-4 md:grid-cols-3"
-      >
-        <div class="col-span-1 rounded-md bg-gray-50 p-4">
-          <h3 class="font-semibold">Table of Contents</h3>
-
-          <nav class="mt-2 space-y-2">
-            <template x-for="headingItem in headingItems" x-bind:key="headingItem.id">
-              <span
-                class="block"
-                x-bind:style="{ paddingLeft: (headingItem.level - 2) * 0.75 + 'rem' }"
-              >
-                <button
-                  x-text="headingItem.text"
-                  x-bind:class="{
-                        'bg-blue-100 text-blue-900': activeHeadingId === headingItem.id,
-                        'hover:bg-gray-100': activeHeadingId !== headingItem.id
-                      }"
-                  class="w-full rounded px-4 py-2 text-left transition-colors"
-                  x-on:click="scrollToHeadingItem(headingItem.id)"></button>
-              </span>
-            </template>
-          </nav>
-        </div>
-
-        <div x-ref="tocContent" class="max-h-128 space-y-4 overflow-y-auto p-4 md:col-span-2">
-          <h2 id="getting-started" class="text-lg font-semibold">Getting Started</h2>
-
-          <p class="text-gray-700">
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Consequatur nobis error minus
-            vel quisquam qui ipsam velit nostrum nihil, ab itaque aperiam modi aspernatur asperiores
-            dolor vero voluptate eius quasi et iste accusantium tempora minima! Hic neque sit a
-            esse?
-          </p>
-
-          <h3 id="component-philosophy" class="font-semibold">Component Philosophy</h3>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Asperiores ut enim iure.
-            Tenetur corrupti iste quibusdam, illo delectus libero nemo cupiditate sequi ex, odit eos
-            dolor totam maiores porro quisquam!
-          </p>
-
-          <h4 id="copy-paste-contract" class="font-medium">Copy-Paste Contract</h4>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur quas aliquam labore
-            tempore, perspiciatis dignissimos? Magnam numquam natus saepe aliquid.
-          </p>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Doloremque assumenda minima,
-            id voluptatum nemo exercitationem!
-          </p>
-
-          <h2 id="accessibility-basics" class="text-lg font-semibold">Accessibility Basics</h2>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ab expedita quo quisquam,
-            veritatis dignissimos placeat excepturi provident dicta eligendi ea voluptatibus neque
-            ipsum consequuntur similique eveniet, animi, enim rerum dolor voluptatum itaque
-            cupiditate! Iusto assumenda at voluptate corrupti voluptatum sed!
-          </p>
-
-          <h3 id="keyboard-support" class="font-semibold">Keyboard Support</h3>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Animi esse expedita aperiam
-            quis veniam, iste repellat adipisci beatae. Voluptate reiciendis placeat eum sed harum
-            ipsum, qui magni tenetur id accusantium.
-          </p>
-
-          <h4 id="focus-return" class="font-medium">Focus Return</h4>
-
-          <p class="text-gray-700">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quibusdam, quia quis
-            praesentium nihil iusto quas officia fugit ut similique a!
-          </p>
-
-          <h2 id="authoring-patterns" class="text-lg font-semibold">Authoring Patterns</h2>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam odit magnam expedita
-            vitae! Vel, ratione. Error nostrum labore, cumque veritatis nemo quo at! Quo modi
-            architecto, eligendi sint nesciunt illo obcaecati minima quasi odit, quod dolorem
-            asperiores suscipit, animi dolor?
-          </p>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Assumenda numquam doloribus
-            fugit ullam tenetur natus vel? Quas quaerat tenetur consectetur distinctio cumque labore
-            obcaecati dolorem dolores eius possimus. Aperiam tempore eligendi veritatis aut, illum,
-            soluta asperiores quaerat autem quae ipsa non distinctio. Reiciendis corrupti dolorem
-            quasi tempore, quibusdam quae quis, quo necessitatibus commodi voluptates quaerat? Qui
-            velit officiis aliquam voluptate.
-          </p>
-
-          <h3 id="configuration-surface" class="font-semibold">Configuration Surface</h3>
-
-          <p class="text-gray-700">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Animi impedit deserunt illo
-            assumenda corrupti consectetur nulla modi nobis architecto natus!
-          </p>
-        </div>
-      </div>
-
-      <p class="font-semibold">All Options</p>
-
-      <pre
-        class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100">{`Options:
-- headingSelector: string (default: 'h2, h3, h4, h5, h6')
-- templateRef: string (default: 'tocContent')
-- rootMargin: string (default: '0px 0px -60% 0px')
-- visibilityThreshold: number | number[] (default: 0.1)`}</pre>
-
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <button
-          x-data="huxCopy({ sourceNames: ['scrollSpyExample', 'scrollSpyRegistrationCode'] })"
-          class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
-          x-on:click="copyToClipboard()"
-        >
-          <span aria-live="polite" x-text="hasCopied ? 'Copied HTML + JS' : 'Copy HTML + JS'"
-          ></span>
-        </button>
-
-        <a
-          href="https://github.com/markmead/hyperux/issues/new"
-          target="_blank"
-          rel="noreferrer"
-          class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-        >
-          Found a bug or improvement? Open an issue.
-        </a>
-      </div>
-    </DemoBlock>
 
     <DemoBlock id="component-combobox" title="Combobox">
       <p class="text-gray-700">
@@ -686,7 +542,7 @@ Events:
       <pre
         class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100">{`huxCommandPalette({
   paletteItems: [
-    { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+    { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
     { label: 'Open Google', href: 'https://google.com', target: '_blank' },
     { label: 'Combobox', href: '#component-combobox' },
     { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
@@ -703,7 +559,7 @@ Events:
               const dialogComponent = huxDialog({ dialogId: 'command-palette' });
               const paletteComponent = huxCommandPalette({
                 paletteItems: [
-                { label: 'Scroll Spy + TOC', href: '#component-scroll-spy' },
+                { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
                 { label: 'Open Google', href: 'https://google.com', target: '_blank' },
                 { label: 'Combobox', href: '#component-combobox' },
                 { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },

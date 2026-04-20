@@ -12,6 +12,7 @@ Apply this style to pages under `src/content/patterns/*.mdx` unless the user exp
 - API reference leaning, with enough tutorial context to get started fast.
 - Behavior and error handling must match implementation exactly.
 - Accessibility guidance must appear both in prose and in code snippets.
+- Document only the supported public API surface; do not list private/internal methods as public API.
 
 ## Required Page Structure
 
@@ -30,6 +31,11 @@ Use this section order unless the user requests a custom order:
 11. Error Handling
 12. Accessibility Notes
 13. Notes
+
+API section rules:
+
+- List only supported public methods/properties.
+- If internal helpers need mentioning for clarity, mark them as private implementation details in a single italicized note.
 
 ## Frontmatter Rules
 
@@ -104,7 +110,7 @@ Before finishing, confirm:
 
 - Demo appears at the top.
 - API and options match implementation.
-- Accessibility notes are present and reflected in snippets.
+- Accessibility notes are present and reflected in snippets and demos.
 - Error handling section exists for components with runtime failures.
 - `modDate` updated.
 - MDX has no diagnostics.
