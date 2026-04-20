@@ -122,16 +122,6 @@ const paletteItemsJson = JSON.stringify(paletteItems)
                       optionItems: paletteItems.map((paletteItem) => ({
                         label: paletteItem.label,
                         value: paletteItem.label,
-                        normalizedLabel: paletteItem.label.toLowerCase(),
-                        normalizedDescription:
-                          typeof paletteItem.description === 'string'
-                            ? paletteItem.description.toLowerCase()
-                            : '',
-                        normalizedTerms: Array.isArray(paletteItem.terms)
-                          ? paletteItem.terms
-                              .filter((term) => typeof term === 'string' && term.trim().length > 0)
-                              .map((term) => term.toLowerCase())
-                          : [],
                         searchText: [
                           paletteItem.label,
                           paletteItem.description,
@@ -158,60 +148,9 @@ const paletteItemsJson = JSON.stringify(paletteItems)
 
                       return normalizedOptionItems
                         .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
-                        .map(({ optionItem, sourceIndex }) => {
-                          const normalizedLabel = optionItem.normalizedLabel ?? optionItem.label.toLowerCase()
-                          const normalizedDescription =
-                            optionItem.normalizedDescription ?? ''
-                          const normalizedTerms = Array.isArray(optionItem.normalizedTerms)
-                            ? optionItem.normalizedTerms
-                            : []
-
-                          let score = 0
-
-                          if (normalizedLabel === normalizedSearchQuery) {
-                            score += 100
-                          } else if (normalizedLabel.startsWith(normalizedSearchQuery)) {
-                            score += 80
-                          } else if (normalizedLabel.includes(normalizedSearchQuery)) {
-                            score += 60
-                          }
-
-                          if (
-                            normalizedTerms.some((term) => term === normalizedSearchQuery)
-                          ) {
-                            score += 50
-                          } else if (
-                            normalizedTerms.some((term) => term.startsWith(normalizedSearchQuery))
-                          ) {
-                            score += 35
-                          } else if (
-                            normalizedTerms.some((term) => term.includes(normalizedSearchQuery))
-                          ) {
-                            score += 20
-                          }
-
-                          if (normalizedDescription.includes(normalizedSearchQuery)) {
-                            score += 10
-                          }
-
-                          if (
-                            score === 0 &&
-                            (optionItem.searchText ?? normalizedLabel).includes(normalizedSearchQuery)
-                          ) {
-                            score = 1
-                          }
-
-                          return { optionItem, sourceIndex, score }
-                        })
-                        .filter(({ score }) => score > 0)
-                        .sort((firstItem, secondItem) => {
-                          if (secondItem.score !== firstItem.score) {
-                            return secondItem.score - firstItem.score
-                          }
-
-                          return firstItem.optionItem.label.localeCompare(secondItem.optionItem.label)
-                        })
-                        .map(({ optionItem, sourceIndex }) => ({ optionItem, sourceIndex }))
+                        .filter(({ optionItem }) =>
+                          (optionItem.searchText ?? optionItem.label.toLowerCase()).includes(normalizedSearchQuery),
+                        )
                     },
                     onPaletteOpen() {
                       this.searchQuery = ''
