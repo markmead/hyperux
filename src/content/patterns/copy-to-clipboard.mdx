@@ -9,22 +9,26 @@ terms:
   - copy-button
   - data-attributes
   - ux-pattern
-pubDate: 2026-04-12
+pubDate: 2026-04-20
 modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/CopyToClipboard.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
 
 The `huxCopy` utility copies HTML and form values from live DOM elements identified by
 `data-hux-copy`. It supports multi-source composition, configurable separators, and copy status via
 `hasCopied`.
 
-Clipboard writes usually require HTTPS and a user gesture (for example, a click). In unsupported
-or blocked environments, copy attempts fail safely and log an error.
+Clipboard writes usually require HTTPS and a user gesture (for example, a click). In unsupported or blocked environments, copy attempts fail safely and log an error.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

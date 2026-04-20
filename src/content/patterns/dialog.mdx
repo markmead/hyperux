@@ -14,14 +14,19 @@ modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/Dialog.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
 
 `huxDialog` handles open/close state, optional backdrop behavior, and scoped lifecycle events for modal UI in Alpine.js. Pair it with your own dialog markup and focus trap directives.
 
 This pattern expects the Alpine Focus plugin when you use `x-trap` in your markup: <https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js>
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

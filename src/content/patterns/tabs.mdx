@@ -14,12 +14,17 @@ modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/Tabs.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
 
 `huxTabs` manages active tab state, keyboard focus movement, and optional URL hash synchronization. Use it to attach behavior to your own tablist and panel markup.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

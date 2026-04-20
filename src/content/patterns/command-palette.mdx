@@ -14,14 +14,19 @@ modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/CommandPalette.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
 
 `huxCommandPalette` is a keyboard-first selector that composes `huxDialog` and `huxCombobox` behavior. It filters named commands and supports both link navigation and custom action dispatch.
 
 Because this pattern composes other primitives, changes in dialog/combobox behavior may affect it. Treat the API as extra experimental.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

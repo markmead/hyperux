@@ -1,0 +1,15 @@
+---
+interface Props {
+  date: Date | string
+}
+
+const { date } = Astro.props
+
+const parsedDate = date instanceof Date ? date : new Date(date)
+---
+
+<time datetime={parsedDate.toISOString().slice(0, 10)}>
+  Last updated: {
+    parsedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+</time>

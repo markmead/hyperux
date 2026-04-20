@@ -1,6 +1,13 @@
 ---
+import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import DemoBlock from '../components/DemoBlock.astro'
+import LastUpdated from '../components/LastUpdated.astro'
+
+const patterns = await getCollection('patterns')
+
+const lastUpdated = patterns.reduce((latest, pattern) => {
+  return pattern.data.modDate > latest ? pattern.data.modDate : latest
+}, new Date(0))
 ---
 
 <BaseLayout
@@ -8,7 +15,9 @@ import DemoBlock from '../components/DemoBlock.astro'
   description="Behavior-first Alpine.js patterns you can copy, adapt, and ship."
 >
   <main id="main-content" class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-    <article class="prose prose-lg">
+    <article class="prose prose-headings:font-semibold prose-lg">
+      <h1>Free Alpine.js UI Patterns for Developers</h1>
+
       <p class="lead">Behavior-first Alpine.js patterns you can copy, adapt, and ship.</p>
 
       <p>
@@ -17,81 +26,22 @@ import DemoBlock from '../components/DemoBlock.astro'
         and styles.
       </p>
 
-      <time datetime="2026-04-20"> Last updated: 20 April 2026 </time>
+      <LastUpdated date={lastUpdated} />
 
       <nav>
         <ul>
-          <li>
-            <a
-              href="/patterns/scroll-spy"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Scroll Spy documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/copy-to-clipboard"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Copy to Clipboard documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/combobox"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Combobox documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/dialog"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Dialog documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/command-palette"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Command Palette documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/dropdown"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Dropdown documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/tabs"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Tabs documentation
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="/patterns/resizable"
-              class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-            >
-              Read the Resizable documentation
-            </a>
-          </li>
+          {
+            patterns.map((pattern) => (
+              <li>
+                <a
+                  href={`/patterns/${pattern.data.slug}`}
+                  class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+                >
+                  Read the {pattern.data.title} documentation
+                </a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
     </article>

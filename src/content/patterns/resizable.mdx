@@ -14,12 +14,17 @@ modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/Resizable.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
 
 `huxResizable` controls a container width with pointer and keyboard interactions, tracks the currently matched breakpoint, and can clamp width to min/max or parent bounds.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

@@ -9,23 +9,24 @@ terms:
   - intersection-observer
   - heading-navigation
   - documentation-navigation
-pubDate: 2026-04-17
+pubDate: 2026-04-20
 modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/ScrollSpy.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
 
-The `huxScrollSpy` utility watches headings inside a scrollable container and exposes a reactive
-table of contents model for Alpine.js. It is for documentation sidebars, settings panels, and
-other layouts where content scrolls inside its own region instead of the page.
+# Alpine.js {frontmatter.title}
 
-`huxScrollSpy` requires a valid `x-ref` target for the scroll container and a browser environment
-with `IntersectionObserver`. The component only manages heading discovery, active-state updates,
-and scroll-to-section behavior; you control the TOC markup and styling.
+The `huxScrollSpy` utility watches headings inside a scrollable container and exposes a reactive table of contents model for Alpine.js. It is for documentation sidebars, settings panels, and other layouts where content scrolls inside its own region instead of the page.
+
+`huxScrollSpy` requires a valid `x-ref` target for the scroll container and a browser environment with `IntersectionObserver`. The component only manages heading discovery, active-state updates, and scroll-to-section behavior; you control the TOC markup and styling.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

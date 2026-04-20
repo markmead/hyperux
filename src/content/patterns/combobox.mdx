@@ -14,12 +14,18 @@ modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/Combobox.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
 
 `huxCombobox` provides combobox behavior for Alpine.js with filtered option rendering, keyboard navigation, and optional multiple selection. Use it when you need behavior-only combobox logic that you can pair with your own markup and styles.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 

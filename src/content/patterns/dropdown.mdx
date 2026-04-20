@@ -14,12 +14,17 @@ modDate: 2026-04-20
 ---
 
 import Demo from '../../components/demos/Dropdown.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
 
 <Demo />
 
-<div class="prose prose-headings:font-semibold mx-auto">
+<div class="prose prose-lg prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
 
 `huxDropdown` provides menu-button behavior with open/close state, focus movement, and menu item selection handling for link and action items.
+
+<LastUpdated date={frontmatter.modDate} />
 
 ## API
 
