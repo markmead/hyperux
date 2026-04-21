@@ -16,12 +16,13 @@
       x-data="(() => {
             const dialogComponent = huxDialog({ dialogId: 'command-palette' })
             const paletteComponent = huxCommandPalette({
+              paletteId: 'command-palette',
               paletteItems: [
                 { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
                 { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
                 { label: 'Combobox Docs', href: '/patterns/combobox' },
                 { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-                { label: 'Copy Page URL', action: 'copyPageUrl' }
+                { label: 'Copy Page URL', action: 'copy-page-url' }
               ],
               shortcutKey: 'p',
             })
@@ -37,7 +38,7 @@
       class="space-y-2"
       x-on:keydown.window="handleGlobalShortcut($event)"
       x-on:hux-command-palette:close.window="closeDialog()"
-      x-on:hux-command-palette:action.window="if ($event.detail.action === 'copyPageUrl') navigator.clipboard.writeText(globalThis.location.href)"
+      x-on:hux-command-palette:command-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
     >
       <button
         type="button"

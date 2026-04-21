@@ -244,6 +244,7 @@
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxCommandPalette', (initialConfig = {}) => ({
       paletteItems: initialConfig.paletteItems ?? [],
+      paletteId: initialConfig.paletteId ?? null,
       shortcutKey: (initialConfig.shortcutKey ?? 'k').toLowerCase(),
       shortcutHint: '',
 
@@ -288,6 +289,24 @@
         return this.paletteItems.find((paletteItem) => paletteItem.label === itemLabel) ?? null
       },
 
+      resolveActionEventName(rawEventName) {
+        if (typeof rawEventName !== 'string') {
+          return null
+        }
+
+        const normalizedEventName = rawEventName.trim()
+
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalizedEventName)) {
+          console.error(
+            `[huxCommandPalette] Action event names must be hyphen-case. Received: ${rawEventName}`,
+          )
+
+          return null
+        }
+
+        return normalizedEventName
+      },
+
       selectItem(itemLabel) {
         const selectedItem = this.findPaletteItem(itemLabel)
 
@@ -307,10 +326,24 @@
           return selectedItem
         }
 
-        this.$dispatch('hux-command-palette:action', {
+        const normalizedActionEventName = this.resolveActionEventName(selectedItem.action)
+
+        if (!normalizedActionEventName) {
+          return selectedItem
+        }
+
+        const actionEventDetail = {
           action: selectedItem.action,
+          eventName: normalizedActionEventName,
           item: selectedItem,
-        })
+          paletteId: this.paletteId,
+        }
+
+        const actionEventName = this.paletteId
+          ? `hux-command-palette:${this.paletteId}:${normalizedActionEventName}`
+          : `hux-command-palette:${normalizedActionEventName}`
+
+        this.$dispatch(actionEventName, actionEventDetail)
 
         return selectedItem
       },
@@ -627,16 +660,53 @@
         return this.menuItems.find((menuItem) => menuItem.label === itemLabel) ?? null
       },
 
+      resolveActionEventName(rawEventName) {
+        if (typeof rawEventName !== 'string') {
+          return null
+        }
+
+        const normalizedEventName = rawEventName.trim()
+
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalizedEventName)) {
+          console.error(
+            `[huxDropdown] Action event names must be hyphen-case. Received: ${rawEventName}`,
+          )
+
+          return null
+        }
+
+        return normalizedEventName
+      },
+
       selectItem(menuItem) {
         if (!menuItem) {
           return
         }
 
         if (!menuItem.href && menuItem.action) {
-          this.$dispatch(
-            this.triggerId ? `hux-dropdown:${this.triggerId}:action` : 'hux-dropdown:action',
-            { action: menuItem.action, item: menuItem },
-          )
+          const normalizedActionEventName = this.resolveActionEventName(menuItem.action)
+
+          if (!normalizedActionEventName) {
+            this.closeMenu(true)
+
+            return
+          }
+
+          const actionEventDetail = {
+            action: menuItem.action,
+            eventName: normalizedActionEventName,
+            item: menuItem,
+            triggerId: this.triggerId,
+          }
+
+          if (this.triggerId) {
+            this.$dispatch(
+              `hux-dropdown:${this.triggerId}:${normalizedActionEventName}`,
+              actionEventDetail,
+            )
+          }
+
+          this.$dispatch(`hux-dropdown:${normalizedActionEventName}`, actionEventDetail)
 
           this.closeMenu(true)
 

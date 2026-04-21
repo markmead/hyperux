@@ -40,20 +40,12 @@
           { label: 'Accessibility Notes', href: '#accessibility-notes' },
           { label: 'Notes', href: '#notes' },
           { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-          { label: 'Copy Page URL', action: 'copyPageUrl' }
+          { label: 'Copy Page URL', action: 'copy-page-url' }
         ]
       })"
       class="relative inline-block"
       x-on:click.outside="closeMenu()"
-      x-on:hux-dropdown:options-menu:action="(async () => {
-          if ($event.detail.action !== 'copyPageUrl') {
-            return
-          }
-
-          try {
-            await navigator.clipboard.writeText(location.href)
-          } catch (_) {}
-        })()"
+      x-on:hux-dropdown:options-menu:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
     >
       <button
         x-ref="dropdownTrigger"

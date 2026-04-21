@@ -55,6 +55,8 @@ _Internal helper methods are private implementation details and are not part of 
 - `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, children?: menuItems[] }>` (default: `[]`)
 - `triggerId: string` (optional, scopes generated ids and action event names)
 
+_Use hyphen-case for action names. None hypen-case names will be ignored._
+
 ## Quick Start
 
 ```html
@@ -67,10 +69,11 @@ _Internal helper methods are private implementation details and are not part of 
         href: '/account',
         children: [{ label: 'Billing', href: '/billing' }]
       },
-      { label: 'Copy Link', action: 'copyLink' }
+      { label: 'Copy Link', action: 'copy-link' }
     ]
   })"
   x-on:click.outside="closeMenu()"
+  x-on:hux-dropdown:user-menu:copy-link.window="navigator.clipboard.writeText(location.href).catch(() => {})"
 >
   <button
     x-ref="dropdownTrigger"
@@ -114,8 +117,17 @@ _Internal helper methods are private implementation details and are not part of 
 ```js
 huxDropdown({
   triggerId: 'options-menu',
-  menuItems: [{ label: 'Copy Page URL', action: 'copyPageUrl' }],
+  menuItems: [{ label: 'Copy Page URL', action: 'copy-page-url' }],
 })
+```
+
+```html
+<div
+  x-data="huxDropdown({ triggerId: 'options-menu', menuItems: [{ label: 'Copy Page URL', action: 'copy-page-url' }] })"
+  x-on:hux-dropdown:options-menu:copy-page-url.window="navigator.clipboard.writeText(location.href).catch(() => {})"
+>
+  ...
+</div>
 ```
 
 ### Internal, External, and Action Items
@@ -125,7 +137,7 @@ huxDropdown({
   menuItems: [
     { label: 'Docs', href: '/patterns/dropdown' },
     { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-    { label: 'Copy Page URL', action: 'copyPageUrl' },
+    { label: 'Copy Page URL', action: 'copy-page-url' },
   ],
 })
 ```
@@ -181,7 +193,7 @@ if (menuItem?.target === '_blank') {
 - `closeMenu(true)` restores focus to the trigger button on next tick.
 - `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
 - `findMenuItem()` returns the matched item when found; otherwise `null`.
-- `selectItem()` dispatches action events for `action` entries and closes the menu.
+- `selectItem()` dispatches named events for `action` entries using hyphen-case event names and closes the menu.
 - Link entries close the menu without dispatching action events.
 
 ## Error Handling
@@ -202,8 +214,8 @@ if (menuItem?.target === '_blank') {
 ## Notes
 
 - Action event names:
-  - `hux-dropdown:{triggerId}:action`
-  - `hux-dropdown:action` when no `triggerId` is provided
+  - `hux-dropdown:{triggerId}:{event-name}`
+  - `hux-dropdown:{event-name}` when no `triggerId` is provided
 - Nested menu entries are presented as a single roving-focus list; use `itemDepth` to indent child items in markup.
 
 </div>

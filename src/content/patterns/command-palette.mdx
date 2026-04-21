@@ -10,7 +10,7 @@ terms:
   - dialog
   - combobox
 pubDate: 2026-04-20
-modDate: 2026-04-20
+modDate: 2026-04-21
 ---
 
 import Demo from '../../components/demos/CommandPalette.astro'
@@ -37,6 +37,7 @@ The live demo on this page uses `shortcutKey: 'p'` so it does not conflict with 
 Returns an Alpine data object with:
 
 - `paletteItems: Array<{ label: string, href?: string, action?: string, target?: '_self' | '_blank' }>`
+- `paletteId: string | null`
 - `shortcutKey: string`
 - `shortcutHint: string`
 - `handleGlobalShortcut(event): void`
@@ -48,22 +49,26 @@ _Internal helper methods are private implementation details and are not part of 
 ## Options
 
 - `paletteItems: Array<{ label: string, href?: string, action?: string, target?: '_self' | '_blank' }>` (default: `[]`)
+- `paletteId: string` (optional, scopes action event names)
 - `shortcutKey: string` (default: `'k'`)
+
+_Use hyphen-case for action names. None hypen-case names will be ignored._
 
 ## Quick Start
 
 ```html
 <div
   x-data="huxCommandPalette({
+    paletteId: 'docs-palette',
     paletteItems: [
       { label: 'Docs', href: '/patterns/command-palette' },
       { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-      { label: 'Copy URL', action: 'copyPageUrl' }
+      { label: 'Copy URL', action: 'copy-page-url' }
     ],
     shortcutKey: 'p'
   })"
   x-on:keydown.window="handleGlobalShortcut($event)"
-  x-on:hux-command-palette:action.window="if ($event.detail.action === 'copyPageUrl') navigator.clipboard.writeText(location.href)"
+  x-on:hux-command-palette:docs-palette:copy-page-url.window="navigator.clipboard.writeText(location.href).catch(() => {})"
 >
   ...
 </div>
@@ -78,7 +83,7 @@ huxCommandPalette({
   paletteItems: [
     { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
     { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-    { label: 'Copy URL', action: 'copyPageUrl' },
+    { label: 'Copy URL', action: 'copy-page-url' },
   ],
 })
 ```
@@ -100,7 +105,6 @@ huxCommandPalette({
 - Shortcut handling is skipped while typing in `input`, `textarea`, or contenteditable fields.
 - `selectItem()` returns selected item when found; `null` when not found.
 - Link items navigate (`_blank` uses `window.open` with noopener/noreferrer).
-- Action items dispatch `hux-command-palette:action` with action and item details.
 
 ## Error Handling
 
@@ -117,8 +121,9 @@ huxCommandPalette({
 
 ## Notes
 
-- Emitted event:
-  - `hux-command-palette:action`
+- Emitted action event:
+  - `hux-command-palette:{paletteId}:{event-name}`
+  - `hux-command-palette:{event-name}` when `paletteId` is missing
 - Composed dependencies:
   - `huxDialog`
   - `huxCombobox`
