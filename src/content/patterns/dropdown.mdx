@@ -10,7 +10,7 @@ terms:
   - menu-button
   - action-dispatch
 pubDate: 2026-04-20
-modDate: 2026-04-20
+modDate: 2026-04-21
 ---
 
 import Demo from '../../components/demos/Dropdown.astro'
@@ -34,7 +34,7 @@ Returns an Alpine data object with:
 
 - `isOpen: boolean`
 - `focusedIndex: number`
-- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string }>`
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, itemDepth: number }>`
 - `menuId: string | null`
 - `triggerButtonId: string | null`
 - `menuItemIds: string[]`
@@ -52,7 +52,7 @@ _Internal helper methods are private implementation details and are not part of 
 
 ## Options
 
-- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string }>` (default: `[]`)
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, children?: menuItems[] }>` (default: `[]`)
 - `triggerId: string` (optional, scopes generated ids and action event names)
 
 ## Quick Start
@@ -62,8 +62,11 @@ _Internal helper methods are private implementation details and are not part of 
   x-data="huxDropdown({
     triggerId: 'user-menu',
     menuItems: [
-      { label: 'Profile', href: '/profile' },
-      { label: 'Billing', href: '/billing' },
+      {
+        label: 'Account',
+        href: '/account',
+        children: [{ label: 'Billing', href: '/billing' }]
+      },
       { label: 'Copy Link', action: 'copyLink' }
     ]
   })"
@@ -95,6 +98,7 @@ _Internal helper methods are private implementation details and are not part of 
         type="button"
         role="menuitem"
         x-bind:id="menuItemIds[menuIndex]"
+        x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
         x-on:click="selectItem(menuItem)"
         x-text="menuItem.label"
       ></button>
@@ -126,6 +130,39 @@ huxDropdown({
 })
 ```
 
+### Nested Heading Structure Links
+
+```js
+huxDropdown({
+  triggerId: 'options-menu',
+  menuItems: [
+    {
+      label: 'API',
+      href: '#api',
+      children: [{ label: 'huxDropdown(config)', href: '#huxdropdownconfig' }],
+    },
+    { label: 'Options', href: '#options' },
+    { label: 'Quick Start', href: '#quick-start' },
+    {
+      label: 'Common Usage Patterns',
+      href: '#common-usage-patterns',
+      children: [
+        { label: 'Scoped Action Events', href: '#scoped-action-events' },
+        {
+          label: 'Internal, External, and Action Items',
+          href: '#internal-external-and-action-items',
+        },
+        { label: 'Nested Heading Structure Links', href: '#nested-heading-structure-links' },
+      ],
+    },
+    { label: 'Behavior Contract', href: '#behavior-contract' },
+    { label: 'Error Handling', href: '#error-handling' },
+    { label: 'Accessibility Notes', href: '#accessibility-notes' },
+    { label: 'Notes', href: '#notes' },
+  ],
+})
+```
+
 When you need to classify an item after lookup, resolve it first and then branch on the returned object in the same style as `huxCommandPalette`:
 
 ```js
@@ -138,7 +175,8 @@ if (menuItem?.target === '_blank') {
 
 ## Behavior Contract
 
-- `menuItems` are filtered to entries with a label and either `href` or `action`.
+- `menuItems` are normalized recursively; actionable entries with a label and either `href` or `action` are kept.
+- Nested entries are flattened into `menuItems` in depth-first order with `itemDepth` preserved for rendering.
 - Generated ids are based on `triggerId` when provided; otherwise a random uuid suffix is used.
 - `closeMenu(true)` restores focus to the trigger button on next tick.
 - `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
@@ -149,6 +187,7 @@ if (menuItem?.target === '_blank') {
 ## Error Handling
 
 - Empty or invalid `menuItems` produce an empty menu model without throwing.
+- Invalid `children` values are ignored.
 - Unknown labels in `findMenuItem()` return `null`.
 - `selectItem()` exits early for missing items.
 - Missing action listeners do not interrupt menu state changes.
@@ -165,5 +204,6 @@ if (menuItem?.target === '_blank') {
 - Action event names:
   - `hux-dropdown:{triggerId}:action`
   - `hux-dropdown:action` when no `triggerId` is provided
+- Nested menu entries are presented as a single roving-focus list; use `itemDepth` to indent child items in markup.
 
 </div>

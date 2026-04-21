@@ -504,10 +504,43 @@
       triggerButtonId: null,
       menuItemIds: [],
 
+      normalizeMenuItems(rawMenuItems, itemDepth = 0) {
+        if (!Array.isArray(rawMenuItems)) {
+          return []
+        }
+
+        return rawMenuItems.flatMap((rawMenuItem) => {
+          if (!rawMenuItem || typeof rawMenuItem !== 'object') {
+            return []
+          }
+
+          const normalizedLabel =
+            typeof rawMenuItem.label === 'string' ? rawMenuItem.label.trim() : ''
+          const hasAction =
+            typeof rawMenuItem.action === 'string' && rawMenuItem.action.trim() !== ''
+          const hasHref = typeof rawMenuItem.href === 'string' && rawMenuItem.href.trim() !== ''
+
+          const normalizedItem =
+            normalizedLabel && (hasHref || hasAction)
+              ? [
+                  {
+                    label: normalizedLabel,
+                    href: hasHref ? rawMenuItem.href : undefined,
+                    action: hasAction ? rawMenuItem.action : undefined,
+                    target: rawMenuItem.target,
+                    itemDepth,
+                  },
+                ]
+              : []
+
+          const normalizedChildren = this.normalizeMenuItems(rawMenuItem.children, itemDepth + 1)
+
+          return [...normalizedItem, ...normalizedChildren]
+        })
+      },
+
       init() {
-        this.menuItems = (initialConfig.menuItems ?? []).filter(
-          (item) => item?.label && (item?.href || item?.action),
-        )
+        this.menuItems = this.normalizeMenuItems(initialConfig.menuItems)
 
         this.triggerId = initialConfig.triggerId ?? null
 

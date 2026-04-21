@@ -16,14 +16,29 @@
       x-data="huxDropdown({
         triggerId: 'options-menu',
         menuItems: [
-          { label: 'API', href: '#api' },
+          {
+            label: 'API',
+            href: '#api',
+            children: [{ label: 'huxDropdown(config)', href: '#huxdropdownconfig' }],
+          },
           { label: 'Options', href: '#options' },
-           { label: 'Quick Start', href: '#quick-start' },
-           { label: 'Common Usage Patterns', href: '#common-usage-patterns' },
-           { label: 'Behavior Contract', href: '#behavior-contract' },
-           { label: 'Error Handling', href: '#error-handling' },
-           { label: 'Accessibility Notes', href: '#accessibility-notes' },
-           { label: 'Notes', href: '#notes' },
+          { label: 'Quick Start', href: '#quick-start' },
+          {
+            label: 'Common Usage Patterns',
+            href: '#common-usage-patterns',
+            children: [
+              { label: 'Scoped Action Events', href: '#scoped-action-events' },
+              {
+                label: 'Internal, External, and Action Items',
+                href: '#internal-external-and-action-items',
+              },
+              { label: 'Nested Heading Structure Links', href: '#nested-heading-structure-links' },
+            ],
+          },
+          { label: 'Behavior Contract', href: '#behavior-contract' },
+          { label: 'Error Handling', href: '#error-handling' },
+          { label: 'Accessibility Notes', href: '#accessibility-notes' },
+          { label: 'Notes', href: '#notes' },
           { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
           { label: 'Copy Page URL', action: 'copyPageUrl' }
         ]
@@ -78,7 +93,7 @@
         x-bind:id="menuId"
         role="menu"
         x-bind:aria-labelledby="triggerButtonId"
-        class="absolute left-0 z-10 mt-2 min-w-80 overflow-hidden rounded-md border border-gray-200 bg-white shadow-md"
+        class="absolute left-0 z-10 mt-2 max-h-96 min-w-md overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md"
         x-on:keydown.down.prevent="focusNextItem()"
         x-on:keydown.up.prevent="focusPreviousItem()"
         x-on:keydown.escape.stop.prevent="closeMenu(true)"
@@ -87,7 +102,7 @@
         x-on:keydown.tab="closeMenu()"
       >
         <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
-          <div role="none" x-data="{ dropdownItem: findMenuItem(menuItem.label) }">
+          <div role="none">
             <template x-if="menuItem.href">
               <a
                 x-bind:id="menuItemIds[menuIndex]"
@@ -96,8 +111,9 @@
                 x-bind:rel="menuItem.target === '_blank' ? 'noreferrer' : null"
                 x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
                 x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
                 role="menuitem"
-                class="flex items-center justify-between gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                class="flex items-center justify-between gap-3 py-2 pr-4 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                 x-on:click="selectItem(menuItem)"
                 x-on:mouseenter="focusedIndex = menuIndex"
                 x-on:focus="focusedIndex = menuIndex"
@@ -105,14 +121,14 @@
                 <span x-text="menuItem.label"></span>
                 <span
                   x-cloak
-                  x-show="dropdownItem"
+                  x-show="menuItem"
                   x-bind:class="{
-                    'bg-blue-100 text-blue-700': dropdownItem?.href && dropdownItem?.target !== '_blank',
-                    'bg-green-100 text-green-700': dropdownItem?.target === '_blank',
-                    'bg-purple-100 text-purple-700': dropdownItem?.action
+                    'bg-blue-100 text-blue-700': menuItem?.href && menuItem?.target !== '_blank',
+                    'bg-green-100 text-green-700': menuItem?.target === '_blank',
+                    'bg-purple-100 text-purple-700': menuItem?.action
                   }"
                   class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-                  x-text="dropdownItem?.target === '_blank' ? 'External link' : dropdownItem?.href ? 'Internal link' : 'Action'"
+                  x-text="menuItem?.target === '_blank' ? 'External link' : menuItem?.href ? 'Internal link' : 'Action'"
                 ></span>
               </a>
             </template>
@@ -123,8 +139,9 @@
                 type="button"
                 x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
                 x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
                 role="menuitem"
-                class="flex w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                class="flex w-full items-center justify-between gap-3 py-2 pr-4 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                 x-on:click="selectItem(menuItem)"
                 x-on:mouseenter="focusedIndex = menuIndex"
                 x-on:focus="focusedIndex = menuIndex"
@@ -132,14 +149,14 @@
                 <span x-text="menuItem.label"></span>
                 <span
                   x-cloak
-                  x-show="dropdownItem"
+                  x-show="menuItem"
                   x-bind:class="{
-                    'bg-blue-100 text-blue-700': dropdownItem?.href && dropdownItem?.target !== '_blank',
-                    'bg-green-100 text-green-700': dropdownItem?.target === '_blank',
-                    'bg-purple-100 text-purple-700': dropdownItem?.action
+                    'bg-blue-100 text-blue-700': menuItem?.href && menuItem?.target !== '_blank',
+                    'bg-green-100 text-green-700': menuItem?.target === '_blank',
+                    'bg-purple-100 text-purple-700': menuItem?.action
                   }"
                   class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
-                  x-text="dropdownItem?.target === '_blank' ? 'External link' : dropdownItem?.href ? 'Internal link' : 'Action'"
+                  x-text="menuItem?.target === '_blank' ? 'External link' : menuItem?.href ? 'Internal link' : 'Action'"
                 ></span>
               </button>
             </template>

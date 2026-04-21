@@ -31,7 +31,7 @@
           <template x-for="headingItem in headingItems" x-bind:key="headingItem.id">
             <span
               class="block"
-              x-bind:style="{ paddingLeft: (headingItem.level - 2) * 0.75 + 'rem' }"
+              x-bind:style="{ paddingLeft: `${(headingItem.level - 2) * 0.75}rem` }"
             >
               <button
                 type="button"
