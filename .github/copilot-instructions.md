@@ -92,8 +92,9 @@ The components and their registration names are:
 - `huxTabs` — Tabs
 - `huxResizable` — Resizable Container
 
-Each component has a corresponding `data-hux-copy` registration script in `src/pages/index.astro`
-named `{camelCaseName}RegistrationCode` (e.g. `scrollSpyRegistrationCode`, `copyRegistrationCode`).
+Each component has a corresponding `data-hux-copy` registration script in
+`src/components/PatternRegistration.astro`, using identifiers such as
+`huxScrollSpyRegistration`, `huxCopyRegistration`, and `huxTabsRegistration`.
 When documenting options and behavior, always verify against that registration script — it is the
 source of truth.
 

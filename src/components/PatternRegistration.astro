@@ -58,7 +58,7 @@
 
         if (!targetElement) {
           console.error(
-            `[comboBox] Missing x-ref target for ${templateRefName}. Falling back to generated id ${fallbackId}`,
+            `[huxCombobox] Missing x-ref target for ${templateRefName}. Falling back to generated id ${fallbackId}`,
           )
 
           return fallbackId
@@ -719,7 +719,7 @@
   })
 </script>
 
-<script is:inline data-hux-copy="huxResizableDemo">
+<script is:inline data-hux-copy="huxResizableRegistration">
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxResizable', (initialConfig = {}) => ({
       currentWidth: 0,
