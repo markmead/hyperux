@@ -1,9 +1,10 @@
 ---
-import { getCollection } from 'astro:content'
+import { type CollectionEntry, getCollection } from 'astro:content'
+
 import BaseLayout from '../layouts/BaseLayout.astro'
 import LastUpdated from '../components/LastUpdated.astro'
 
-const patterns = await getCollection('patterns')
+const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
 
 const lastUpdated = patterns.reduce((latest, pattern) => {
   return pattern.data.modDate > latest ? pattern.data.modDate : latest

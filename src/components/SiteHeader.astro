@@ -1,8 +1,8 @@
 ---
-import { getCollection } from 'astro:content'
+import { type CollectionEntry, getCollection } from 'astro:content'
 import { Search } from '@lucide/astro'
 
-const patterns = await getCollection('patterns')
+const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
 
 const paletteItems = patterns
   .map((pattern) => ({

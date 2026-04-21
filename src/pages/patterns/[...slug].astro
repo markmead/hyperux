@@ -4,15 +4,15 @@ import { type CollectionEntry, getCollection, render } from 'astro:content'
 import PatternPost from '../../layouts/PatternPost.astro'
 
 export async function getStaticPaths() {
-  return (await getCollection('patterns')).map((pattern: CollectionEntry<'patterns'>) => ({
+  const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+
+  return patterns.map((pattern) => ({
     params: { slug: pattern.data.slug },
     props: pattern,
   }))
 }
 
-type Props = CollectionEntry<'patterns'>
-
-const collection: Props = Astro.props
+const collection: CollectionEntry<'patterns'> = Astro.props
 
 const { Content } = await render(collection)
 ---
