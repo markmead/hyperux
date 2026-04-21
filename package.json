@@ -16,14 +16,14 @@
   "dependencies": {
     "@astrojs/alpinejs": "^0.5.0",
     "@astrojs/check": "^0.9.8",
-    "@astrojs/cloudflare": "^13.1.9",
+    "@astrojs/cloudflare": "^13.1.10",
     "@astrojs/mdx": "^5.0.3",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@lucide/astro": "^1.8.0",
     "@types/alpinejs": "^3.13.11",
     "alpinejs": "^3.15.11",
-    "astro": "^6.1.6",
+    "astro": "^6.1.8",
     "wrangler": "^4.83.0"
   },
   "devDependencies": {
@@ -32,7 +32,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^25.6.0",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "eslint-plugin-astro": "^1.7.0",
     "globals": "^17.5.0",
     "prettier": "^3.8.3",
@@ -40,7 +40,7 @@
     "prettier-plugin-tailwindcss": "^0.7.2",
     "rehype-external-links": "^3.0.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "^6.0.2",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.58.2"
   }
 }
