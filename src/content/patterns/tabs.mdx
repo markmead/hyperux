@@ -1,0 +1,148 @@
+---
+slug: tabs
+title: Tabs
+description: Build accessible tab interfaces with huxTabs for Alpine.js with keyboard support and optional hash sync.
+terms:
+  - tabs
+  - alpinejs
+  - aria-tabs
+  - keyboard-navigation
+  - roving-tabindex
+  - hash-routing
+pubDate: 2026-04-20
+modDate: 2026-04-20
+---
+
+import Demo from '../../components/demos/Tabs.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxTabs` manages active tab state, keyboard focus movement, and optional URL hash synchronization. Use it to attach behavior to your own tablist and panel markup.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxTabs(config)`
+
+Returns an Alpine data object with:
+
+- `activeTabId: string | null`
+- `tabItems: Array<{ label: string, id: string }>`
+- `useHash: boolean`
+- `activeTabIndex: number`
+- `selectTab(tabId: string): void`
+- `focusTab(tabId: string): void`
+- `focusNextTab(): void`
+- `focusPreviousTab(): void`
+- `focusFirstTab(): void`
+- `focusLastTab(): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `tabItems: Array<{ label: string, id: string }>` (default: `[]`)
+- `activeTab: string` (optional initial active id)
+- `useHash: boolean` (default: `false`)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxTabs({
+    tabItems: [
+      { label: 'General', id: 'general' },
+      { label: 'Security', id: 'security' }
+    ],
+    useHash: true
+  })"
+>
+  <div role="tablist" aria-label="Settings">
+    <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
+      <button
+        type="button"
+        role="tab"
+        x-bind:id="`tab-${tabItem.id}`"
+        x-bind:aria-controls="`panel-${tabItem.id}`"
+        x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
+        x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
+        x-on:click="selectTab(tabItem.id)"
+        x-on:keydown.right.prevent="focusNextTab()"
+        x-on:keydown.left.prevent="focusPreviousTab()"
+        x-text="tabItem.label"
+      ></button>
+    </template>
+  </div>
+
+  <section
+    id="panel-general"
+    role="tabpanel"
+    aria-labelledby="tab-general"
+    x-show="activeTabId === 'general'"
+    x-cloak
+  >
+    ...
+  </section>
+</div>
+```
+
+## Common Usage Patterns
+
+### Initialize Active Tab From Hash
+
+```js
+huxTabs({
+  tabItems: [
+    { label: 'General', id: 'general' },
+    { label: 'Security', id: 'security' },
+    { label: 'Notifications', id: 'notifications' },
+  ],
+  useHash: true,
+})
+```
+
+### Provide Explicit Initial Tab
+
+```js
+huxTabs({
+  tabItems: [
+    { label: 'General', id: 'general' },
+    { label: 'Security', id: 'security' },
+  ],
+  activeTab: 'security',
+})
+```
+
+## Behavior Contract
+
+- Invalid tab items are filtered out during initialization.
+- When `useHash` is enabled, the component decodes `location.hash` and uses it when it matches a known tab id.
+- If initial active id is missing or invalid, active tab falls back to the first valid tab id.
+- `selectTab()` ignores unknown ids and only updates state for valid ids.
+- `focusNextTab()` and `focusPreviousTab()` wrap at boundaries.
+- When `useHash` is enabled, `selectTab()` updates hash with `history.replaceState`.
+
+## Error Handling
+
+- Malformed hash decoding is caught and ignored without throwing.
+- Unknown tab ids no-op in `selectTab()` and focus helpers.
+- Empty tab arrays initialize with `activeTabId = null`.
+
+## Accessibility Notes
+
+- Use ARIA tabs pattern roles and relationships: `role="tablist"`, `role="tab"`, `role="tabpanel"`, `aria-controls`, and `aria-labelledby`.
+- Keep roving tabindex (`0` for active tab, `-1` for inactive tabs) so keyboard focus order is predictable.
+- Wire arrow keys plus Home/End for expected tab keyboard behavior.
+- Keep tab controls as `button type="button"` and ensure visible active-state contrast.
+
+## Notes
+
+- Hash sync uses `replaceState`, so tab changes do not add browser history entries.
+
+</div>

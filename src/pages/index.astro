@@ -1,0 +1,53 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content'
+
+import BaseLayout from '../layouts/BaseLayout.astro'
+import LastUpdated from '../components/LastUpdated.astro'
+
+const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+
+const lastUpdated =
+  patterns.length > 0
+    ? patterns.reduce((latest, pattern) => {
+        return pattern.data.modDate > latest ? pattern.data.modDate : latest
+      }, new Date(0))
+    : null
+---
+
+<BaseLayout
+  title="Free Alpine.js UI Patterns for Developers"
+  description="Behavior-first Alpine.js patterns you can copy, adapt, and ship."
+>
+  <main id="main-content" class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+    <article class="prose prose-headings:font-semibold prose-lg">
+      <h1>Free Alpine.js UI Patterns for Developers</h1>
+
+      <p class="lead">Behavior-first Alpine.js patterns you can copy, adapt, and ship.</p>
+
+      <p>
+        HyperUX is not about repackaging HTML elements and functionality as components. It focuses
+        on developer-friendly APIs for behavior-heavy UI patterns you can adapt to your own markup
+        and styles.
+      </p>
+
+      {lastUpdated && <LastUpdated date={lastUpdated} />}
+
+      <nav>
+        <ul>
+          {
+            patterns.map((pattern) => (
+              <li>
+                <a
+                  href={`/patterns/${pattern.data.slug}`}
+                  class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+                >
+                  Read the {pattern.data.title} documentation
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </article>
+  </main>
+</BaseLayout>

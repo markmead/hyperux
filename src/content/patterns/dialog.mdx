@@ -1,0 +1,138 @@
+---
+slug: dialog
+title: Dialog
+description: Build focus-trapped modal dialogs with huxDialog for Alpine.js with scoped lifecycle events.
+terms:
+  - dialog
+  - modal
+  - alpinejs
+  - focus-trap
+  - accessibility
+  - overlay
+pubDate: 2026-04-20
+modDate: 2026-04-20
+---
+
+import Demo from '../../components/demos/Dialog.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxDialog` handles open/close state, optional backdrop behavior, and scoped lifecycle events for modal UI in Alpine.js. Pair it with your own dialog markup and focus trap directives.
+
+This pattern expects the Alpine Focus plugin when you use `x-trap` in your markup: [@alpinejs/focus](https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js).
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxDialog(config)`
+
+Returns an Alpine data object with:
+
+- `isOpen: boolean`
+- `dialogId: string | null`
+- `isPersistent: boolean`
+- `isSeamless: boolean`
+- `dialogTitleId: string | null`
+- `closeOnBackdrop: boolean`
+- `closeOnEscape: boolean`
+- `showBackdrop: boolean`
+- `openDialog(): void`
+- `toggleDialog(): void`
+- `closeDialog(): void`
+- `handleBackdropClick(): void`
+- `handleEscape(): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `dialogId: string` (optional)
+- `startsOpen: boolean` (default: `false`)
+- `isPersistent: boolean` (default: `false`)
+- `isSeamless: boolean` (default: `false`)
+
+## Quick Start
+
+```html
+<div x-data="huxDialog({ dialogId: 'settings' })">
+  <button type="button" x-on:click="openDialog()">Open dialog</button>
+
+  <template x-teleport="body">
+    <div x-cloak x-show="isOpen" x-on:keydown.escape.stop="handleEscape()">
+      <div
+        x-cloak
+        x-show="showBackdrop"
+        aria-hidden="true"
+        x-on:click="handleBackdropClick()"
+      ></div>
+
+      <div
+        x-trap.noscroll="isOpen"
+        role="dialog"
+        aria-modal="true"
+        x-bind:aria-labelledby="dialogTitleId || null"
+      >
+        <h2 x-bind:id="dialogTitleId || null">Settings</h2>
+        <button type="button" x-on:click="closeDialog()">Close</button>
+      </div>
+    </div>
+  </template>
+</div>
+```
+
+## Common Usage Patterns
+
+### Persistent Confirmation Dialog
+
+```js
+huxDialog({
+  dialogId: 'confirm-delete',
+  isPersistent: true,
+})
+```
+
+### Seamless Dialog (No Backdrop)
+
+```js
+huxDialog({
+  dialogId: 'quick-actions',
+  isSeamless: true,
+})
+```
+
+## Behavior Contract
+
+- `init()` derives `dialogTitleId` from `dialogId` as `${dialogId}-title`, otherwise `null`.
+- `openDialog()` sets `isOpen = true` and dispatches open event(s).
+- `closeDialog()` sets `isOpen = false` and dispatches close event(s).
+- `toggleDialog()` flips open state by delegating to `openDialog()` and `closeDialog()`.
+- `isPersistent` disables both Escape and backdrop close via computed flags.
+- `isSeamless` hides backdrop via `showBackdrop`.
+- Event names are scoped when `dialogId` exists.
+
+## Error Handling
+
+- Dialog methods are defensive and do not throw for repeated calls (`openDialog()` while open, `closeDialog()` while closed).
+- Unknown event listeners or missing external handlers do not block internal state transitions.
+
+## Accessibility Notes
+
+- Keep modal container with `role="dialog"` and `aria-modal="true"`.
+- Provide a visible or screen-reader title and wire `aria-labelledby` to that element.
+- Keep close controls as labeled `button` elements with `type="button"`.
+- Use keyboard escape handling (`x-on:keydown.escape.stop`) and focus trapping (`x-trap`) so keyboard users remain inside the modal while open.
+
+## Notes
+
+- Events emitted:
+  - `hux-dialog:{dialogId}:open`
+  - `hux-dialog:{dialogId}:close`
+  - `hux-dialog:open` and `hux-dialog:close` when `dialogId` is missing
+
+</div>

@@ -1,0 +1,18 @@
+---
+import BaseLayout from './BaseLayout.astro'
+
+interface Props {
+  title: string
+  description: string
+}
+
+const { title, description } = Astro.props as Props
+
+const pageTitle = `Alpine.js Pattern for ${title}`
+---
+
+<BaseLayout title={pageTitle} {description}>
+  <main id="main-content" class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+    <slot />
+  </main>
+</BaseLayout>

@@ -1,0 +1,131 @@
+---
+slug: command-palette
+title: Command Palette
+description: Build keyboard-first search palettes with huxCommandPalette by composing dialog and combobox primitives.
+terms:
+  - command-palette
+  - keyboard-shortcut
+  - alpinejs
+  - search
+  - dialog
+  - combobox
+pubDate: 2026-04-20
+modDate: 2026-04-21
+---
+
+import Demo from '../../components/demos/CommandPalette.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxCommandPalette` is a keyboard-first selector that composes `huxDialog` and `huxCombobox` behavior. It filters named commands and supports both link navigation and custom action dispatch.
+
+Because this pattern composes other primitives, changes in dialog/combobox behavior may affect it. Treat the API as extra experimental.
+
+The live demo on this page uses `shortcutKey: 'p'` so it does not conflict with the global site search shortcut.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxCommandPalette(config)`
+
+Returns an Alpine data object with:
+
+- `paletteItems: Array<{ label: string, href?: string, action?: string, target?: '_self' | '_blank' }>`
+- `paletteId: string | null`
+- `shortcutKey: string`
+- `shortcutHint: string`
+- `handleGlobalShortcut(event): void`
+- `findPaletteItem(itemLabel: string): object | null`
+- `selectItem(itemLabel: string): object | null`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `paletteItems: Array<{ label: string, href?: string, action?: string, target?: '_self' | '_blank' }>` (default: `[]`)
+- `paletteId: string` (optional, scopes action event names)
+- `shortcutKey: string` (default: `'k'`)
+
+_Use hyphen-case for action names. Non-hyphen-case names will be ignored._
+
+## Quick Start
+
+```html
+<div
+  x-data="huxCommandPalette({
+    paletteId: 'docs-palette',
+    paletteItems: [
+      { label: 'Docs', href: '/patterns/command-palette' },
+      { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+      { label: 'Copy URL', action: 'copy-page-url' }
+    ],
+    shortcutKey: 'p'
+  })"
+  x-on:keydown.window="handleGlobalShortcut($event)"
+  x-on:hux-command-palette:docs-palette:copy-page-url.window="navigator.clipboard.writeText(location.href).catch(() => {})"
+>
+  ...
+</div>
+```
+
+## Common Usage Patterns
+
+### Internal + External + Action Items
+
+```js
+huxCommandPalette({
+  paletteItems: [
+    { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
+    { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+    { label: 'Copy URL', action: 'copy-page-url' },
+  ],
+})
+```
+
+### Change Shortcut Key
+
+```js
+huxCommandPalette({
+  paletteItems: [{ label: 'Open Docs', href: '/patterns' }],
+  shortcutKey: 'p',
+})
+```
+
+## Behavior Contract
+
+- `paletteItems` are filtered to entries with `label` and either `href` or `action`.
+- `shortcutKey` is normalized to lowercase.
+- Shortcut only triggers when key matches and either Meta or Ctrl is pressed.
+- Shortcut handling is skipped while typing in `input`, `textarea`, or contenteditable fields.
+- `selectItem()` returns selected item when found; `null` when not found.
+- Link items navigate (`_blank` uses `window.open` with noopener/noreferrer).
+
+## Error Handling
+
+- Missing/invalid items are filtered out without throwing.
+- Unknown labels in `selectItem()` return `null` and no-op.
+- Browser popup blocking may affect `_blank` links; selection still resolves as successful item handling.
+
+## Accessibility Notes
+
+- Keep the composed dialog markup with `role="dialog"` and `aria-modal="true"`.
+- Keep the palette input as `role="combobox"` with proper `aria-expanded`, `aria-controls`, and `aria-activedescendant` wiring.
+- Provide a clear accessible name for the search input (visible label or sr-only label).
+- Keep result rows as `button type="button"` elements so keyboard users can trigger selection reliably.
+
+## Notes
+
+- Emitted action event:
+  - `hux-command-palette:{paletteId}:{event-name}`
+  - `hux-command-palette:{event-name}` when `paletteId` is missing
+- Composed dependencies:
+  - `huxDialog`
+  - `huxCombobox`
+
+</div>

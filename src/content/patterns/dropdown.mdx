@@ -1,0 +1,221 @@
+---
+slug: dropdown
+title: Dropdown
+description: Build keyboard-friendly action and link menus with huxDropdown for Alpine.js.
+terms:
+  - dropdown
+  - menu
+  - alpinejs
+  - keyboard-navigation
+  - menu-button
+  - action-dispatch
+pubDate: 2026-04-20
+modDate: 2026-04-21
+---
+
+import Demo from '../../components/demos/Dropdown.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxDropdown` provides menu-button behavior with open/close state, focus movement, and menu item selection handling for link and action items.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxDropdown(config)`
+
+Returns an Alpine data object with:
+
+- `isOpen: boolean`
+- `focusedIndex: number`
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, itemDepth: number }>`
+- `menuId: string | null`
+- `triggerButtonId: string | null`
+- `menuItemIds: string[]`
+- `openMenu(): void`
+- `closeMenu(restoreFocus?: boolean): void`
+- `toggleMenu(): void`
+- `focusFirstItem(): void`
+- `focusLastItem(): void`
+- `focusNextItem(): void`
+- `focusPreviousItem(): void`
+- `findMenuItem(itemLabel: string): object | null`
+- `selectItem(menuItem): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, children?: Array<{ label: string, href?: string, action?: string, target?: string }> }>` (default: `[]`)
+- `triggerId: string` (optional, scopes generated ids and action event names)
+
+_Use hyphen-case for action names. Non-hyphen-case names will be ignored._
+
+## Quick Start
+
+```html
+<div
+  x-data="huxDropdown({
+    triggerId: 'user-menu',
+    menuItems: [
+      {
+        label: 'Account',
+        href: '/account',
+        children: [{ label: 'Billing', href: '/billing' }]
+      },
+      { label: 'Copy Link', action: 'copy-link' }
+    ]
+  })"
+  x-on:click.outside="closeMenu()"
+  x-on:hux-dropdown:user-menu:copy-link.window="navigator.clipboard.writeText(location.href).catch(() => {})"
+>
+  <button
+    x-ref="dropdownTrigger"
+    type="button"
+    x-bind:id="triggerButtonId"
+    x-bind:aria-expanded="isOpen.toString()"
+    x-bind:aria-controls="menuId"
+    aria-haspopup="menu"
+    x-on:click="toggleMenu()"
+    x-on:keydown.down.prevent="openMenu(); focusFirstItem()"
+    x-on:keydown.up.prevent="openMenu(); focusLastItem()"
+  >
+    Open menu
+  </button>
+
+  <div
+    x-cloak
+    x-show="isOpen"
+    role="menu"
+    x-bind:id="menuId"
+    x-bind:aria-labelledby="triggerButtonId"
+  >
+    <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
+      <button
+        type="button"
+        role="menuitem"
+        x-bind:id="menuItemIds[menuIndex]"
+        x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
+        x-on:click="selectItem(menuItem)"
+        x-text="menuItem.label"
+      ></button>
+    </template>
+  </div>
+</div>
+```
+
+## Common Usage Patterns
+
+### Scoped Action Events
+
+```js
+huxDropdown({
+  triggerId: 'options-menu',
+  menuItems: [{ label: 'Copy Page URL', action: 'copy-page-url' }],
+})
+```
+
+```html
+<div
+  x-data="huxDropdown({ triggerId: 'options-menu', menuItems: [{ label: 'Copy Page URL', action: 'copy-page-url' }] })"
+  x-on:hux-dropdown:options-menu:copy-page-url.window="navigator.clipboard.writeText(location.href).catch(() => {})"
+>
+  ...
+</div>
+```
+
+### Internal, External, and Action Items
+
+```js
+huxDropdown({
+  menuItems: [
+    { label: 'Docs', href: '/patterns/dropdown' },
+    { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+    { label: 'Copy Page URL', action: 'copy-page-url' },
+  ],
+})
+```
+
+### Nested Heading Structure Links
+
+```js
+huxDropdown({
+  triggerId: 'options-menu',
+  menuItems: [
+    {
+      label: 'API',
+      href: '#api',
+      children: [{ label: 'huxDropdown(config)', href: '#huxdropdownconfig' }],
+    },
+    { label: 'Options', href: '#options' },
+    { label: 'Quick Start', href: '#quick-start' },
+    {
+      label: 'Common Usage Patterns',
+      href: '#common-usage-patterns',
+      children: [
+        { label: 'Scoped Action Events', href: '#scoped-action-events' },
+        {
+          label: 'Internal, External, and Action Items',
+          href: '#internal-external-and-action-items',
+        },
+        { label: 'Nested Heading Structure Links', href: '#nested-heading-structure-links' },
+      ],
+    },
+    { label: 'Behavior Contract', href: '#behavior-contract' },
+    { label: 'Error Handling', href: '#error-handling' },
+    { label: 'Accessibility Notes', href: '#accessibility-notes' },
+    { label: 'Notes', href: '#notes' },
+  ],
+})
+```
+
+When you need to classify an item after lookup, resolve it first and then branch on the returned object in the same style as `huxCommandPalette`:
+
+```js
+const menuItem = this.findMenuItem('GitHub')
+
+if (menuItem?.target === '_blank') {
+  // external link
+}
+```
+
+## Behavior Contract
+
+- `menuItems` are normalized recursively; actionable entries with a label and either `href` or `action` are kept.
+- Nested entries are flattened into `menuItems` in depth-first order with `itemDepth` preserved for rendering.
+- Generated ids are based on `triggerId` when provided; otherwise a random uuid suffix is used.
+- `closeMenu(true)` restores focus to the trigger button on next tick.
+- `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
+- `findMenuItem()` returns the matched item when found; otherwise `null`.
+- `selectItem()` dispatches named events for `action` entries using hyphen-case event names and closes the menu.
+- Link entries close the menu without dispatching action events.
+
+## Error Handling
+
+- Empty or invalid `menuItems` produce an empty menu model without throwing.
+- Invalid `children` values are ignored.
+- Unknown labels in `findMenuItem()` return `null`.
+- `selectItem()` exits early for missing items.
+- Missing action listeners do not interrupt menu state changes.
+
+## Accessibility Notes
+
+- Keep trigger button wired with `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.
+- Keep menu container `role="menu"` and items `role="menuitem"`.
+- Use keyboard bindings for Up/Down/Home/End and Escape to maintain expected menu behavior.
+- Keep action items as real `button type="button"` elements; use anchors for navigation items.
+
+## Notes
+
+- Action event names:
+  - `hux-dropdown:{event-name}` — always dispatched
+  - `hux-dropdown:{triggerId}:{event-name}` — additionally dispatched when `triggerId` is set
+- Nested menu entries are presented as a single roving-focus list; use `itemDepth` to indent child items in markup.
+
+</div>

@@ -1,0 +1,5 @@
+User-agent: *
+
+Allow: /
+
+Sitemap: https://js.hyperui.dev/sitemap-index.xml

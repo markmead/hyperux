@@ -1,0 +1,187 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Dropdown menu behavior with keyboard movement, menu-item focus management, and action
+      dispatch.
+    </p>
+
+    <div
+      data-hux-copy="huxDropdownDemo"
+      x-data="huxDropdown({
+        triggerId: 'options-menu',
+        menuItems: [
+          {
+            label: 'API',
+            href: '#api',
+            children: [{ label: 'huxDropdown(config)', href: '#huxdropdownconfig' }],
+          },
+          { label: 'Options', href: '#options' },
+          { label: 'Quick Start', href: '#quick-start' },
+          {
+            label: 'Common Usage Patterns',
+            href: '#common-usage-patterns',
+            children: [
+              { label: 'Scoped Action Events', href: '#scoped-action-events' },
+              {
+                label: 'Internal, External, and Action Items',
+                href: '#internal-external-and-action-items',
+              },
+              { label: 'Nested Heading Structure Links', href: '#nested-heading-structure-links' },
+            ],
+          },
+          { label: 'Behavior Contract', href: '#behavior-contract' },
+          { label: 'Error Handling', href: '#error-handling' },
+          { label: 'Accessibility Notes', href: '#accessibility-notes' },
+          { label: 'Notes', href: '#notes' },
+          { label: 'Documentation', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+          { label: 'Copy Page URL', action: 'copy-page-url' }
+        ]
+      })"
+      class="relative inline-block"
+      x-on:click.outside="closeMenu()"
+      x-on:hux-dropdown:options-menu:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
+    >
+      <button
+        x-ref="dropdownTrigger"
+        x-bind:id="triggerButtonId"
+        type="button"
+        x-bind:aria-expanded="isOpen.toString()"
+        aria-haspopup="menu"
+        x-bind:aria-controls="menuId"
+        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
+        x-on:click="toggleMenu()"
+        x-on:keydown.down.prevent="openMenu(); focusFirstItem()"
+        x-on:keydown.up.prevent="openMenu(); focusLastItem()"
+        x-on:keydown.escape.prevent="closeMenu(true)"
+        x-on:keydown.tab="if (isOpen) closeMenu()"
+      >
+        <span>Options</span>
+
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          aria-hidden="true"
+          class="size-4 transition-transform"
+          x-bind:class="{ 'rotate-180': isOpen }"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"
+          ></path>
+        </svg>
+      </button>
+
+      <div
+        x-cloak
+        x-show="isOpen"
+        x-transition
+        x-bind:id="menuId"
+        role="menu"
+        x-bind:aria-labelledby="triggerButtonId"
+        class="absolute left-0 z-10 mt-2 max-h-96 min-w-md overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md"
+        x-on:keydown.down.prevent="focusNextItem()"
+        x-on:keydown.up.prevent="focusPreviousItem()"
+        x-on:keydown.escape.stop.prevent="closeMenu(true)"
+        x-on:keydown.home.prevent="focusFirstItem()"
+        x-on:keydown.end.prevent="focusLastItem()"
+        x-on:keydown.tab="closeMenu()"
+      >
+        <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
+          <div role="none">
+            <template x-if="menuItem.href">
+              <a
+                x-bind:id="menuItemIds[menuIndex]"
+                x-bind:href="menuItem.href"
+                x-bind:target="menuItem.target || null"
+                x-bind:rel="menuItem.target === '_blank' ? 'noreferrer' : null"
+                x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
+                role="menuitem"
+                class="flex items-center justify-between gap-3 py-2 pr-4 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                x-on:click="selectItem(menuItem)"
+                x-on:mouseenter="focusedIndex = menuIndex"
+                x-on:focus="focusedIndex = menuIndex"
+              >
+                <span x-text="menuItem.label"></span>
+                <span
+                  x-cloak
+                  x-show="menuItem"
+                  x-bind:class="{
+                    'bg-blue-100 text-blue-700': menuItem?.href && menuItem?.target !== '_blank',
+                    'bg-green-100 text-green-700': menuItem?.target === '_blank',
+                    'bg-purple-100 text-purple-700': menuItem?.action
+                  }"
+                  class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                  x-text="menuItem?.target === '_blank' ? 'External link' : menuItem?.href ? 'Internal link' : 'Action'"
+                ></span>
+              </a>
+            </template>
+
+            <template x-if="!menuItem.href">
+              <button
+                x-bind:id="menuItemIds[menuIndex]"
+                type="button"
+                x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+                x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+                x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
+                role="menuitem"
+                class="flex w-full items-center justify-between gap-3 py-2 pr-4 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                x-on:click="selectItem(menuItem)"
+                x-on:mouseenter="focusedIndex = menuIndex"
+                x-on:focus="focusedIndex = menuIndex"
+              >
+                <span x-text="menuItem.label"></span>
+                <span
+                  x-cloak
+                  x-show="menuItem"
+                  x-bind:class="{
+                    'bg-blue-100 text-blue-700': menuItem?.href && menuItem?.target !== '_blank',
+                    'bg-green-100 text-green-700': menuItem?.target === '_blank',
+                    'bg-purple-100 text-purple-700': menuItem?.action
+                  }"
+                  class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                  x-text="menuItem?.target === '_blank' ? 'External link' : menuItem?.href ? 'Internal link' : 'Action'"
+                ></span>
+              </button>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxDropdownDemo', 'huxDropdownRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>

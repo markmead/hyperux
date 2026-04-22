@@ -1,0 +1,115 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Tabs pattern with roving tabindex, arrow-key navigation, and optional URL hash sync.
+    </p>
+
+    <div
+      data-hux-copy="huxTabsDemo"
+      x-data="huxTabs({
+        tabItems: [
+          { label: 'General', id: 'general' },
+          { label: 'Security', id: 'security' },
+          { label: 'Notifications', id: 'notifications' }
+        ],
+        useHash: true
+      })"
+      class="space-y-4"
+    >
+      <div role="tablist" aria-label="Account settings" class="flex gap-1 border-b border-gray-200">
+        <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
+          <button
+            x-bind:id="`tab-${tabItem.id}`"
+            x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
+            x-bind:aria-controls="`panel-${tabItem.id}`"
+            x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
+            role="tab"
+            type="button"
+            class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+            x-bind:class="activeTabId === tabItem.id
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+            x-on:click="selectTab(tabItem.id)"
+            x-on:keydown.right.prevent="focusNextTab()"
+            x-on:keydown.left.prevent="focusPreviousTab()"
+            x-on:keydown.down.prevent="focusNextTab()"
+            x-on:keydown.up.prevent="focusPreviousTab()"
+            x-on:keydown.home.prevent="focusFirstTab()"
+            x-on:keydown.end.prevent="focusLastTab()"
+            x-text="tabItem.label"></button>
+        </template>
+      </div>
+
+      <div
+        id="panel-general"
+        aria-labelledby="tab-general"
+        role="tabpanel"
+        tabindex="0"
+        x-show="activeTabId === 'general'"
+        x-cloak
+      >
+        <h3 class="font-semibold text-gray-900">General Settings</h3>
+        <p class="text-sm text-gray-600">Manage your account name, email, and preferences.</p>
+      </div>
+
+      <div
+        id="panel-security"
+        aria-labelledby="tab-security"
+        role="tabpanel"
+        tabindex="0"
+        x-show="activeTabId === 'security'"
+        x-cloak
+      >
+        <h3 class="font-semibold text-gray-900">Security Settings</h3>
+        <p class="text-sm text-gray-600">
+          Update your password and two-factor authentication options.
+        </p>
+      </div>
+
+      <div
+        id="panel-notifications"
+        aria-labelledby="tab-notifications"
+        role="tabpanel"
+        tabindex="0"
+        x-show="activeTabId === 'notifications'"
+        x-cloak
+      >
+        <h3 class="font-semibold text-gray-900">Notification Settings</h3>
+        <p class="text-sm text-gray-600">Choose which notifications you want to receive.</p>
+      </div>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxTabsDemo', 'huxTabsRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>

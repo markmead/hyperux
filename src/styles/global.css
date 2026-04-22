@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@view-transition {
+  navigation: auto;
+}
+
+@theme inline {
+  --font-sans: var(--font-google-sans-flex);
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+@layer components {
+  .prose-breakout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3rem) min(65ch, 100%) minmax(0, 3rem) minmax(
+        0,
+        1fr
+      );
+  }
+
+  .prose-breakout > * {
+    grid-column: 3;
+  }
+
+  .prose-breakout > pre {
+    grid-column: 2 / -2;
+  }
+}

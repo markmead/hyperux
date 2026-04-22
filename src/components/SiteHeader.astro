@@ -1,0 +1,262 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content'
+import { Search } from '@lucide/astro'
+
+const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+
+const paletteItems = patterns
+  .map((pattern) => ({
+    label: pattern.data.title,
+    href: `/patterns/${pattern.data.slug}`,
+    description: pattern.data.description,
+    terms: pattern.data.terms,
+  }))
+  .sort((firstPattern, secondPattern) => firstPattern.label.localeCompare(secondPattern.label))
+
+const paletteItemsJson = JSON.stringify(paletteItems)
+---
+
+<header class="border-b border-gray-300 bg-white">
+  <div
+    class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8"
+  >
+    <div class="flex items-center gap-4">
+      <a href="/" class="inline-block text-xl font-semibold sm:text-2xl">
+        HyperUX <span aria-hidden="true">📦</span>
+      </a>
+
+      <span
+        class="inline-flex h-6 items-center rounded-full border border-sky-300 bg-sky-100 px-3 text-xs/6 font-semibold tracking-wide text-sky-900 uppercase"
+      >
+        Experimental
+      </span>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <div
+        x-data={`(() => {
+            const dialogComponent = huxDialog({ dialogId: 'site-pattern-search' })
+            const paletteComponent = huxCommandPalette({
+              paletteItems: ${paletteItemsJson}
+            })
+
+            return {
+              ...dialogComponent,
+              ...paletteComponent,
+              init() {
+                dialogComponent.init.call(this)
+                paletteComponent.init.call(this)
+              },
+            }
+          })()`}
+        x-on:keydown.window="handleGlobalShortcut($event)"
+        x-on:hux-command-palette:close.window="closeDialog()"
+      >
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-gray-50 px-4 py-2 text-gray-700"
+          x-on:click="openDialog()"
+          aria-label="Search patterns"
+        >
+          <Search class="size-4" />
+
+          <span x-text="shortcutHint" class="text-sm font-semibold"></span>
+        </button>
+
+        <template x-teleport="body">
+          <div
+            x-cloak
+            x-show="isOpen"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            x-on:keydown.escape.stop="handleEscape()"
+          >
+            <div class="flex min-h-full items-start justify-center p-4 pt-24">
+              <template x-if="showBackdrop">
+                <div
+                  x-cloak
+                  x-show="isOpen"
+                  x-transition.opacity.duration.200ms
+                  class="fixed inset-0 bg-gray-900/60"
+                  aria-hidden="true"
+                  x-on:click="handleBackdropClick()"
+                >
+                </div>
+              </template>
+
+              <div
+                x-cloak
+                x-show="isOpen"
+                x-trap.noscroll="isOpen"
+                x-transition.duration.200ms
+                x-bind:aria-labelledby="dialogTitleId || null"
+                role="dialog"
+                aria-modal="true"
+                class="relative w-full max-w-2xl space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-xl"
+              >
+                <h3 x-bind:id="dialogTitleId || null" class="sr-only">Search patterns</h3>
+
+                <div
+                  x-data="{
+                      ...huxCombobox({
+                        optionItems: paletteItems.map((paletteItem) => ({
+                          label: paletteItem.label,
+                          value: paletteItem.label,
+                          searchText: [
+                            paletteItem.label,
+                            paletteItem.description,
+                            ...(Array.isArray(paletteItem.terms) ? paletteItem.terms : []),
+                          ]
+                            .filter((searchChunk) => typeof searchChunk === 'string' && searchChunk.trim().length > 0)
+                            .join(' ')
+                            .toLowerCase(),
+                        })),
+                        inputTemplateRef: 'commandPaletteInput',
+                        listboxTemplateRef: 'commandPaletteListbox',
+                      }),
+                      get filteredOptionItems() {
+                        const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
+                        const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
+
+                        if (this.hideOptionItemsWhenSearchQueryEmpty && normalizedSearchQuery === '') {
+                          return []
+                        }
+
+                        if (normalizedSearchQuery === '') {
+                          return normalizedOptionItems.map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+                        }
+
+                        return normalizedOptionItems
+                          .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+                          .filter(({ optionItem }) =>
+                            (optionItem.searchText ?? optionItem.label.toLowerCase()).includes(normalizedSearchQuery),
+                          )
+                      },
+                      onPaletteOpen() {
+                        this.searchQuery = ''
+                        this.focusedIndex = -1
+                        this.openList()
+                        this.$nextTick(() => this.$refs.commandPaletteInput?.focus())
+                      },
+                      onPaletteClose() {
+                        this.closeList()
+                        this.clearSelection()
+                      },
+                      isCurrentPage(pathname) {
+                        if (typeof pathname !== 'string' || pathname.length === 0) {
+                          return false
+                        }
+
+                        return globalThis.location.pathname === pathname
+                      },
+                    }"
+                  class="space-y-2"
+                  x-on:hux-dialog:site-pattern-search:open.window="onPaletteOpen()"
+                  x-on:hux-dialog:site-pattern-search:close.window="onPaletteClose()"
+                >
+                  <label x-bind:for="comboboxInputId" class="sr-only">
+                    Search HyperUX patterns
+                  </label>
+
+                  <div class="relative">
+                    <input
+                      x-ref="commandPaletteInput"
+                      x-model="searchQuery"
+                      x-bind:id="comboboxInputId"
+                      x-bind:aria-expanded="isOpen.toString()"
+                      x-bind:aria-controls="listboxId"
+                      x-bind:aria-activedescendant="activeDescendantId"
+                      type="text"
+                      placeholder="Search patterns by title, terms, or description..."
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-haspopup="listbox"
+                      autocomplete="off"
+                      class="w-full rounded-md border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      x-on:input="onInputChange()"
+                      x-on:keydown.down.prevent="if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
+                      x-on:keydown.up.prevent="focusPreviousOptionItem()"
+                      x-on:keydown.enter.prevent="const focusedOptionItem = filteredOptionItems[focusedIndex]; if (!focusedOptionItem) return; toggleOptionItem(focusedOptionItem.optionItem); const selectedItem = selectItem(focusedOptionItem.optionItem.value); if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                      x-on:keydown.escape.stop.prevent="closeList(); $dispatch('hux-command-palette:close')"
+                    />
+
+                    <div
+                      x-cloak
+                      x-transition
+                      x-show="isOpen"
+                      x-ref="commandPaletteListbox"
+                      x-bind:id="listboxId"
+                      role="listbox"
+                      class="mt-2 max-h-80 w-full overflow-y-auto rounded-md border border-gray-300 bg-white"
+                    >
+                      <template x-if="filteredOptionItems.length === 0">
+                        <p class="px-4 py-3 text-gray-500">No matching patterns found.</p>
+                      </template>
+
+                      <template
+                        x-for="({ optionItem, sourceIndex }, optionIndex) in filteredOptionItems"
+                        x-bind:key="optionItem.value + '-' + sourceIndex"
+                      >
+                        <button
+                          type="button"
+                          x-bind:id="optionItemId(sourceIndex)"
+                          x-bind:aria-selected="isOptionSelected(optionItem).toString()"
+                          x-bind:class="{
+                                'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                                'hover:bg-gray-100': focusedIndex !== optionIndex
+                              }"
+                          role="option"
+                          tabindex="-1"
+                          class="flex w-full items-start justify-between gap-4 px-4 py-3 text-left transition-colors"
+                          x-on:click="toggleOptionItem(optionItem); const selectedItem = selectItem(optionItem.value); if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                          x-on:mouseenter="focusedIndex = optionIndex"
+                        >
+                          <span class="space-y-1">
+                            <span class="block font-medium" x-text="optionItem.label"></span>
+                            <span
+                              class="block text-sm text-gray-500"
+                              x-data="{ paletteItem: findPaletteItem(optionItem.value) }"
+                              x-text="paletteItem?.description ?? ''"></span>
+                          </span>
+                          <span
+                            x-data="{ paletteItem: findPaletteItem(optionItem.value) }"
+                            x-show="isCurrentPage(paletteItem?.href)"
+                            class="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                          >
+                            Current Page
+                          </span>
+                        </button>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <a
+        href="https://github.com/markmead/hyperux"
+        class="inline-flex items-center gap-2 rounded-md border border-gray-900 bg-gray-900 px-4 py-2 text-white transition-colors hover:bg-gray-800"
+        aria-label="GitHub"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          class="size-4"
+        >
+          <path
+            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+            fill="currentColor"></path>
+        </svg>
+
+        <span class="font-semibold">GitHub</span>
+      </a>
+    </div>
+  </div>
+</header>

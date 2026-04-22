@@ -1,0 +1,151 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Searchable listbox input with keyboard navigation and optional multiple selection.
+    </p>
+
+    <div
+      data-hux-copy="huxComboboxDemo"
+      x-data="huxCombobox({
+        optionItems: [
+          { label: 'Apple', value: 'apple' },
+          { label: 'Apricot', value: 'apricot' },
+          { label: 'Banana', value: 'banana' },
+          { label: 'Blueberry', value: 'blueberry' },
+          { label: 'Cherry', value: 'cherry' },
+          { label: 'Coconut', value: 'coconut' }
+        ],
+        clearSelectionOnInputClear: true
+      })"
+      class="space-y-2"
+      x-on:click.outside="closeList()"
+    >
+      <label x-bind:for="comboboxInputId" class="block font-medium text-gray-700"> Fruit </label>
+
+      <div class="relative">
+        <input
+          x-ref="comboboxInput"
+          x-model="searchQuery"
+          x-bind:id="comboboxInputId"
+          x-bind:aria-expanded="isOpen.toString()"
+          x-bind:aria-controls="listboxId"
+          x-bind:aria-activedescendant="activeDescendantId"
+          type="text"
+          placeholder="Search fruits..."
+          role="combobox"
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+          autocomplete="off"
+          class="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          x-on:focus="openList()"
+          x-on:input="onInputChange()"
+          x-on:keydown.down.prevent="focusNextOptionItem()"
+          x-on:keydown.up.prevent="focusPreviousOptionItem()"
+          x-on:keydown.enter.prevent="selectFocusedOptionItem()"
+          x-on:keydown.escape.stop.prevent="closeList()"
+          x-on:keydown.tab="closeList()"
+        />
+
+        <div
+          x-cloak
+          x-transition
+          x-show="isOpen"
+          x-ref="comboboxListbox"
+          x-bind:id="listboxId"
+          role="listbox"
+          class="absolute z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-sm"
+        >
+          <template x-if="filteredOptionItems.length === 0">
+            <p class="px-4 py-2 text-gray-500">No results.</p>
+          </template>
+
+          <template
+            x-for="({ optionItem, sourceIndex }, optionIndex) in filteredOptionItems"
+            x-bind:key="`${optionItem.value}-${sourceIndex}`"
+          >
+            <button
+              type="button"
+              x-bind:id="optionItemId(sourceIndex)"
+              x-bind:aria-selected="isOptionSelected(optionItem).toString()"
+              x-bind:class="{
+                    'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                    'bg-emerald-50 text-emerald-900': isOptionSelected(optionItem) && focusedIndex !== optionIndex,
+                    'bg-white': !isOptionSelected(optionItem) && focusedIndex !== optionIndex
+                  }"
+              role="option"
+              class="flex w-full items-center justify-between px-4 py-2 text-left"
+              x-on:click="toggleOptionItem(optionItem)"
+              x-on:mouseenter="focusedIndex = optionIndex"
+            >
+              <span x-text="optionItem.label"></span>
+
+              <span x-cloak x-show="isOptionSelected(optionItem)" class="text-sm font-medium">
+                Selected
+              </span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <div
+        x-cloak
+        x-show="selectedValue"
+        class="inline-flex h-6 items-center gap-3 rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+      >
+        <span x-text="getLabelForValue(selectedValue)"></span>
+
+        <button
+          type="button"
+          class="-mr-1.5 inline-flex size-4 items-center justify-center rounded-full bg-emerald-200/80 p-1 text-emerald-900 hover:bg-emerald-300"
+          aria-label="Clear selected value"
+          x-on:click.stop="clearSelection()"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+            class="size-5"
+          >
+            <path
+              d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxComboboxDemo', 'huxComboboxRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>
