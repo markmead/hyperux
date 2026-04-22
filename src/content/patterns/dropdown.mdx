@@ -214,8 +214,8 @@ if (menuItem?.target === '_blank') {
 ## Notes
 
 - Action event names:
-  - `hux-dropdown:{triggerId}:{event-name}`
-  - `hux-dropdown:{event-name}` when no `triggerId` is provided
+  - `hux-dropdown:{event-name}` — always dispatched
+  - `hux-dropdown:{triggerId}:{event-name}` — additionally dispatched when `triggerId` is set
 - Nested menu entries are presented as a single roving-focus list; use `itemDepth` to indent child items in markup.
 
 </div>

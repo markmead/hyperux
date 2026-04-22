@@ -6,9 +6,12 @@ import LastUpdated from '../components/LastUpdated.astro'
 
 const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
 
-const lastUpdated = patterns.reduce((latest, pattern) => {
-  return pattern.data.modDate > latest ? pattern.data.modDate : latest
-}, new Date(0))
+const lastUpdated =
+  patterns.length > 0
+    ? patterns.reduce((latest, pattern) => {
+        return pattern.data.modDate > latest ? pattern.data.modDate : latest
+      }, new Date(0))
+    : null
 ---
 
 <BaseLayout
@@ -27,7 +30,7 @@ const lastUpdated = patterns.reduce((latest, pattern) => {
         and styles.
       </p>
 
-      <LastUpdated date={lastUpdated} />
+      {lastUpdated && <LastUpdated date={lastUpdated} />}
 
       <nav>
         <ul>
