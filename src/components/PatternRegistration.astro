@@ -1174,6 +1174,8 @@
       },
 
       focusNextTab() {
+        if (this.tabItems.length === 0) return
+
         const currentIndex = this.activeTabIndex
         const nextIndex = currentIndex < this.tabItems.length - 1 ? currentIndex + 1 : 0
         const nextTabId = this.tabItems[nextIndex].id
@@ -1183,6 +1185,8 @@
       },
 
       focusPreviousTab() {
+        if (this.tabItems.length === 0) return
+
         const currentIndex = this.activeTabIndex
         const prevIndex = currentIndex > 0 ? currentIndex - 1 : this.tabItems.length - 1
         const prevTabId = this.tabItems[prevIndex].id
@@ -1192,6 +1196,8 @@
       },
 
       focusFirstTab() {
+        if (this.tabItems.length === 0) return
+
         const firstTabId = this.tabItems[0].id
 
         this.selectTab(firstTabId)
@@ -1199,6 +1205,8 @@
       },
 
       focusLastTab() {
+        if (this.tabItems.length === 0) return
+
         const lastTabId = this.tabItems.at(-1).id
 
         this.selectTab(lastTabId)
