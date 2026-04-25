@@ -1,4 +1,3 @@
-// @ts-check
 import { defineConfig, fontProviders } from 'astro/config'
 
 import mdx from '@astrojs/mdx'

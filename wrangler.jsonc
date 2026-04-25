@@ -3,12 +3,12 @@
   "name": "hyperux",
   "compatibility_date": "2026-04-07",
   "observability": {
-    "enabled": true
+    "enabled": false
   },
   "assets": {
     "directory": "."
   },
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
 }
