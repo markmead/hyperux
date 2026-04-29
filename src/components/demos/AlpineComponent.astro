@@ -1,21 +1,100 @@
 ---
 ---
 
-<!-- On-page template: reusable pattern card -->
-<template id="hux-pattern-card">
-  <div class="space-y-2 rounded-lg border border-gray-200 bg-white p-4">
-    <div class="flex items-center justify-between gap-2">
-      <h3 class="font-semibold text-gray-900" x-text="pattern.title"></h3>
-      <span class="shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
-        Pattern
-      </span>
+<!--
+  On-page template: huxDropdown wrapped as a reusable component.
+  The host element's x-data provides triggerId, triggerLabel, and menuItems.
+  huxDropdown is called inside the template using those values.
+-->
+<template id="hux-dropdown">
+  <div
+    x-data="huxDropdown({ triggerId: triggerId, menuItems: menuItems })"
+    class="relative inline-block"
+    x-on:click.outside="closeMenu()"
+  >
+    <button
+      x-ref="dropdownTrigger"
+      x-bind:id="triggerButtonId"
+      type="button"
+      x-bind:aria-expanded="isOpen.toString()"
+      aria-haspopup="menu"
+      x-bind:aria-controls="menuId"
+      class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
+      x-on:click="toggleMenu()"
+      x-on:keydown.down.prevent="openMenu(); focusFirstItem()"
+      x-on:keydown.up.prevent="openMenu(); focusLastItem()"
+      x-on:keydown.escape.prevent="closeMenu(true)"
+      x-on:keydown.tab="if (isOpen) closeMenu()"
+    >
+      <span x-text="triggerLabel"></span>
+
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        aria-hidden="true"
+        class="size-4 transition-transform"
+        x-bind:class="{ 'rotate-180': isOpen }"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"></path>
+      </svg>
+    </button>
+
+    <div
+      x-cloak
+      x-show="isOpen"
+      x-transition
+      x-bind:id="menuId"
+      role="menu"
+      x-bind:aria-labelledby="triggerButtonId"
+      class="absolute left-0 z-10 mt-2 min-w-48 overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md"
+      x-on:keydown.down.prevent="focusNextItem()"
+      x-on:keydown.up.prevent="focusPreviousItem()"
+      x-on:keydown.escape.stop.prevent="closeMenu(true)"
+      x-on:keydown.home.prevent="focusFirstItem()"
+      x-on:keydown.end.prevent="focusLastItem()"
+      x-on:keydown.tab="closeMenu()"
+    >
+      <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
+        <div role="none">
+          <template x-if="menuItem.href">
+            <a
+              x-bind:id="menuItemIds[menuIndex]"
+              x-bind:href="menuItem.href"
+              x-bind:target="menuItem.target || null"
+              x-bind:rel="menuItem.target === '_blank' ? 'noreferrer' : null"
+              x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+              x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+              x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
+              role="menuitem"
+              class="block py-2 pr-4 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+              x-on:click="selectItem(menuItem)"
+              x-on:mouseenter="focusedIndex = menuIndex"
+              x-on:focus="focusedIndex = menuIndex"
+              x-text="menuItem.label"
+            ></a>
+          </template>
+
+          <template x-if="!menuItem.href">
+            <button
+              x-bind:id="menuItemIds[menuIndex]"
+              type="button"
+              x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
+              x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex }"
+              x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
+              role="menuitem"
+              class="block w-full py-2 pr-4 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+              x-on:click="selectItem(menuItem)"
+              x-on:mouseenter="focusedIndex = menuIndex"
+              x-on:focus="focusedIndex = menuIndex"
+              x-text="menuItem.label"
+            ></button>
+          </template>
+        </div>
+      </template>
     </div>
-    <p class="text-sm text-gray-600" x-text="pattern.description"></p>
-    <a
-      class="inline-block text-sm text-sky-600 underline underline-offset-2 hover:text-sky-700"
-      x-bind:href="`/patterns/${pattern.slug}`"
-      x-text="`Read the ${pattern.title} docs →`"
-    ></a>
   </div>
 </template>
 
@@ -29,40 +108,39 @@
   <div class="space-y-8">
     <div class="space-y-4">
       <p class="text-gray-700">
-        A single <code>hux-pattern-card</code> template rendered three times via
-        <code>x-for</code>, each passing a different <code>pattern</code> object through
-        <code>x-data</code>.
+        Two dropdown menus from a single <code>hux-dropdown</code> template. The template wraps
+        <code>huxDropdown</code> once; each instance receives its own <code>triggerId</code>,
+        <code>triggerLabel</code>, and <code>menuItems</code> through <code>x-data</code>.
       </p>
 
-      <div
-        x-data="{
-          patterns: [
-            {
-              title: 'Tabs',
-              slug: 'tabs',
-              description: 'Accessible tab interfaces with keyboard navigation and optional URL hash sync.'
-            },
-            {
-              title: 'Dialog',
-              slug: 'dialog',
-              description: 'Focus-trapped modal dialogs with Escape handling and scoped lifecycle events.'
-            },
-            {
-              title: 'Dropdown',
-              slug: 'dropdown',
-              description: 'Keyboard-friendly action and link menus with focus movement and event dispatch.'
-            }
-          ]
-        }"
-        class="grid grid-cols-1 gap-4 sm:grid-cols-3"
-      >
-        <template x-for="pattern in patterns" x-bind:key="pattern.slug">
-          <div
-            x-data="{ pattern }"
-            x-component="'hux-pattern-card'"
-            x-component-styles="global"
-          ></div>
-        </template>
+      <div class="flex flex-wrap gap-4">
+        <div
+          x-data="{
+            triggerId: 'account-menu',
+            triggerLabel: 'Account',
+            menuItems: [
+              { label: 'Profile', href: '/patterns/' },
+              { label: 'Settings', href: '/patterns/' },
+              { label: 'Sign out', action: 'sign-out' }
+            ]
+          }"
+          x-component="'hux-dropdown'"
+          x-component-styles="global"
+        ></div>
+
+        <div
+          x-data="{
+            triggerId: 'resources-menu',
+            triggerLabel: 'Resources',
+            menuItems: [
+              { label: 'Documentation', href: '/' },
+              { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+              { label: 'Report a bug', href: 'https://github.com/markmead/hyperux/issues/new', target: '_blank' }
+            ]
+          }"
+          x-component="'hux-dropdown'"
+          x-component-styles="global"
+        ></div>
       </div>
     </div>
 
@@ -70,24 +148,40 @@
 
     <div class="space-y-4">
       <p class="text-gray-700">
-        A <code>hux-copy-btn</code> component loaded from a URL, using
-        <code>huxCopy</code> to copy the code snippet below. The button markup lives in
-        <code>/components/hux-copy-btn.html</code> and is reused here via
-        <code>x-component.url</code>.
+        Two copy buttons from the same <code>hux-copy-btn</code> URL template, each pointing at a
+        different source element via <code>x-data</code>. The button markup lives in
+        <code>/components/hux-copy-btn.html</code> and is shared across both usages.
       </p>
 
-      <div
-        class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 font-mono text-sm text-gray-700"
-        data-hux-copy="alpine-component-snippet"
-      >
-        &lt;div x-data="&#123; pattern &#125;" x-component="'hux-pattern-card'" x-component-styles="global"&gt;&lt;/div&gt;
+      <div class="space-y-3">
+        <div
+          class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 font-mono text-sm text-gray-700"
+          data-hux-copy="alpine-component-snippet-a"
+        >
+          &lt;div x-data="&#123; ... &#125;" x-component="'hux-dropdown'" x-component-styles="global"&gt;&lt;/div&gt;
+        </div>
+
+        <div
+          x-data="{ copySource: 'alpine-component-snippet-a', copyLabel: 'Copy snippet A' }"
+          x-component.url="'/components/hux-copy-btn.html'"
+          x-component-styles="global"
+        ></div>
       </div>
 
-      <div
-        x-data="{ copySource: 'alpine-component-snippet', copyLabel: 'Copy snippet' }"
-        x-component.url="'/components/hux-copy-btn.html'"
-        x-component-styles="global"
-      ></div>
+      <div class="space-y-3">
+        <div
+          class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 font-mono text-sm text-gray-700"
+          data-hux-copy="alpine-component-snippet-b"
+        >
+          &lt;div x-data="huxCopy(&#123; sourceNames: [copySource] &#125;)" x-on:click="copyToClipboard()"&gt;&lt;/div&gt;
+        </div>
+
+        <div
+          x-data="{ copySource: 'alpine-component-snippet-b', copyLabel: 'Copy snippet B' }"
+          x-component.url="'/components/hux-copy-btn.html'"
+          x-component-styles="global"
+        ></div>
+      </div>
     </div>
 
     <hr class="h-px w-full border-none bg-gray-200" />
