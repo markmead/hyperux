@@ -1,0 +1,278 @@
+---
+slug: alpine-component
+title: Alpine.js Component
+description: Create reusable Alpine.js UI components with alpinejs-component using on-page templates and URL-based templates with Shadow DOM encapsulation.
+terms:
+  - alpinejs-component
+  - reusable-components
+  - alpinejs
+  - component-pattern
+  - shadow-dom
+  - template
+pubDate: 2026-04-29
+modDate: 2026-04-29
+---
+
+import Demo from '../../components/demos/AlpineComponent.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`alpinejs-component` is a directive-based Alpine.js plugin that renders reusable UI templates into Shadow DOM. Define a component once as a `<template>` (on-page or in a `.html` file), then stamp it out wherever you need it by passing data through `x-data`.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## Setup
+
+Add the CDN script to your document `<head>` before Alpine.js:
+
+```html
+<script defer src="https://unpkg.com/alpinejs-component@latest/dist/component.min.js"></script>
+<script defer src="https://unpkg.com/alpinejs@latest/dist/cdn.min.js"></script>
+```
+
+For npm-based projects, install and register the plugin before `Alpine.start()`:
+
+```js
+import Alpine from 'alpinejs'
+import AlpineComponent from 'alpinejs-component'
+
+Alpine.plugin(AlpineComponent)
+Alpine.start()
+```
+
+## API
+
+### `x-component="expression"`
+
+Renders a component from an on-page `<template id="...">` element. The expression resolves to the template `id`.
+
+```html
+<div x-data="{ item: person }" x-component="'person-card'"></div>
+
+<template id="person-card">
+  <p x-text="item.name"></p>
+</template>
+```
+
+### `x-component.url="expression"`
+
+Renders a component from a URL. The expression resolves to the path or URL of an HTML file. By default, only same-origin `http(s)` URLs are allowed.
+
+```html
+<div x-data="{ item: person }" x-component.url="'/components/person-card.html'"></div>
+```
+
+### `x-component.url.external="expression"`
+
+Same as `.url`, but allows cross-origin `http(s)` URLs.
+
+### `x-component-styles` / `styles`
+
+Includes matching document stylesheets inside the Shadow DOM by their `title` attribute. Use `"global"` to include all local stylesheets (required for Tailwind or any utility CSS).
+
+```html
+<div x-component="'my-card'" x-component-styles="global"></div>
+```
+
+### Slots
+
+Declare slot content on the host element using `x-slot`. Inside the template, use standard `<slot>` elements.
+
+```html
+<div x-component="'card-with-actions'">
+  <template x-slot>
+    <p>Default slot content</p>
+  </template>
+
+  <template x-slot="actions">
+    <button type="button">Save</button>
+  </template>
+</div>
+
+<template id="card-with-actions">
+  <article>
+    <slot></slot>
+    <footer>
+      <slot name="actions"></slot>
+    </footer>
+  </article>
+</template>
+```
+
+### Lifecycle Events
+
+The host element emits:
+
+- `x-component:loading` — URL loading starts (`detail: { source }`)
+- `x-component:loaded` — render completes (`detail: { source }`)
+- `x-component:error` — expression, loading, or render failure (`detail: { source, error }`)
+
+```html
+<div
+  x-component.url="'/components/my-card.html'"
+  x-on:x-component:loaded="console.log('ready', $event.detail)"
+  x-on:x-component:error="console.error('failed', $event.detail)"
+></div>
+```
+
+## Quick Start
+
+### 1. Define the template
+
+Create a `<template id="...">` anywhere in the page body. Add Alpine directives as usual; data from the host element's `x-data` scope is accessible inside the template.
+
+```html
+<template id="hux-pattern-card">
+  <div class="rounded-lg border p-4 space-y-2">
+    <h3 class="font-semibold" x-text="pattern.title"></h3>
+    <p class="text-sm text-gray-600" x-text="pattern.description"></p>
+    <a x-bind:href="`/patterns/${pattern.slug}`">Read the docs →</a>
+  </div>
+</template>
+```
+
+### 2. Use the component
+
+Pass data through `x-data` on the host element and reference the template by `id`:
+
+```html
+<div
+  x-data="{ pattern: { title: 'Tabs', slug: 'tabs', description: '...' } }"
+  x-component="'hux-pattern-card'"
+  x-component-styles="global"
+></div>
+```
+
+### 3. Stamp it multiple times
+
+Use `x-for` to render multiple instances from a list, each with its own isolated scope:
+
+```html
+<div x-data="{ patterns: [...] }">
+  <template x-for="pattern in patterns" x-bind:key="pattern.slug">
+    <div
+      x-data="{ pattern }"
+      x-component="'hux-pattern-card'"
+      x-component-styles="global"
+    ></div>
+  </template>
+</div>
+```
+
+## Common Usage Patterns
+
+### Reusing a HyperUX Pattern as a Component
+
+Extract a reusable copy button backed by `huxCopy` into a URL-based component. Store the template as a plain HTML file served from `public/`:
+
+**`/public/components/hux-copy-btn.html`:**
+
+```html
+<button
+  type="button"
+  x-data="huxCopy({ sourceNames: [copySource] })"
+  x-on:click="copyToClipboard()"
+  class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+>
+  <span aria-live="polite" x-text="hasCopied ? 'Copied!' : copyLabel"></span>
+</button>
+```
+
+The host element passes `copySource` and `copyLabel` through `x-data`. The `huxCopy` call inside the template resolves those values from the inherited data scope:
+
+```html
+<div data-hux-copy="my-code-block">...</div>
+
+<div
+  x-data="{ copySource: 'my-code-block', copyLabel: 'Copy snippet' }"
+  x-component.url="'/components/hux-copy-btn.html'"
+  x-component-styles="global"
+></div>
+```
+
+Reuse the same button component for a different source by changing `x-data` at the call site, without duplicating any markup:
+
+```html
+<div data-hux-copy="another-block">...</div>
+
+<div
+  x-data="{ copySource: 'another-block', copyLabel: 'Copy example' }"
+  x-component.url="'/components/hux-copy-btn.html'"
+  x-component-styles="global"
+></div>
+```
+
+### Dynamic Component Switching
+
+`x-component` accepts any reactive expression. Switching the value unmounts the current component and mounts the new one:
+
+```html
+<div
+  x-data="{ view: 'card-default' }"
+  x-component="view"
+  x-component-styles="global"
+></div>
+```
+
+### Including Tailwind in Shadow DOM
+
+Components render inside Shadow DOM, so main-document styles do not apply by default. Use `x-component-styles="global"` to adopt all local stylesheets, including compiled Tailwind output:
+
+```html
+<div x-component="'my-card'" x-component-styles="global"></div>
+```
+
+To include only a specific stylesheet, give it a `title` attribute and reference it:
+
+```html
+<style title="card-styles">
+  .card { border-radius: 0.5rem; }
+</style>
+
+<div x-component="'my-card'" x-component-styles="card-styles"></div>
+```
+
+## Behavior Contract
+
+- `x-component` looks up a `<template>` by `id` in the current document.
+- `x-component.url` fetches the HTML file, caches the response by URL, and renders on load.
+- The host element's `x-data` scope is accessible inside the component template; each instance gets an isolated Alpine scope.
+- Setting `x-component` to an empty string, `null`, or `undefined` unmounts the component and clears rendered content.
+- Template fragments are cached by `id` (limit: 200 entries). Remote fetch responses are cached by URL (limit: 200 entries). Oldest entries are evicted when limits are exceeded.
+- `x-component:loaded` fires after each successful render, including re-renders triggered by reactive expression changes.
+
+## Error Handling
+
+- Missing on-page templates produce a console warning and an `x-component:error` event; no content is rendered.
+- Failed URL fetches are not cached, allowing retries. An `x-component:error` event is emitted with `{ source, error }`.
+- Expression evaluation errors dispatch `x-component:error` with the raw expression string as `source` and clear any mounted content.
+- Catch errors at the call site using `x-on:x-component:error`:
+
+```html
+<div
+  x-component.url="remoteView"
+  x-on:x-component:error="handleError($event.detail)"
+></div>
+```
+
+## Accessibility Notes
+
+- Components render inside Shadow DOM. Accessibility attributes (`role`, `aria-*`, `tabindex`) on the host element itself are not transferred into the Shadow DOM. Define all ARIA attributes inside the component template.
+- `aria-controls` and `aria-labelledby` relationships that cross the Shadow DOM boundary (host → shadow content or shadow content → light DOM) may not be reliably exposed to assistive technology. Keep labeling relationships self-contained within each component template.
+- Verify keyboard focus order after component mount, especially when the host element sits between other focusable elements.
+- Include stylesheets with `x-component-styles` so that `[x-cloak]` hiding and focus-ring styles apply correctly within the Shadow DOM.
+
+## Notes
+
+- `alpinejs-component` is an Alpine.js plugin by [Ryan Chandler](https://github.com/ryangjchandler/alpinejs-component).
+- CDN: `https://unpkg.com/alpinejs-component@latest/dist/component.min.js`
+- npm: `alpinejs-component`
+- Components render into Shadow DOM. Cross-boundary DOM queries (`document.querySelectorAll`, `$el.querySelectorAll`) do not pierce Shadow DOM; this is a consideration when using HyperUX patterns that rely on DOM traversal (such as `huxTabs` focus helpers).
+- Compared to repeating the same `x-data` block inline everywhere, URL-based components centralize markup in a single file. Changes to the template propagate to every usage site automatically.
+
+</div>

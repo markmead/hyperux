@@ -1,0 +1,8 @@
+<button
+  type="button"
+  x-data="huxCopy({ sourceNames: [copySource] })"
+  x-on:click="copyToClipboard()"
+  class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+>
+  <span aria-live="polite" x-text="hasCopied ? 'Copied!' : copyLabel"></span>
+</button>
