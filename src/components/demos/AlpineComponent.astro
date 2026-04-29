@@ -10,7 +10,7 @@
   <div
     x-data="huxDropdown({ triggerId: triggerId, menuItems: menuItems })"
     class="relative inline-block"
-    x-on:click.outside="closeMenu()"
+    x-on:click.window="if (!$event.composedPath().includes($el)) closeMenu()"
   >
     <button
       x-ref="dropdownTrigger"
@@ -148,36 +148,48 @@
 
     <div class="space-y-4">
       <p class="text-gray-700">
-        Two copy buttons from the same <code>hux-copy-btn</code> URL template, each pointing at a
-        different source element via <code>x-data</code>. The button markup lives in
-        <code>/components/hux-copy-btn.html</code> and is shared across both usages.
+        Two copy buttons from the same <code>hux-copy-btn</code> URL template. Each host's
+        <code>x-data</code> passes a different <code>copyConfig</code> — one uses
+        <code>valueSourceNames</code> to copy an input's value, the other uses
+        <code>sourceNames</code> to copy a code snippet's markup. The template itself doesn't
+        change.
       </p>
 
       <div class="space-y-3">
+        <label class="block text-sm font-medium text-gray-700" for="share-link-input">
+          Share link
+        </label>
+
+        <div class="flex items-center gap-2">
+          <input
+            id="share-link-input"
+            type="text"
+            data-hux-copy="share-link-input"
+            value="https://hyperux.dev/patterns/dropdown"
+            class="grow rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            readonly
+          />
+
+          <div
+            x-data="{ copyConfig: { valueSourceNames: ['share-link-input'] }, copyLabel: 'Copy link' }"
+            x-component.url="'/components/hux-copy-btn.html'"
+            x-component-styles="global"
+          ></div>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <p class="text-sm font-medium text-gray-700">Usage snippet</p>
+
         <div
           class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 font-mono text-sm text-gray-700"
-          data-hux-copy="alpine-component-snippet-a"
+          data-hux-copy="usage-snippet"
         >
           &lt;div x-data="&#123; ... &#125;" x-component="'hux-dropdown'" x-component-styles="global"&gt;&lt;/div&gt;
         </div>
 
         <div
-          x-data="{ copySource: 'alpine-component-snippet-a', copyLabel: 'Copy snippet A' }"
-          x-component.url="'/components/hux-copy-btn.html'"
-          x-component-styles="global"
-        ></div>
-      </div>
-
-      <div class="space-y-3">
-        <div
-          class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 font-mono text-sm text-gray-700"
-          data-hux-copy="alpine-component-snippet-b"
-        >
-          &lt;div x-data="huxCopy(&#123; sourceNames: [copySource] &#125;)" x-on:click="copyToClipboard()"&gt;&lt;/div&gt;
-        </div>
-
-        <div
-          x-data="{ copySource: 'alpine-component-snippet-b', copyLabel: 'Copy snippet B' }"
+          x-data="{ copyConfig: { sourceNames: ['usage-snippet'] }, copyLabel: 'Copy snippet' }"
           x-component.url="'/components/hux-copy-btn.html'"
           x-component-styles="global"
         ></div>

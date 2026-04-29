@@ -109,7 +109,7 @@ Move the markup into a `<template id="...">` element and replace any hardcoded c
   <div
     x-data="huxDropdown({ triggerId: triggerId, menuItems: menuItems })"
     class="relative inline-block"
-    x-on:click.outside="closeMenu()"
+    x-on:click.window="if (!$event.composedPath().includes($el)) closeMenu()"
   >
     <button
       x-ref="dropdownTrigger"
@@ -125,6 +125,8 @@ Move the markup into a `<template id="...">` element and replace any hardcoded c
   </div>
 </template>
 ```
+
+`x-on:click.outside` is not reliable in Shadow DOM. Alpine's default outside check uses `event.target`, which is retargeted to the shadow host at the document level. Using `click.window` with `composedPath()` avoids this. `composedPath()` returns the full event path through shadow boundaries, so `includes($el)` correctly identifies clicks inside the shadow root.
 
 ### 3. Use it with `x-component`
 
@@ -167,12 +169,14 @@ Both dropdowns share the same `hux-dropdown` template. Changing the template —
 
 For components you want to share across multiple pages, store the template in a plain `.html` file and load it with `x-component.url`. Place the file in your `public/` directory so it is served as a static asset.
 
+The template accepts a `copyConfig` object from the host's `x-data`, passing it directly to `huxCopy`. This lets the caller decide whether to use `sourceNames` (copies an element's HTML), `valueSourceNames` (copies an input's value), or any other `huxCopy` option — without changing the template.
+
 **`/public/components/hux-copy-btn.html`:**
 
 ```html
 <button
   type="button"
-  x-data="huxCopy({ sourceNames: [copySource] })"
+  x-data="huxCopy(copyConfig)"
   x-on:click="copyToClipboard()"
   class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
 >
@@ -180,29 +184,38 @@ For components you want to share across multiple pages, store the template in a 
 </button>
 ```
 
-`copySource` and `copyLabel` are resolved from the host element's `x-data`. `hasCopied` comes from `huxCopy`'s return value, available because it is a child scope of the host:
+Copy an input's value — useful for share links or generated tokens:
 
 ```html
-<div data-hux-copy="example-snippet">...</div>
+<input
+  type="text"
+  data-hux-copy="share-link-input"
+  value="https://hyperux.dev/patterns/dropdown"
+  readonly
+/>
 
 <div
-  x-data="{ copySource: 'example-snippet', copyLabel: 'Copy snippet' }"
+  x-data="{ copyConfig: { valueSourceNames: ['share-link-input'] }, copyLabel: 'Copy link' }"
   x-component.url="'/components/hux-copy-btn.html'"
   x-component-styles="global"
 ></div>
 ```
 
-Use the same URL template for a second copy target without duplicating markup:
+Copy a code snippet's markup — useful for developer-facing copy buttons:
 
 ```html
-<div data-hux-copy="another-snippet">...</div>
+<div data-hux-copy="usage-snippet">
+  &lt;div x-data="{ ... }" x-component="'hux-dropdown'"&gt;&lt;/div&gt;
+</div>
 
 <div
-  x-data="{ copySource: 'another-snippet', copyLabel: 'Copy example' }"
+  x-data="{ copyConfig: { sourceNames: ['usage-snippet'] }, copyLabel: 'Copy snippet' }"
   x-component.url="'/components/hux-copy-btn.html'"
   x-component-styles="global"
 ></div>
 ```
+
+Both calls reuse the same `hux-copy-btn.html` file.
 
 ### `x-for` Loop of Instances
 
