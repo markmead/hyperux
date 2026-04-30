@@ -146,9 +146,8 @@
         type="button"
         class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
         x-on:click="openDialog()"
-      >
-        Open Command Palette
-      </button>
+        x-text="paletteConfig.buttonLabel || 'Open Command Palette'"
+      ></button>
 
       <p class="text-sm text-gray-600">
         Press <span class="font-medium" x-text="shortcutHint"></span> to open from anywhere.
@@ -189,7 +188,7 @@
                 optionItems: paletteItems.map((paletteItem) => ({ label: paletteItem.label, value: paletteItem.label })),
                 inputTemplateRef: 'commandPaletteInput',
                 listboxTemplateRef: 'commandPaletteListbox',
-                hideOptionItemsWhenSearchQueryEmpty: true
+                hideOptionItemsWhenSearchQueryEmpty: !paletteConfig.comboboxConfig?.showAllItemsOnOpen
               }),
               get filteredOptionItems() {
                 const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
@@ -248,7 +247,7 @@
                 x-bind:aria-controls="listboxId"
                 x-bind:aria-activedescendant="activeDescendantId"
                 type="text"
-                placeholder="Search links and actions..."
+                x-bind:placeholder="paletteConfig.comboboxConfig?.searchPlaceholder || 'Search...'"
                 role="combobox"
                 aria-autocomplete="list"
                 aria-haspopup="listbox"
@@ -434,9 +433,10 @@
     <div class="space-y-4">
       <p class="text-gray-700">
         Two command palettes from a single <code>hux-command-palette</code> template. Each host
-        passes a different <code>paletteConfig</code> — a different <code>paletteId</code>,
-        <code>shortcutKey</code>, and <code>paletteItems</code>. The navigation palette contains
-        only links; the actions palette adds a custom action item handled by the host. The template
+        passes a different <code>paletteConfig</code> — including a <code>comboboxConfig</code>
+        object that configures the nested <code>huxCombobox</code>. The docs-search palette hides
+        results until the user types (<code>showAllItemsOnOpen: false</code>); the actions palette
+        shows all items immediately on open (<code>showAllItemsOnOpen: true</code>). The template
         itself doesn't change.
       </p>
 
@@ -447,35 +447,45 @@
       </p>
 
       <div class="flex flex-wrap gap-4">
-        <!-- Navigation palette: links only, shortcutKey k -->
+        <!-- Navigation palette: links only, shortcutKey p, hides results until user types -->
         <div
           x-data="{
             paletteConfig: {
               paletteId: 'nav-palette',
-              shortcutKey: 'k',
+              shortcutKey: 'p',
+              buttonLabel: 'Open Docs Search',
               paletteItems: [
                 { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
                 { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
                 { label: 'Combobox Docs', href: '/patterns/combobox' },
                 { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
-              ]
+              ],
+              comboboxConfig: {
+                searchPlaceholder: 'Type to search docs...',
+                showAllItemsOnOpen: false
+              }
             }
           }"
           x-component="'hux-command-palette'"
           x-component-styles="global"
         ></div>
 
-        <!-- Actions palette: links + action item, shortcutKey j; host handles the action -->
+        <!-- Actions palette: links + action item, shortcutKey b, shows all items immediately on open -->
         <div
           x-data="{
             paletteConfig: {
               paletteId: 'actions-palette',
-              shortcutKey: 'j',
+              shortcutKey: 'b',
+              buttonLabel: 'Open Actions',
               paletteItems: [
                 { label: 'Dropdown Docs', href: '/patterns/dropdown' },
                 { label: 'Dialog Docs', href: '/patterns/dialog' },
                 { label: 'Copy page URL', action: 'copy-page-url' }
-              ]
+              ],
+              comboboxConfig: {
+                searchPlaceholder: 'Browse or filter actions...',
+                showAllItemsOnOpen: true
+              }
             }
           }"
           x-component="'hux-command-palette'"

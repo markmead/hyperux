@@ -242,7 +242,7 @@ When you need many instances of the same pattern from a data array, combine `x-f
 
 ### Nested Pattern Config: Command Palette
 
-`huxCommandPalette` composes `huxDialog` and `huxCombobox`, with the nested combobox reading `paletteItems` from the outer scope. Wrapping this in a component demonstrates config flowing down to a nested pattern, and multiple instances with different `paletteId`, `shortcutKey`, and `paletteItems` each work independently.
+`huxCommandPalette` composes `huxDialog` and `huxCombobox`, with the nested combobox reading `paletteItems` from the outer scope. Each host can also pass a `comboboxConfig` object inside `paletteConfig` to configure the nested `huxCombobox` per-instance — demonstrating that nested component options are overridable just by extending the config object the host passes in.
 
 **The `dialogIsOpen` bridge**
 
@@ -281,9 +281,13 @@ When you need many instances of the same pattern from a data array, combine `x-f
   >
     ...
     <!-- Inner combobox watches dialogIsOpen from the parent scope -->
+    <!-- and reads comboboxConfig from paletteConfig for per-instance overrides -->
     <div
       x-data="{
-        ...huxCombobox({ optionItems: paletteItems.map(...) }),
+        ...huxCombobox({
+          optionItems: paletteItems.map(...),
+          hideOptionItemsWhenSearchQueryEmpty: !paletteConfig.comboboxConfig?.showAllItemsOnOpen
+        }),
         init() {
           this.configureTemplateRefs()
           this.$watch('dialogIsOpen', (isDialogOpen) => {
@@ -295,41 +299,59 @@ When you need many instances of the same pattern from a data array, combine `x-f
         onPaletteClose() { ... },
       }"
     >
+      <!-- input uses paletteConfig.comboboxConfig?.searchPlaceholder -->
+      <input
+        type="text"
+        x-bind:placeholder="paletteConfig.comboboxConfig?.searchPlaceholder || 'Search...'"
+        ...
+      />
       ...
     </div>
   </div>
 </template>
 ```
 
-**Two instances with different config:**
+**Two instances with different nested config:**
+
+The `comboboxConfig` key inside `paletteConfig` is read by the template to configure the nested `huxCombobox`. Because each host sets its own `paletteConfig`, each instance gets a different combobox behaviour without any changes to the template.
 
 ```html
-<!-- Navigation palette: links only, Cmd+K -->
+<!-- Docs search: type to see results (showAllItemsOnOpen: false), Cmd+P -->
 <div
   x-data="{
     paletteConfig: {
       paletteId: 'nav-palette',
-      shortcutKey: 'k',
+      shortcutKey: 'p',
+      buttonLabel: 'Open Docs Search',
       paletteItems: [
         { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
         { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
-      ]
+      ],
+      comboboxConfig: {
+        searchPlaceholder: 'Type to search docs...',
+        showAllItemsOnOpen: false
+      }
     }
   }"
   x-component="'hux-command-palette'"
   x-component-styles="global"
 ></div>
 
-<!-- Actions palette: links + action item, Cmd+J; host handles the action -->
+<!-- Actions palette: shows all on open (showAllItemsOnOpen: true), Cmd+B; host handles action -->
 <div
   x-data="{
     paletteConfig: {
       paletteId: 'actions-palette',
-      shortcutKey: 'j',
+      shortcutKey: 'b',
+      buttonLabel: 'Open Actions',
       paletteItems: [
         { label: 'Dropdown Docs', href: '/patterns/dropdown' },
         { label: 'Copy page URL', action: 'copy-page-url' }
-      ]
+      ],
+      comboboxConfig: {
+        searchPlaceholder: 'Browse or filter actions...',
+        showAllItemsOnOpen: true
+      }
     }
   }"
   x-component="'hux-command-palette'"
@@ -338,7 +360,7 @@ When you need many instances of the same pattern from a data array, combine `x-f
 ></div>
 ```
 
-Both instances share the same template. The navigation palette has only links; the actions palette adds a `copy-page-url` action item, with the handler on the host element in the light DOM. Dispatching the action event uses `composed: true`, so it crosses the Shadow DOM boundary and the host-level `x-on` listener receives it.
+Both instances share the same template. The docs-search palette hides results until the user types; the actions palette shows all items immediately on open. The `buttonLabel` makes each trigger button visually distinct. The `copy-page-url` action item handler sits on the host element in the light DOM — events dispatched with `composed: true` cross the Shadow DOM boundary so the host `x-on` listener receives them.
 
 **Limitation:**
 
