@@ -10,7 +10,7 @@ terms:
   - shadow-dom
   - template
 pubDate: 2026-04-29
-modDate: 2026-04-29
+modDate: 2026-04-30
 ---
 
 import Demo from '../../components/demos/AlpineComponent.astro'
@@ -242,7 +242,11 @@ When you need many instances of the same pattern from a data array, combine `x-f
 
 ### Nested Pattern Config: Command Palette
 
-`huxCommandPalette` composes `huxDialog` and `huxCombobox` together, with a nested `huxCombobox` that reads `paletteItems` from the outer scope. Wrapping this in a component demonstrates config flowing down to a nested pattern.
+`huxCommandPalette` composes `huxDialog` and `huxCombobox`, with the nested combobox reading `paletteItems` from the outer scope. Wrapping this in a component demonstrates config flowing down to a nested pattern, and multiple instances with different `paletteId`, `shortcutKey`, and `paletteItems` each work independently.
+
+**The `dialogIsOpen` bridge**
+
+`x-on` attribute names cannot be dynamic, so the inner combobox cannot listen for `hux-dialog:${paletteId}:open` directly. Instead, the `x-data` IIFE (the immediately-invoked function expression that returns the merged component object) adds a `dialogIsOpen` bridge property and overrides `openDialog`/`closeDialog` to set it. The nested combobox uses `$watch('dialogIsOpen')` — Alpine traverses the scope chain upward to find the property, making the template work with any `paletteId`.
 
 **Template:**
 
@@ -255,9 +259,20 @@ When you need many instances of the same pattern from a data array, combine `x-f
       return {
         ...dialogComponent,
         ...paletteComponent,
+        dialogIsOpen: false,
         init() {
           dialogComponent.init.call(this)
           paletteComponent.init.call(this)
+        },
+        openDialog() {
+          this.isOpen = true
+          this.dialogIsOpen = true
+          this.dispatchDialogEvent('open')
+        },
+        closeDialog() {
+          this.isOpen = false
+          this.dialogIsOpen = false
+          this.dispatchDialogEvent('close')
         },
       }
     })()"
@@ -265,11 +280,20 @@ When you need many instances of the same pattern from a data array, combine `x-f
     x-on:hux-command-palette:close.window="closeDialog()"
   >
     ...
-    <!-- Inner combobox reads paletteItems from the outer pattern scope -->
+    <!-- Inner combobox watches dialogIsOpen from the parent scope -->
     <div
-      x-data="{ ...huxCombobox({ optionItems: paletteItems.map(...) }) }"
-      x-on:hux-dialog:hux-palette:open.window="onPaletteOpen()"
-      x-on:hux-dialog:hux-palette:close.window="onPaletteClose()"
+      x-data="{
+        ...huxCombobox({ optionItems: paletteItems.map(...) }),
+        init() {
+          this.configureTemplateRefs()
+          this.$watch('dialogIsOpen', (isDialogOpen) => {
+            if (isDialogOpen) this.onPaletteOpen()
+            else this.onPaletteClose()
+          })
+        },
+        onPaletteOpen() { ... },
+        onPaletteClose() { ... },
+      }"
     >
       ...
     </div>
@@ -277,16 +301,15 @@ When you need many instances of the same pattern from a data array, combine `x-f
 </template>
 ```
 
-The `paletteConfig` object set on the host is passed whole to `huxCommandPalette`. `paletteItems` — set by that registration on the outer scope — is then readable inside the nested combobox `x-data`. This is the same mechanism as `dropdownConfig.triggerLabel`: a child scope always has access to data from any ancestor scope.
-
-**Host:**
+**Two instances with different config:**
 
 ```html
+<!-- Navigation palette: links only, Cmd+K -->
 <div
   x-data="{
     paletteConfig: {
-      paletteId: 'hux-palette',
-      shortcutKey: 'p',
+      paletteId: 'nav-palette',
+      shortcutKey: 'k',
       paletteItems: [
         { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
         { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
@@ -296,12 +319,30 @@ The `paletteConfig` object set on the host is passed whole to `huxCommandPalette
   x-component="'hux-command-palette'"
   x-component-styles="global"
 ></div>
+
+<!-- Actions palette: links + action item, Cmd+J; host handles the action -->
+<div
+  x-data="{
+    paletteConfig: {
+      paletteId: 'actions-palette',
+      shortcutKey: 'j',
+      paletteItems: [
+        { label: 'Dropdown Docs', href: '/patterns/dropdown' },
+        { label: 'Copy page URL', action: 'copy-page-url' }
+      ]
+    }
+  }"
+  x-component="'hux-command-palette'"
+  x-component-styles="global"
+  x-on:hux-command-palette:actions-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
+></div>
 ```
 
-**Limitations:**
+Both instances share the same template. The navigation palette has only links; the actions palette adds a `copy-page-url` action item, with the handler on the host element in the light DOM. Dispatching the action event uses `composed: true`, so it crosses the Shadow DOM boundary and the host-level `x-on` listener receives it.
 
-- `x-teleport` cannot be used inside a shadow root. Elements teleported from a shadow root to `body` lose access to the shadow root's Alpine scope. The modal overlay must be rendered inline. `position: fixed` still anchors it to the viewport.
-- `x-on` attribute names cannot be dynamic, so the dialog↔combobox event listeners must match the `paletteId`. The template uses the fixed ID `'hux-palette'`. If you use a different `paletteId`, update the event listener attribute names in the template.
+**Limitation:**
+
+`x-teleport` cannot be used inside a shadow root. Elements teleported from a shadow root to `body` lose access to the shadow scope. Modal overlays must be rendered inline; `position: fixed` still anchors them to the viewport.
 
 ## Behavior Contract
 

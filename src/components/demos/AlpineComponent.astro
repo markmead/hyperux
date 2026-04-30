@@ -105,12 +105,13 @@
   shortcutKey, and paletteItems. huxCombobox inside the template reads paletteItems
   from the outer pattern scope, demonstrating config flowing down to a nested pattern.
 
-  Note: x-teleport cannot be used inside Shadow DOM. Elements teleported from a shadow
-  root to body lose access to the shadow root's Alpine scope. The modal overlay is
-  rendered inline here; position: fixed still anchors it to the viewport.
+  dialogIsOpen is a bridge property added by the overridden openDialog/closeDialog.
+  The nested combobox uses $watch('dialogIsOpen') to react to dialog open/close without
+  requiring dynamic x-on attribute names — this makes the template reusable with any
+  paletteId.
 
-  Note: The inner combobox's dialog event listeners are bound to the fixed paletteId
-  'hux-palette'. The host x-data must set paletteConfig.paletteId to 'hux-palette'.
+  Note: x-teleport cannot be used inside Shadow DOM. The modal overlay is rendered
+  inline; position: fixed still anchors it to the viewport.
 -->
 <template id="hux-command-palette">
   <div
@@ -120,9 +121,20 @@
       return {
         ...dialogComponent,
         ...paletteComponent,
+        dialogIsOpen: false,
         init() {
           dialogComponent.init.call(this)
           paletteComponent.init.call(this)
+        },
+        openDialog() {
+          this.isOpen = true
+          this.dialogIsOpen = true
+          this.dispatchDialogEvent('open')
+        },
+        closeDialog() {
+          this.isOpen = false
+          this.dialogIsOpen = false
+          this.dispatchDialogEvent('close')
         },
       }
     })()"
@@ -198,6 +210,16 @@
                 if (!focusedOptionItem) return null
                 return this.optionItemId(focusedOptionItem.sourceIndex)
               },
+              init() {
+                this.configureTemplateRefs()
+                this.$watch('dialogIsOpen', (isDialogOpen) => {
+                  if (isDialogOpen) {
+                    this.onPaletteOpen()
+                  } else {
+                    this.onPaletteClose()
+                  }
+                })
+              },
               onPaletteOpen() {
                 this.searchQuery = ''
                 this.focusedIndex = -1
@@ -214,8 +236,6 @@
               },
             }"
             class="space-y-2"
-            x-on:hux-dialog:hux-palette:open.window="onPaletteOpen()"
-            x-on:hux-dialog:hux-palette:close.window="onPaletteClose()"
           >
             <label x-bind:for="comboboxInputId" class="sr-only">Search links and actions</label>
 
@@ -413,37 +433,56 @@
 
     <div class="space-y-4">
       <p class="text-gray-700">
-        Command palette from a single <code>hux-command-palette</code> template. The host passes a
-        <code>paletteConfig</code> object to the composed
-        <code>huxDialog + huxCommandPalette</code> pattern. Inside the template, the nested
-        <code>huxCombobox</code> reads <code>paletteItems</code> from the outer pattern scope —
-        demonstrating config flowing down to a nested pattern component.
+        Two command palettes from a single <code>hux-command-palette</code> template. Each host
+        passes a different <code>paletteConfig</code> — a different <code>paletteId</code>,
+        <code>shortcutKey</code>, and <code>paletteItems</code>. The navigation palette contains
+        only links; the actions palette adds a custom action item handled by the host. The template
+        itself doesn't change.
       </p>
 
       <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         <strong>Shadow DOM note:</strong> <code>x-teleport</code> cannot be used inside a shadow
-        root — teleported elements lose access to the shadow scope. The overlay is rendered inline
-        here; <code>position: fixed</code> still anchors it to the viewport. The inner combobox
-        event listeners are bound to the fixed <code>paletteId</code>
-        <code>'hux-palette'</code>.
+        root — teleported elements lose access to the shadow scope. Overlays are rendered inline
+        here; <code>position: fixed</code> still anchors them to the viewport.
       </p>
 
-      <div
-        x-data="{
-          paletteConfig: {
-            paletteId: 'hux-palette',
-            shortcutKey: 'p',
-            paletteItems: [
-              { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
-              { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
-              { label: 'Combobox Docs', href: '/patterns/combobox' },
-              { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
-            ]
-          }
-        }"
-        x-component="'hux-command-palette'"
-        x-component-styles="global"
-      ></div>
+      <div class="flex flex-wrap gap-4">
+        <!-- Navigation palette: links only, shortcutKey k -->
+        <div
+          x-data="{
+            paletteConfig: {
+              paletteId: 'nav-palette',
+              shortcutKey: 'k',
+              paletteItems: [
+                { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
+                { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
+                { label: 'Combobox Docs', href: '/patterns/combobox' },
+                { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
+              ]
+            }
+          }"
+          x-component="'hux-command-palette'"
+          x-component-styles="global"
+        ></div>
+
+        <!-- Actions palette: links + action item, shortcutKey j; host handles the action -->
+        <div
+          x-data="{
+            paletteConfig: {
+              paletteId: 'actions-palette',
+              shortcutKey: 'j',
+              paletteItems: [
+                { label: 'Dropdown Docs', href: '/patterns/dropdown' },
+                { label: 'Dialog Docs', href: '/patterns/dialog' },
+                { label: 'Copy page URL', action: 'copy-page-url' }
+              ]
+            }
+          }"
+          x-component="'hux-command-palette'"
+          x-component-styles="global"
+          x-on:hux-command-palette:actions-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
+        ></div>
+      </div>
     </div>
 
     <hr class="h-px w-full border-none bg-gray-200" />
