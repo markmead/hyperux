@@ -1,12 +1,6 @@
 ---
 ---
 
-<!--
-  On-page template: huxDropdown wrapped as a reusable component.
-  The host element's x-data provides a single dropdownConfig object.
-  huxDropdown receives the full config; triggerLabel is read from dropdownConfig
-  through the parent Alpine scope.
--->
 <template id="hux-dropdown">
   <div
     x-data="huxDropdown(dropdownConfig)"
@@ -388,7 +382,7 @@
       </p>
 
       <div class="space-y-3">
-        <label class="block text-sm font-medium text-gray-700" for="share-link-input">
+        <label class="block font-medium text-gray-700" for="share-link-input">
           Share link
         </label>
 
@@ -411,7 +405,7 @@
       </div>
 
       <div class="space-y-3">
-        <p class="text-sm font-medium text-gray-700">Usage snippet</p>
+        <p class="block font-medium text-gray-700">Usage snippet</p>
 
         <div
           class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 font-mono text-sm text-gray-700"
@@ -440,14 +434,13 @@
         itself doesn't change.
       </p>
 
-      <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        <strong>Shadow DOM note:</strong> <code>x-teleport</code> cannot be used inside a shadow
+      <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
+        <strong>Note:</strong> <code>x-teleport</code> cannot be used inside a shadow
         root — teleported elements lose access to the shadow scope. Overlays are rendered inline
         here; <code>position: fixed</code> still anchors them to the viewport.
       </p>
 
       <div class="flex flex-wrap gap-4">
-        <!-- Navigation palette: links only, shortcutKey p, hides results until user types -->
         <div
           x-data="{
             paletteConfig: {
@@ -470,7 +463,6 @@
           x-component-styles="global"
         ></div>
 
-        <!-- Actions palette: links + action item, shortcutKey b, shows all items immediately on open -->
         <div
           x-data="{
             paletteConfig: {
@@ -493,19 +485,6 @@
           x-on:hux-command-palette:actions-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
         ></div>
       </div>
-    </div>
-
-    <hr class="h-px w-full border-none bg-gray-200" />
-
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <a
-        href="https://github.com/markmead/hyperux/issues/new"
-        target="_blank"
-        rel="noreferrer"
-        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-      >
-        Found a bug or improvement? Open an issue.
-      </a>
     </div>
   </div>
 </div>
