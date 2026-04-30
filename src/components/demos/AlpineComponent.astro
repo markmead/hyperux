@@ -3,12 +3,13 @@
 
 <!--
   On-page template: huxDropdown wrapped as a reusable component.
-  The host element's x-data provides triggerId, triggerLabel, and menuItems.
-  huxDropdown is called inside the template using those values.
+  The host element's x-data provides a single dropdownConfig object.
+  huxDropdown receives the full config; triggerLabel is read from dropdownConfig
+  through the parent Alpine scope.
 -->
 <template id="hux-dropdown">
   <div
-    x-data="huxDropdown({ triggerId: triggerId, menuItems: menuItems })"
+    x-data="huxDropdown(dropdownConfig)"
     class="relative inline-block"
     x-on:click.window="if (!$event.composedPath().includes($el)) closeMenu()"
   >
@@ -26,7 +27,7 @@
       x-on:keydown.escape.prevent="closeMenu(true)"
       x-on:keydown.tab="if (isOpen) closeMenu()"
     >
-      <span x-text="triggerLabel"></span>
+      <span x-text="dropdownConfig.triggerLabel"></span>
 
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -98,6 +99,213 @@
   </div>
 </template>
 
+<!--
+  On-page template: huxCommandPalette + huxDialog composed into a reusable component.
+  The host element's x-data provides a single paletteConfig object with paletteId,
+  shortcutKey, and paletteItems. huxCombobox inside the template reads paletteItems
+  from the outer pattern scope, demonstrating config flowing down to a nested pattern.
+
+  Note: x-teleport cannot be used inside Shadow DOM. Elements teleported from a shadow
+  root to body lose access to the shadow root's Alpine scope. The modal overlay is
+  rendered inline here; position: fixed still anchors it to the viewport.
+
+  Note: The inner combobox's dialog event listeners are bound to the fixed paletteId
+  'hux-palette'. The host x-data must set paletteConfig.paletteId to 'hux-palette'.
+-->
+<template id="hux-command-palette">
+  <div
+    x-data="(() => {
+      const dialogComponent = huxDialog({ dialogId: paletteConfig.paletteId })
+      const paletteComponent = huxCommandPalette(paletteConfig)
+      return {
+        ...dialogComponent,
+        ...paletteComponent,
+        init() {
+          dialogComponent.init.call(this)
+          paletteComponent.init.call(this)
+        },
+      }
+    })()"
+    x-on:keydown.window="handleGlobalShortcut($event)"
+    x-on:hux-command-palette:close.window="closeDialog()"
+  >
+    <div class="space-y-2">
+      <button
+        type="button"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
+        x-on:click="openDialog()"
+      >
+        Open Command Palette
+      </button>
+
+      <p class="text-sm text-gray-600">
+        Press <span class="font-medium" x-text="shortcutHint"></span> to open from anywhere.
+      </p>
+    </div>
+
+    <div
+      x-cloak
+      x-show="isOpen"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      x-on:keydown.escape.stop="handleEscape()"
+    >
+      <div class="flex min-h-full items-start justify-center p-4 pt-24">
+        <div
+          x-cloak
+          x-show="isOpen"
+          x-transition.opacity.duration.200ms
+          class="fixed inset-0 bg-gray-900/60"
+          aria-hidden="true"
+          x-on:click="handleBackdropClick()"
+        ></div>
+
+        <div
+          x-cloak
+          x-show="isOpen"
+          x-trap.noscroll="isOpen"
+          x-transition.duration.200ms
+          x-bind:aria-labelledby="dialogTitleId || null"
+          role="dialog"
+          aria-modal="true"
+          class="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-4 shadow-xl"
+        >
+          <h3 x-bind:id="dialogTitleId || null" class="sr-only">Command palette</h3>
+
+          <div
+            x-data="{
+              ...huxCombobox({
+                optionItems: paletteItems.map((paletteItem) => ({ label: paletteItem.label, value: paletteItem.label })),
+                inputTemplateRef: 'commandPaletteInput',
+                listboxTemplateRef: 'commandPaletteListbox',
+                hideOptionItemsWhenSearchQueryEmpty: true
+              }),
+              get filteredOptionItems() {
+                const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
+                const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
+                if (this.shouldHideOptionItemsOnEmptyQuery() && normalizedSearchQuery === '') {
+                  return []
+                }
+                return normalizedOptionItems
+                  .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
+                  .filter(({ optionItem }) => optionItem.label.toLowerCase().includes(normalizedSearchQuery))
+              },
+              shouldHideOptionItemsOnEmptyQuery() {
+                return this.clearSelectionOnInputClear || this.hideOptionItemsWhenSearchQueryEmpty
+              },
+              get activeDescendantId() {
+                if (!this.isOpen || this.focusedIndex < 0) return null
+                const focusedOptionItem = this.filteredOptionItems[this.focusedIndex]
+                if (!focusedOptionItem) return null
+                return this.optionItemId(focusedOptionItem.sourceIndex)
+              },
+              onPaletteOpen() {
+                this.searchQuery = ''
+                this.focusedIndex = -1
+                if (this.shouldHideOptionItemsOnEmptyQuery()) {
+                  this.closeList()
+                } else {
+                  this.openList()
+                }
+                this.$nextTick(() => this.$refs.commandPaletteInput?.focus())
+              },
+              onPaletteClose() {
+                this.closeList()
+                this.clearSelection()
+              },
+            }"
+            class="space-y-2"
+            x-on:hux-dialog:hux-palette:open.window="onPaletteOpen()"
+            x-on:hux-dialog:hux-palette:close.window="onPaletteClose()"
+          >
+            <label x-bind:for="comboboxInputId" class="sr-only">Search links and actions</label>
+
+            <div class="relative">
+              <input
+                x-ref="commandPaletteInput"
+                x-model="searchQuery"
+                x-bind:id="comboboxInputId"
+                x-bind:aria-expanded="(isOpen && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '')).toString()"
+                x-bind:aria-controls="listboxId"
+                x-bind:aria-activedescendant="activeDescendantId"
+                type="text"
+                placeholder="Search links and actions..."
+                role="combobox"
+                aria-autocomplete="list"
+                aria-haspopup="listbox"
+                autocomplete="off"
+                class="w-full rounded-md border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                x-on:input="onInputChange()"
+                x-on:keydown.down.prevent="if (shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
+                x-on:keydown.up.prevent="if (shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') return; focusPreviousOptionItem()"
+                x-on:keydown.enter.prevent="const focusedOptionItem = filteredOptionItems[focusedIndex]; if (!focusedOptionItem) return; toggleOptionItem(focusedOptionItem.optionItem); const selectedItem = selectItem(focusedOptionItem.optionItem.value); if (selectedItem) { closeList(); $dispatch('hux-command-palette:close') }"
+                x-on:keydown.escape.stop.prevent="closeList(); $dispatch('hux-command-palette:close')"
+              />
+
+              <div
+                x-cloak
+                x-transition
+                x-show="isOpen && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '')"
+                x-ref="commandPaletteListbox"
+                x-bind:id="listboxId"
+                role="listbox"
+                class="mt-2 max-h-72 w-full overflow-y-auto rounded-md border border-gray-300 bg-white"
+              >
+                <template
+                  x-if="filteredOptionItems.length === 0 && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '')"
+                >
+                  <p class="px-4 py-3 text-gray-500">No results found.</p>
+                </template>
+
+                <template
+                  x-for="({ optionItem, sourceIndex }, optionIndex) in filteredOptionItems"
+                  x-bind:key="`${optionItem.value}-${sourceIndex}`"
+                >
+                  <button
+                    type="button"
+                    x-bind:id="optionItemId(sourceIndex)"
+                    x-bind:aria-selected="isOptionSelected(optionItem).toString()"
+                    x-bind:class="{
+                      'bg-blue-100 text-blue-900': focusedIndex === optionIndex,
+                      'hover:bg-gray-100': focusedIndex !== optionIndex
+                    }"
+                    role="option"
+                    tabindex="-1"
+                    class="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors"
+                    x-on:click="
+                      toggleOptionItem(optionItem);
+                      const selectedItem = selectItem(optionItem.value);
+                      if (selectedItem) {
+                        closeList();
+                        $dispatch('hux-command-palette:close')
+                      }
+                    "
+                    x-on:mouseenter="focusedIndex = optionIndex"
+                  >
+                    <span x-text="optionItem.label"></span>
+
+                    <span
+                      x-cloak
+                      x-data="{ paletteItem: findPaletteItem(optionItem.value) }"
+                      x-show="paletteItem"
+                      x-bind:class="{
+                        'bg-blue-100 text-blue-700': paletteItem?.href && paletteItem?.target !== '_blank',
+                        'bg-green-100 text-green-700': paletteItem?.target === '_blank',
+                        'bg-purple-100 text-purple-700': paletteItem?.action
+                      }"
+                      class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
+                      x-text="paletteItem?.target === '_blank' ? 'External link' : paletteItem?.href ? 'Internal link' : 'Action'"
+                    ></span>
+                  </button>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <div class="relative rounded-lg border border-gray-300 bg-white p-6">
   <span
     class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
@@ -108,21 +316,24 @@
   <div class="space-y-8">
     <div class="space-y-4">
       <p class="text-gray-700">
-        Two dropdown menus from a single <code>hux-dropdown</code> template. The template wraps
-        <code>huxDropdown</code> once; each instance receives its own <code>triggerId</code>,
-        <code>triggerLabel</code>, and <code>menuItems</code> through <code>x-data</code>.
+        Two dropdown menus from a single <code>hux-dropdown</code> template. Each host passes a
+        single <code>dropdownConfig</code> object; the template calls
+        <code>huxDropdown(dropdownConfig)</code> and reads <code>dropdownConfig.triggerLabel</code>
+        from the parent scope.
       </p>
 
       <div class="flex flex-wrap gap-4">
         <div
           x-data="{
-            triggerId: 'account-menu',
-            triggerLabel: 'Account',
-            menuItems: [
-              { label: 'Profile', href: '/patterns/' },
-              { label: 'Settings', href: '/patterns/' },
-              { label: 'Sign out', action: 'sign-out' }
-            ]
+            dropdownConfig: {
+              triggerId: 'account-menu',
+              triggerLabel: 'Account',
+              menuItems: [
+                { label: 'Profile', href: '/patterns/' },
+                { label: 'Settings', href: '/patterns/' },
+                { label: 'Sign out', action: 'sign-out' }
+              ]
+            }
           }"
           x-component="'hux-dropdown'"
           x-component-styles="global"
@@ -130,13 +341,15 @@
 
         <div
           x-data="{
-            triggerId: 'resources-menu',
-            triggerLabel: 'Resources',
-            menuItems: [
-              { label: 'Documentation', href: '/' },
-              { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
-              { label: 'Report a bug', href: 'https://github.com/markmead/hyperux/issues/new', target: '_blank' }
-            ]
+            dropdownConfig: {
+              triggerId: 'resources-menu',
+              triggerLabel: 'Resources',
+              menuItems: [
+                { label: 'Documentation', href: '/' },
+                { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' },
+                { label: 'Report a bug', href: 'https://github.com/markmead/hyperux/issues/new', target: '_blank' }
+              ]
+            }
           }"
           x-component="'hux-dropdown'"
           x-component-styles="global"
@@ -194,6 +407,43 @@
           x-component-styles="global"
         ></div>
       </div>
+    </div>
+
+    <hr class="h-px w-full border-none bg-gray-200" />
+
+    <div class="space-y-4">
+      <p class="text-gray-700">
+        Command palette from a single <code>hux-command-palette</code> template. The host passes a
+        <code>paletteConfig</code> object to the composed
+        <code>huxDialog + huxCommandPalette</code> pattern. Inside the template, the nested
+        <code>huxCombobox</code> reads <code>paletteItems</code> from the outer pattern scope —
+        demonstrating config flowing down to a nested pattern component.
+      </p>
+
+      <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <strong>Shadow DOM note:</strong> <code>x-teleport</code> cannot be used inside a shadow
+        root — teleported elements lose access to the shadow scope. The overlay is rendered inline
+        here; <code>position: fixed</code> still anchors it to the viewport. The inner combobox
+        event listeners are bound to the fixed <code>paletteId</code>
+        <code>'hux-palette'</code>.
+      </p>
+
+      <div
+        x-data="{
+          paletteConfig: {
+            paletteId: 'hux-palette',
+            shortcutKey: 'p',
+            paletteItems: [
+              { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
+              { label: 'Copy to Clipboard Docs', href: '/patterns/copy-to-clipboard' },
+              { label: 'Combobox Docs', href: '/patterns/combobox' },
+              { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
+            ]
+          }
+        }"
+        x-component="'hux-command-palette'"
+        x-component-styles="global"
+      ></div>
     </div>
 
     <hr class="h-px w-full border-none bg-gray-200" />

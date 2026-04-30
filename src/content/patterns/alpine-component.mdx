@@ -52,20 +52,21 @@ The data contract is the host element's `x-data`. Whatever you put there is acce
 ```html
 <!-- Host passes configuration through x-data -->
 <div
-  x-data="{ triggerId: 'account-menu', triggerLabel: 'Account', menuItems: [...] }"
+  x-data="{ dropdownConfig: { triggerId: 'account-menu', triggerLabel: 'Account', menuItems: [...] } }"
   x-component="'hux-dropdown'"
   x-component-styles="global"
 ></div>
 
 <!-- Template reads from x-data to configure huxDropdown -->
 <template id="hux-dropdown">
-  <div x-data="huxDropdown({ triggerId: triggerId, menuItems: menuItems })">
+  <div x-data="huxDropdown(dropdownConfig)">
+    <button x-text="dropdownConfig.triggerLabel">...</button>
     ...
   </div>
 </template>
 ```
 
-Adding `x-data` inside the template creates a child Alpine scope. The host's `x-data` values remain accessible through Alpine's scope chain, so `triggerLabel` (from the host) and `isOpen` (from `huxDropdown`) are both available in the template markup.
+Adding `x-data` inside the template creates a child Alpine scope. The host's `x-data` values remain accessible through Alpine's scope chain, so `dropdownConfig.triggerLabel` (from the host) and `isOpen` (from `huxDropdown`) are both available in the template markup.
 
 ## Quick Start
 
@@ -102,12 +103,12 @@ Take the standard `huxDropdown` markup from the [Dropdown documentation](/patter
 
 ### 2. Wrap it in a `<template>`
 
-Move the markup into a `<template id="...">` element and replace any hardcoded configuration values with variables. Those variable names become the data contract that callers must fulfill:
+Move the markup into a `<template id="...">` element and replace the hardcoded config with a single object variable. That object becomes the data contract callers must fulfill:
 
 ```html
 <template id="hux-dropdown">
   <div
-    x-data="huxDropdown({ triggerId: triggerId, menuItems: menuItems })"
+    x-data="huxDropdown(dropdownConfig)"
     class="relative inline-block"
     x-on:click.window="if (!$event.composedPath().includes($el)) closeMenu()"
   >
@@ -119,12 +120,14 @@ Move the markup into a `<template id="...">` element and replace any hardcoded c
       aria-haspopup="menu"
       x-bind:aria-controls="menuId"
       x-on:click="toggleMenu()"
-      x-text="triggerLabel"
+      x-text="dropdownConfig.triggerLabel"
     ></button>
     ...
   </div>
 </template>
 ```
+
+The host's `dropdownConfig` object is passed whole to `huxDropdown` as `initialConfig`. The pattern reads `triggerId` and `menuItems` from it. `triggerLabel` is not a `huxDropdown` option — it is read directly from `dropdownConfig` in the template markup through the parent Alpine scope.
 
 `x-on:click.outside` is not reliable in Shadow DOM. Alpine's default outside check uses `event.target`, which is retargeted to the shadow host at the document level. Using `click.window` with `composedPath()` avoids this. `composedPath()` returns the full event path through shadow boundaries, so `includes($el)` correctly identifies clicks inside the shadow root.
 
@@ -135,13 +138,15 @@ Stamp the component onto the page as many times as needed. Each instance gets it
 ```html
 <div
   x-data="{
-    triggerId: 'account-menu',
-    triggerLabel: 'Account',
-    menuItems: [
-      { label: 'Profile', href: '/profile' },
-      { label: 'Settings', href: '/settings' },
-      { label: 'Sign out', action: 'sign-out' }
-    ]
+    dropdownConfig: {
+      triggerId: 'account-menu',
+      triggerLabel: 'Account',
+      menuItems: [
+        { label: 'Profile', href: '/profile' },
+        { label: 'Settings', href: '/settings' },
+        { label: 'Sign out', action: 'sign-out' }
+      ]
+    }
   }"
   x-component="'hux-dropdown'"
   x-component-styles="global"
@@ -149,12 +154,14 @@ Stamp the component onto the page as many times as needed. Each instance gets it
 
 <div
   x-data="{
-    triggerId: 'resources-menu',
-    triggerLabel: 'Resources',
-    menuItems: [
-      { label: 'Documentation', href: '/' },
-      { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
-    ]
+    dropdownConfig: {
+      triggerId: 'resources-menu',
+      triggerLabel: 'Resources',
+      menuItems: [
+        { label: 'Documentation', href: '/' },
+        { label: 'GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
+      ]
+    }
   }"
   x-component="'hux-dropdown'"
   x-component-styles="global"
@@ -223,15 +230,78 @@ When you need many instances of the same pattern from a data array, combine `x-f
 
 ```html
 <div x-data="{ menus: [...] }">
-  <template x-for="menu in menus" x-bind:key="menu.triggerId">
+  <template x-for="menu in menus" x-bind:key="menu.dropdownConfig.triggerId">
     <div
-      x-data="{ triggerId: menu.triggerId, triggerLabel: menu.triggerLabel, menuItems: menu.items }"
+      x-data="{ dropdownConfig: menu }"
       x-component="'hux-dropdown'"
       x-component-styles="global"
     ></div>
   </template>
 </div>
 ```
+
+### Nested Pattern Config: Command Palette
+
+`huxCommandPalette` composes `huxDialog` and `huxCombobox` together, with a nested `huxCombobox` that reads `paletteItems` from the outer scope. Wrapping this in a component demonstrates config flowing down to a nested pattern.
+
+**Template:**
+
+```html
+<template id="hux-command-palette">
+  <div
+    x-data="(() => {
+      const dialogComponent = huxDialog({ dialogId: paletteConfig.paletteId })
+      const paletteComponent = huxCommandPalette(paletteConfig)
+      return {
+        ...dialogComponent,
+        ...paletteComponent,
+        init() {
+          dialogComponent.init.call(this)
+          paletteComponent.init.call(this)
+        },
+      }
+    })()"
+    x-on:keydown.window="handleGlobalShortcut($event)"
+    x-on:hux-command-palette:close.window="closeDialog()"
+  >
+    ...
+    <!-- Inner combobox reads paletteItems from the outer pattern scope -->
+    <div
+      x-data="{ ...huxCombobox({ optionItems: paletteItems.map(...) }) }"
+      x-on:hux-dialog:hux-palette:open.window="onPaletteOpen()"
+      x-on:hux-dialog:hux-palette:close.window="onPaletteClose()"
+    >
+      ...
+    </div>
+  </div>
+</template>
+```
+
+The `paletteConfig` object set on the host is passed whole to `huxCommandPalette`. `paletteItems` — set by that registration on the outer scope — is then readable inside the nested combobox `x-data`. This is the same mechanism as `dropdownConfig.triggerLabel`: a child scope always has access to data from any ancestor scope.
+
+**Host:**
+
+```html
+<div
+  x-data="{
+    paletteConfig: {
+      paletteId: 'hux-palette',
+      shortcutKey: 'p',
+      paletteItems: [
+        { label: 'Scroll Spy Docs', href: '/patterns/scroll-spy' },
+        { label: 'Open GitHub', href: 'https://github.com/markmead/hyperux', target: '_blank' }
+      ]
+    }
+  }"
+  x-component="'hux-command-palette'"
+  x-component-styles="global"
+></div>
+```
+
+**Limitations:**
+
+- `x-teleport` cannot be used inside a shadow root. Elements teleported from a shadow root to `body` lose access to the shadow root's Alpine scope. The modal overlay must be rendered inline. `position: fixed` still anchors it to the viewport.
+- `x-on` attribute names cannot be dynamic, so the dialog↔combobox event listeners must match the `paletteId`. The template uses the fixed ID `'hux-palette'`. If you use a different `paletteId`, update the event listener attribute names in the template.
 
 ## Behavior Contract
 
