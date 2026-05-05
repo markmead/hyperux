@@ -93,47 +93,6 @@
   </div>
 </template>
 
-<template id="hux-tabs">
-  <div x-data="huxTabs(tabsConfig)" class="space-y-4">
-    <div
-      role="tablist"
-      x-bind:aria-label="tabsConfig.listLabel || 'Tabs'"
-      class="flex gap-1 border-b border-gray-200"
-    >
-      <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
-        <button
-          x-bind:id="`tab-${tabItem.id}`"
-          x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
-          aria-controls="hux-tabs-panel"
-          x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
-          role="tab"
-          type="button"
-          class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-          x-bind:class="activeTabId === tabItem.id
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-          x-on:click="selectTab(tabItem.id)"
-          x-on:keydown.right.prevent="focusNextTab()"
-          x-on:keydown.left.prevent="focusPreviousTab()"
-          x-on:keydown.down.prevent="focusNextTab()"
-          x-on:keydown.up.prevent="focusPreviousTab()"
-          x-on:keydown.home.prevent="focusFirstTab()"
-          x-on:keydown.end.prevent="focusLastTab()"
-          x-text="tabItem.label"
-        ></button>
-      </template>
-    </div>
-
-    <div
-      id="hux-tabs-panel"
-      x-bind:aria-labelledby="`tab-${activeTabId}`"
-      role="tabpanel"
-      tabindex="0"
-      x-text="tabItems.find(t => t.id === activeTabId)?.description ?? ''"
-    ></div>
-  </div>
-</template>
-
 <template id="hux-command-palette">
   <div
     x-data="(() => {
@@ -510,50 +469,6 @@
           x-component="'hux-command-palette'"
           x-component-styles="global"
           x-on:hux-command-palette:actions-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
-        ></div>
-      </div>
-    </div>
-
-    <hr class="h-px w-full border-none bg-gray-200" />
-
-    <div class="space-y-4">
-      <p class="text-gray-700">
-        Two tab groups from a single <code>hux-tabs</code> template. Each host's
-        <code>tabsConfig</code> sets its own <code>tabItems</code> — each item carries a
-        <code>description</code> string shown as the panel body. Tab focus
-        and keyboard navigation work inside Shadow DOM because <code>$el.querySelectorAll</code>
-        queries within the same shadow tree as the generated tab buttons.
-      </p>
-
-      <div class="space-y-6">
-        <div
-          x-data="{
-            tabsConfig: {
-              listLabel: 'Account settings',
-              tabItems: [
-                { label: 'General', id: 'general', description: 'Manage your account name, email, and preferences.' },
-                { label: 'Security', id: 'security', description: 'Update your password and two-factor authentication options.' },
-                { label: 'Notifications', id: 'notifications', description: 'Choose which notifications you want to receive.' }
-              ]
-            }
-          }"
-          x-component="'hux-tabs'"
-          x-component-styles="global"
-        ></div>
-
-        <div
-          x-data="{
-            tabsConfig: {
-              listLabel: 'Pricing plans',
-              tabItems: [
-                { label: 'Free', id: 'free', description: 'Up to 3 projects, community support, and core features.' },
-                { label: 'Pro', id: 'pro', description: 'Unlimited projects, priority support, and advanced analytics.' },
-                { label: 'Enterprise', id: 'enterprise', description: 'Custom pricing, dedicated support, and SLA guarantees.' }
-              ]
-            }
-          }"
-          x-component="'hux-tabs'"
-          x-component-styles="global"
         ></div>
       </div>
     </div>
