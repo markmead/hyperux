@@ -37,13 +37,14 @@
           })()"
       class="space-y-2"
       x-on:keydown.window="handleGlobalShortcut($event)"
+      x-on:hux-command-palette:open.window="if ($event.detail.paletteId !== paletteId) closeDialog()"
       x-on:hux-command-palette:close.window="closeDialog()"
       x-on:hux-command-palette:command-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
     >
       <button
         type="button"
         class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
-        x-on:click="openDialog()"
+        x-on:click="openPalette()"
       >
         Open Command Palette
       </button>

@@ -262,6 +262,16 @@
           : `Control + ${uppercaseShortcutKey}`
       },
 
+      openPalette() {
+        window.dispatchEvent(
+          new CustomEvent('hux-command-palette:open', {
+            detail: { paletteId: this.paletteId },
+          }),
+        )
+
+        this.openDialog()
+      },
+
       handleGlobalShortcut(event) {
         const pressedKey = event.key.toLowerCase()
 
@@ -282,7 +292,7 @@
 
         event.preventDefault()
 
-        this.openDialog()
+        this.openPalette()
       },
 
       findPaletteItem(itemLabel) {

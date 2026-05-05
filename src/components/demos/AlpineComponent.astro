@@ -107,8 +107,7 @@
           paletteComponent.init.call(this)
         },
         openDialog() {
-          window.dispatchEvent(new CustomEvent('hux-command-palette:open', { detail: { paletteId: paletteConfig.paletteId } }))
-          dialogComponent.openDialog.call(this)
+          paletteComponent.openPalette.call(this)
           this.dialogIsOpen = true
         },
         closeDialog() {
@@ -125,7 +124,7 @@
       <button
         type="button"
         class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
-        x-on:click="openDialog()"
+        x-on:click="openPalette()"
         x-text="paletteConfig.buttonLabel || 'Open Command Palette'"></button>
 
       <p class="text-sm text-gray-600">
