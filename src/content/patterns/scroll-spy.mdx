@@ -151,5 +151,6 @@ huxScrollSpy({
 
 - This implementation is scoped to a scroll container, not the full page viewport.
 - Duplicate headings still receive unique generated ids through numeric suffixes.
+- `huxScrollSpy` cannot be used as an `alpinejs-component` component. The scrollable region and its headings are arbitrary static HTML in the DOM — different instances need different heading markup, which cannot be passed via `x-data`. See [Reusable Components](/patterns/alpine-component) for the full compatibility table.
 
 </div>

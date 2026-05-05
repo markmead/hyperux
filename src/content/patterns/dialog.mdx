@@ -134,5 +134,6 @@ huxDialog({
   - `hux-dialog:{dialogId}:open`
   - `hux-dialog:{dialogId}:close`
   - `hux-dialog:open` and `hux-dialog:close` when `dialogId` is missing
+- `huxDialog` cannot be used as an `alpinejs-component` component. Modal body content is arbitrary HTML in the DOM, and `x-teleport` does not work inside Shadow DOM (teleported elements lose their shadow scope). See [Reusable Components](/patterns/alpine-component) for the full compatibility table.
 
 </div>

@@ -242,7 +242,20 @@ When you need many instances of the same pattern from a data array, combine `x-f
 
 ### Limitations
 
-`huxTabs` cannot be componentized with `alpinejs-component`. The `huxTabs` pattern requires panel content to be **static HTML in the DOM** — each panel is a sibling `div` with `x-show`/`x-cloak` and arbitrary HTML inside it. `alpinejs-component` renders templates inside a Shadow DOM; the host element can only pass data (strings, numbers, arrays, objects) via `x-data`, not arbitrary HTML fragments. Any workaround that stores panel content as a string (HTML or plain text) in the config object misrepresents the pattern API and limits panels to content that can be expressed as a single value.
+Not every HyperUX pattern can be componentized with `alpinejs-component`. The table below summarises compatibility:
+
+| Pattern | Works? | Notes |
+|---|---|---|
+| `huxDropdown` | ✅ | Fully data-driven. Demonstrated in this page. |
+| `huxCopy` | ✅ | Fully data-driven. Demonstrated in this page. |
+| `huxCommandPalette` | ✅ | Works with the `dialogIsOpen` bridge pattern. Demonstrated in this page. |
+| `huxCombobox` | ✅ | Fully data-driven. |
+| `huxResizable` | ✅ | Resize shell is data-driven; iframe `src` can be passed via config. |
+| `huxTabs` | ❌ | Panel content is arbitrary static HTML in the DOM — cannot be passed via `x-data`. |
+| `huxDialog` | ❌ | Modal body content is arbitrary HTML; `x-teleport` does not work inside Shadow DOM. |
+| `huxScrollSpy` | ❌ | The scrollable region with headings is static HTML; different instances need different heading markup, which cannot be passed via `x-data`. |
+
+The three patterns that cannot be componentized all share the same root cause: their variable parts are arbitrary HTML fragments, not data. `alpinejs-component` can only pass data (strings, numbers, arrays, objects) through `x-data` — not HTML fragments. Any workaround that stores markup as a string in the config object misrepresents the pattern API and limits what can be rendered.
 
 ### Nested Pattern Config: Command Palette
 

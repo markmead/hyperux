@@ -144,5 +144,6 @@ huxTabs({
 ## Notes
 
 - Hash sync uses `replaceState`, so tab changes do not add browser history entries.
+- `huxTabs` cannot be used as an `alpinejs-component` component. Panel content is arbitrary static HTML in the DOM — each panel is a sibling element with `x-show`/`x-cloak` and arbitrary markup inside it. `alpinejs-component` can only pass data via `x-data`, not HTML fragments, so there is no way to make panels data-driven without fundamentally changing how the pattern works. See [Reusable Components](/patterns/alpine-component) for the full compatibility table.
 
 </div>
