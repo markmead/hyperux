@@ -106,14 +106,12 @@
           paletteComponent.init.call(this)
         },
         openDialog() {
-          this.isOpen = true
+          dialogComponent.openDialog.call(this)
           this.dialogIsOpen = true
-          this.dispatchDialogEvent('open')
         },
         closeDialog() {
-          this.isOpen = false
+          dialogComponent.closeDialog.call(this)
           this.dialogIsOpen = false
-          this.dispatchDialogEvent('close')
         },
       }
     })()"

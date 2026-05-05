@@ -28,6 +28,20 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 <LastUpdated date={frontmatter.modDate} />
 
+## API
+
+### `x-component="'template-id'"`
+
+Mounts the `<template id="template-id">` into a Shadow DOM attached to the host element. The host's `x-data` object is the data contract — everything set there is accessible inside the template through Alpine's scope chain.
+
+### `x-component.url="'/path/to/template.html'"`
+
+Fetches a remote `.html` file as the template source. The file is fetched once and cached; all instances that reference the same URL share the cached template.
+
+### `x-component-styles="global"`
+
+Adopts all document stylesheets (including compiled Tailwind CSS) into the Shadow DOM. Required for any HyperUX pattern that uses utility classes inside the component.
+
 ## Setup
 
 Add the CDN script to your document `<head>` **before** Alpine.js:
@@ -235,7 +249,7 @@ When you need many instances of the same pattern from a data array, combine `x-f
 
 ```html
 <div x-data="{ menus: [...] }">
-  <template x-for="menu in menus" x-bind:key="menu.dropdownConfig.triggerId">
+  <template x-for="menu in menus" x-bind:key="menu.triggerId">
     <div
       x-data="{ dropdownConfig: menu }"
       x-component="'hux-dropdown'"
@@ -287,14 +301,12 @@ Not every HyperUX pattern can be componentized with `alpinejs-component`. The ta
           paletteComponent.init.call(this)
         },
         openDialog() {
-          this.isOpen = true
+          dialogComponent.openDialog.call(this)
           this.dialogIsOpen = true
-          this.dispatchDialogEvent('open')
         },
         closeDialog() {
-          this.isOpen = false
+          dialogComponent.closeDialog.call(this)
           this.dialogIsOpen = false
-          this.dispatchDialogEvent('close')
         },
       }
     })()"
@@ -395,6 +407,20 @@ Both instances share the same template. The docs-search palette hides results un
 - Components render into Shadow DOM. Each instance gets an isolated Alpine scope, so open/close state, focus position, and any other per-instance state do not bleed between instances.
 - `x-component-styles="global"` adopts all local document stylesheets (including compiled Tailwind) into the Shadow DOM so utility classes work inside the component. This is required for any HyperUX pattern that uses Tailwind classes.
 - `x-component.url` fetches and caches the HTML file by URL. The cached template is reused for all instances that reference the same URL.
+
+## Error Handling
+
+- If the referenced template ID does not exist on the page, `alpinejs-component` silently renders nothing. Verify the `id` matches exactly.
+- If a `x-component.url` fetch fails (network error, 404), the component silently renders nothing. Check the path is relative to the document root and the file exists in `public/`.
+- If `x-component-styles="global"` is omitted, styles from the host document are not inherited inside the Shadow DOM. Tailwind utility classes applied inside the template will have no effect.
+- Attempting to use `x-teleport` inside a shadow root will fail silently — teleported elements lose access to the shadow scope. Render overlays inline and use `position: fixed` for viewport anchoring instead.
+
+## Accessibility Notes
+
+- Patterns rendered inside Shadow DOM remain keyboard-accessible. All HyperUX patterns use standard ARIA roles and attributes, which are preserved inside the shadow tree.
+- `x-component-styles="global"` is required to include focus-visible styles and other global accessibility-related CSS inside the shadow root.
+- Action events dispatched from inside a shadow root use `composed: true` and `bubbles: true`, so host-element `x-on` listeners receive them across the shadow boundary.
+- Screen readers can traverse Shadow DOM in modern browsers. ARIA roles, labels, and live regions set inside the template are announced normally.
 
 ## Notes
 
