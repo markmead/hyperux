@@ -1,4 +1,5 @@
 ---
+
 ---
 
 <template id="hux-dropdown">
@@ -68,8 +69,7 @@
               x-on:click="selectItem(menuItem)"
               x-on:mouseenter="focusedIndex = menuIndex"
               x-on:focus="focusedIndex = menuIndex"
-              x-text="menuItem.label"
-            ></a>
+              x-text="menuItem.label"></a>
           </template>
 
           <template x-if="!menuItem.href">
@@ -84,8 +84,7 @@
               x-on:click="selectItem(menuItem)"
               x-on:mouseenter="focusedIndex = menuIndex"
               x-on:focus="focusedIndex = menuIndex"
-              x-text="menuItem.label"
-            ></button>
+              x-text="menuItem.label"></button>
           </template>
         </div>
       </template>
@@ -126,8 +125,7 @@
         type="button"
         class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
         x-on:click="openDialog()"
-        x-text="paletteConfig.buttonLabel || 'Open Command Palette'"
-      ></button>
+        x-text="paletteConfig.buttonLabel || 'Open Command Palette'"></button>
 
       <p class="text-sm text-gray-600">
         Press <span class="font-medium" x-text="shortcutHint"></span> to open from anywhere.
@@ -148,7 +146,8 @@
           class="fixed inset-0 bg-gray-900/60"
           aria-hidden="true"
           x-on:click="handleBackdropClick()"
-        ></div>
+        >
+        </div>
 
         <div
           x-cloak
@@ -315,8 +314,8 @@
   <div class="space-y-8">
     <div class="space-y-4">
       <p class="text-gray-700">
-        Two dropdown menus from a single <code>hux-dropdown</code> template. Each host passes a
-        single <code>dropdownConfig</code> object; the template calls
+        Two dropdown menus from a single <code>hux-dropdown</code> template. Each host passes a single
+        <code>dropdownConfig</code> object; the template calls
         <code>huxDropdown(dropdownConfig)</code> and reads <code>dropdownConfig.triggerLabel</code>
         from the parent scope.
       </p>
@@ -336,7 +335,8 @@
           }"
           x-component="'hux-dropdown'"
           x-component-styles="global"
-        ></div>
+        >
+        </div>
 
         <div
           x-data="{
@@ -352,7 +352,8 @@
           }"
           x-component="'hux-dropdown'"
           x-component-styles="global"
-        ></div>
+        >
+        </div>
       </div>
     </div>
 
@@ -363,14 +364,11 @@
         Two copy buttons from the same <code>hux-copy-btn</code> URL template. Each host's
         <code>x-data</code> passes a different <code>copyConfig</code> — one uses
         <code>valueSourceNames</code> to copy an input's value, the other uses
-        <code>sourceNames</code> to copy a code snippet's markup. The template itself doesn't
-        change.
+        <code>sourceNames</code> to copy a code snippet's markup. The template itself doesn't change.
       </p>
 
       <div class="space-y-3">
-        <label class="block font-medium text-gray-700" for="share-link-input">
-          Share link
-        </label>
+        <label class="block font-medium text-gray-700" for="share-link-input"> Share link </label>
 
         <div class="flex items-center gap-2">
           <input
@@ -386,7 +384,8 @@
             x-data="{ copyConfig: { valueSourceNames: ['share-link-input'] }, copyLabel: 'Copy link' }"
             x-component.url="'/components/hux-copy-btn.html'"
             x-component-styles="global"
-          ></div>
+          >
+          </div>
         </div>
       </div>
 
@@ -397,14 +396,16 @@
           class="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 font-mono text-sm text-gray-700"
           data-hux-copy="usage-snippet"
         >
-          &lt;div x-data="&#123; ... &#125;" x-component="'hux-dropdown'" x-component-styles="global"&gt;&lt;/div&gt;
+          &lt;div x-data="&#123; ... &#125;" x-component="'hux-dropdown'"
+          x-component-styles="global"&gt;&lt;/div&gt;
         </div>
 
         <div
           x-data="{ copyConfig: { sourceNames: ['usage-snippet'] }, copyLabel: 'Copy snippet' }"
           x-component.url="'/components/hux-copy-btn.html'"
           x-component-styles="global"
-        ></div>
+        >
+        </div>
       </div>
     </div>
 
@@ -412,8 +413,8 @@
 
     <div class="space-y-4">
       <p class="text-gray-700">
-        Two command palettes from a single <code>hux-command-palette</code> template. Each host
-        passes a different <code>paletteConfig</code> — including a <code>comboboxConfig</code>
+        Two command palettes from a single <code>hux-command-palette</code> template. Each host passes
+        a different <code>paletteConfig</code> — including a <code>comboboxConfig</code>
         object that configures the nested <code>huxCombobox</code>. The docs-search palette hides
         results until the user types (<code>showAllItemsOnOpen: false</code>); the actions palette
         shows all items immediately on open (<code>showAllItemsOnOpen: true</code>). The template
@@ -421,9 +422,10 @@
       </p>
 
       <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-amber-900">
-        <strong>Note:</strong> <code>x-teleport</code> cannot be used inside a shadow
-        root — teleported elements lose access to the shadow scope. Overlays are rendered inline
-        here; <code>position: fixed</code> still anchors them to the viewport.
+        <strong>Note:</strong>
+        <code>x-teleport</code> cannot be used inside a shadow root — teleported elements lose access
+        to the shadow scope. Overlays are rendered inline here; <code>position: fixed</code> still anchors
+        them to the viewport.
       </p>
 
       <div class="flex flex-wrap gap-4">
@@ -447,7 +449,8 @@
           }"
           x-component="'hux-command-palette'"
           x-component-styles="global"
-        ></div>
+        >
+        </div>
 
         <div
           x-data="{
@@ -469,7 +472,8 @@
           x-component="'hux-command-palette'"
           x-component-styles="global"
           x-on:hux-command-palette:actions-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
-        ></div>
+        >
+        </div>
       </div>
     </div>
   </div>

@@ -13,9 +13,10 @@ pubDate: 2026-04-29
 modDate: 2026-05-05
 ---
 
+import { CircleCheck, TriangleAlert, CircleX } from '@lucide/astro'
+
 import Demo from '../../components/demos/AlpineComponent.astro'
 import LastUpdated from '../../components/LastUpdated.astro'
-import { CircleCheck, TriangleAlert, CircleX } from '@lucide/astro'
 
 <Demo />
 
@@ -32,8 +33,11 @@ import { CircleCheck, TriangleAlert, CircleX } from '@lucide/astro'
 Add the CDN script to your document `<head>` **before** Alpine.js:
 
 ```html
-<script defer src="https://unpkg.com/alpinejs-component@latest/dist/component.min.js"></script>
-<script defer src="https://unpkg.com/alpinejs@latest/dist/cdn.min.js"></script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/alpinejs-component@2.0/dist/component.min.js"
+></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15/dist/cdn.min.js"></script>
 ```
 
 For npm-based projects, register the plugin before `Alpine.start()`:
@@ -245,16 +249,16 @@ When you need many instances of the same pattern from a data array, combine `x-f
 
 Not every HyperUX pattern can be componentized with `alpinejs-component`. The table below summarises compatibility:
 
-| Pattern | Works? | Notes |
-|---|---|---|
-| `huxDropdown` | <TriangleAlert class="size-4 text-amber-500" /> | Data-driven, but `focusItem()` uses `document.getElementById` which cannot find elements inside a Shadow root — keyboard focus does not move when used as an `alpinejs-component`. |
-| `huxCopy` | <CircleCheck class="size-4 text-green-600" /> | Fully data-driven. Demonstrated in this page. |
-| `huxCommandPalette` | <CircleCheck class="size-4 text-green-600" /> | Works with the `dialogIsOpen` bridge pattern. Demonstrated in this page. |
-| `huxCombobox` | <TriangleAlert class="size-4 text-amber-500" /> | Data-driven, but `x-on:click.outside` uses event target retargeting that breaks inside Shadow DOM — the list stays open when clicking away. |
-| `huxResizable` | <TriangleAlert class="size-4 text-amber-500" /> | Resize shell is data-driven, but the template currently hardcodes an iframe `src` — a small change is needed to accept `src` via config before it can be used as a reusable component. |
-| `huxTabs` | <CircleX class="size-4 text-red-500" /> | Panel content is arbitrary static HTML in the DOM — cannot be passed via `x-data`. |
-| `huxDialog` | <CircleX class="size-4 text-red-500" /> | As a standalone pattern, modal body content is arbitrary user HTML that cannot be passed via `x-data`. However, it can work as an internal primitive within a higher-order component template (like `huxCommandPalette`) where the dialog body is fixed and data-driven. `x-teleport` also does not work inside Shadow DOM. |
-| `huxScrollSpy` | <CircleX class="size-4 text-red-500" /> | The scrollable region with headings is static HTML; different instances need different heading markup, which cannot be passed via `x-data`. |
+| Pattern             | Works?                                          | Notes                                                                                                                                                                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `huxDropdown`       | <TriangleAlert class="size-4 text-amber-500" /> | Data-driven, but `focusItem()` uses `document.getElementById` which cannot find elements inside a Shadow root — keyboard focus does not move when used as an `alpinejs-component`.                                                                                                                                          |
+| `huxCopy`           | <CircleCheck class="size-4 text-green-600" />   | Fully data-driven. Demonstrated in this page.                                                                                                                                                                                                                                                                               |
+| `huxCommandPalette` | <CircleCheck class="size-4 text-green-600" />   | Works with the `dialogIsOpen` bridge pattern. Demonstrated in this page.                                                                                                                                                                                                                                                    |
+| `huxCombobox`       | <TriangleAlert class="size-4 text-amber-500" /> | Data-driven, but `x-on:click.outside` uses event target retargeting that breaks inside Shadow DOM — the list stays open when clicking away.                                                                                                                                                                                 |
+| `huxResizable`      | <TriangleAlert class="size-4 text-amber-500" /> | Resize shell is data-driven, but the template currently hardcodes an iframe `src` — a small change is needed to accept `src` via config before it can be used as a reusable component.                                                                                                                                      |
+| `huxTabs`           | <CircleX class="size-4 text-red-500" />         | Panel content is arbitrary static HTML in the DOM — cannot be passed via `x-data`.                                                                                                                                                                                                                                          |
+| `huxDialog`         | <CircleX class="size-4 text-red-500" />         | As a standalone pattern, modal body content is arbitrary user HTML that cannot be passed via `x-data`. However, it can work as an internal primitive within a higher-order component template (like `huxCommandPalette`) where the dialog body is fixed and data-driven. `x-teleport` also does not work inside Shadow DOM. |
+| `huxScrollSpy`      | <CircleX class="size-4 text-red-500" />         | The scrollable region with headings is static HTML; different instances need different heading markup, which cannot be passed via `x-data`.                                                                                                                                                                                 |
 
 `huxTabs` and `huxScrollSpy` cannot be componentized because their variable parts are arbitrary HTML fragments (tab panel content, scrollable headings) that cannot be passed via `x-data`. `huxDialog` has the same constraint when used standalone, but it can serve as an internal primitive inside another component where the dialog body is fixed and data-driven — exactly how `huxCommandPalette` uses it. Any workaround that stores user markup as a string in the config object misrepresents the pattern API and limits what can be rendered.
 
