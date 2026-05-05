@@ -93,20 +93,51 @@
   </div>
 </template>
 
-<!--
-  On-page template: huxCommandPalette + huxDialog composed into a reusable component.
-  The host element's x-data provides a single paletteConfig object with paletteId,
-  shortcutKey, and paletteItems. huxCombobox inside the template reads paletteItems
-  from the outer pattern scope, demonstrating config flowing down to a nested pattern.
+<template id="hux-tabs">
+  <div x-data="huxTabs(tabsConfig)" class="space-y-4">
+    <div
+      role="tablist"
+      x-bind:aria-label="tabsConfig.listLabel || 'Tabs'"
+      class="flex gap-1 border-b border-gray-200"
+    >
+      <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
+        <button
+          x-bind:id="`tab-${tabItem.id}`"
+          x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
+          x-bind:aria-controls="`panel-${tabItem.id}`"
+          x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
+          role="tab"
+          type="button"
+          class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+          x-bind:class="activeTabId === tabItem.id
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+          x-on:click="selectTab(tabItem.id)"
+          x-on:keydown.right.prevent="focusNextTab()"
+          x-on:keydown.left.prevent="focusPreviousTab()"
+          x-on:keydown.down.prevent="focusNextTab()"
+          x-on:keydown.up.prevent="focusPreviousTab()"
+          x-on:keydown.home.prevent="focusFirstTab()"
+          x-on:keydown.end.prevent="focusLastTab()"
+          x-text="tabItem.label"
+        ></button>
+      </template>
+    </div>
 
-  dialogIsOpen is a bridge property added by the overridden openDialog/closeDialog.
-  The nested combobox uses $watch('dialogIsOpen') to react to dialog open/close without
-  requiring dynamic x-on attribute names — this makes the template reusable with any
-  paletteId.
+    <template x-for="tabItem in tabItems" x-bind:key="`panel-${tabItem.id}`">
+      <div
+        x-bind:id="`panel-${tabItem.id}`"
+        x-bind:aria-labelledby="`tab-${tabItem.id}`"
+        role="tabpanel"
+        tabindex="0"
+        x-cloak
+        x-show="activeTabId === tabItem.id"
+        x-html="tabItem.content"
+      ></div>
+    </template>
+  </div>
+</template>
 
-  Note: x-teleport cannot be used inside Shadow DOM. The modal overlay is rendered
-  inline; position: fixed still anchors it to the viewport.
--->
 <template id="hux-command-palette">
   <div
     x-data="(() => {
@@ -483,6 +514,50 @@
           x-component="'hux-command-palette'"
           x-component-styles="global"
           x-on:hux-command-palette:actions-palette:copy-page-url.window="navigator.clipboard.writeText(globalThis.location.href).catch(() => {})"
+        ></div>
+      </div>
+    </div>
+
+    <hr class="h-px w-full border-none bg-gray-200" />
+
+    <div class="space-y-4">
+      <p class="text-gray-700">
+        Two tab groups from a single <code>hux-tabs</code> template. Each host's
+        <code>tabsConfig</code> sets its own <code>tabItems</code> — each item carries a
+        <code>content</code> string rendered with <code>x-html</code> for the panel body. Tab focus
+        and keyboard navigation work inside Shadow DOM because <code>$el.querySelectorAll</code>
+        queries within the same shadow tree as the generated tab buttons.
+      </p>
+
+      <div class="space-y-6">
+        <div
+          x-data="{
+            tabsConfig: {
+              listLabel: 'Account settings',
+              tabItems: [
+                { label: 'General', id: 'general', content: '<p>Manage your account name, email, and preferences.</p>' },
+                { label: 'Security', id: 'security', content: '<p>Update your password and two-factor authentication options.</p>' },
+                { label: 'Notifications', id: 'notifications', content: '<p>Choose which notifications you want to receive.</p>' }
+              ]
+            }
+          }"
+          x-component="'hux-tabs'"
+          x-component-styles="global"
+        ></div>
+
+        <div
+          x-data="{
+            tabsConfig: {
+              listLabel: 'Pricing plans',
+              tabItems: [
+                { label: 'Free', id: 'free', content: '<p>Up to 3 projects, community support, and core features.</p>' },
+                { label: 'Pro', id: 'pro', content: '<p>Unlimited projects, priority support, and advanced analytics.</p>' },
+                { label: 'Enterprise', id: 'enterprise', content: '<p>Custom pricing, dedicated support, and SLA guarantees.</p>' }
+              ]
+            }
+          }"
+          x-component="'hux-tabs'"
+          x-component-styles="global"
         ></div>
       </div>
     </div>
