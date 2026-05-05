@@ -181,7 +181,7 @@ Both dropdowns share the same `hux-dropdown` template. Changing the template —
 
 For components you want to share across multiple pages, store the template in a plain `.html` file and load it with `x-component.url`. Place the file in your `public/` directory so it is served as a static asset.
 
-The template reads `copyConfig` for `huxCopy` options and a separate top-level `copyLabel` for the button text (defaults to `'Copy'` if omitted). `sourceNames` copies an element's HTML; `valueSourceNames` copies an input's value. All `huxCopy` options are configurable per-instance without changing the template.
+The template reads `copyConfig` for all options including `copyLabel` for the button text (defaults to `'Copy'` if omitted). `sourceNames` copies an element's HTML; `valueSourceNames` copies an input's value. All `huxCopy` options are configurable per-instance without changing the template.
 
 **`/public/components/hux-copy-btn.html`:**
 
@@ -192,7 +192,7 @@ The template reads `copyConfig` for `huxCopy` options and a separate top-level `
   x-on:click="copyToClipboard()"
   class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
 >
-  <span aria-live="polite" x-text="hasCopied ? 'Copied!' : (copyLabel ?? 'Copy')"></span>
+  <span aria-live="polite" x-text="hasCopied ? 'Copied!' : (copyConfig.copyLabel ?? 'Copy')"></span>
 </button>
 ```
 
@@ -207,7 +207,7 @@ Copy an input's value — useful for share links or generated tokens:
 />
 
 <div
-  x-data="{ copyConfig: { valueSourceNames: ['share-link-input'] }, copyLabel: 'Copy link' }"
+  x-data="{ copyConfig: { valueSourceNames: ['share-link-input'], copyLabel: 'Copy link' } }"
   x-component.url="'/components/hux-copy-btn.html'"
   x-component-styles="global"
 ></div>
@@ -221,7 +221,7 @@ Copy a code snippet's markup — useful for developer-facing copy buttons:
 </div>
 
 <div
-  x-data="{ copyConfig: { sourceNames: ['usage-snippet'] }, copyLabel: 'Copy snippet' }"
+  x-data="{ copyConfig: { sourceNames: ['usage-snippet'], copyLabel: 'Copy snippet' } }"
   x-component.url="'/components/hux-copy-btn.html'"
   x-component-styles="global"
 ></div>
