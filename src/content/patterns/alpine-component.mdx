@@ -410,7 +410,7 @@ Both instances share the same template. The docs-search palette hides results un
 
 ## Error Handling
 
-- If the referenced template ID does not exist on the page, `alpinejs-component` silently renders nothing. Verify the `id` matches exactly.
+- If the referenced template ID does not exist on the page, `alpinejs-component` silently renders nothing. No console warning is emitted — verify the `id` matches exactly and that the `<template>` is present in the DOM before Alpine initialises.
 - If a `x-component.url` fetch fails (network error, 404), the component silently renders nothing. Check the path is relative to the document root and the file exists in `public/`.
 - If `x-component-styles="global"` is omitted, styles from the host document are not inherited inside the Shadow DOM. Tailwind utility classes applied inside the template will have no effect.
 - Attempting to use `x-teleport` inside a shadow root will fail silently — teleported elements lose access to the shadow scope. Render overlays inline and use `position: fixed` for viewport anchoring instead.
@@ -418,7 +418,7 @@ Both instances share the same template. The docs-search palette hides results un
 ## Accessibility Notes
 
 - Patterns rendered inside Shadow DOM remain keyboard-accessible. All HyperUX patterns use standard ARIA roles and attributes, which are preserved inside the shadow tree.
-- `x-component-styles="global"` is required to include focus-visible styles and other global accessibility-related CSS inside the shadow root.
+- `x-component-styles="global"` is strongly recommended. Without it, focus-visible styles and other global accessibility-related CSS are not inherited inside the shadow root, and visible focus indicators may be lost.
 - Action events dispatched from inside a shadow root use `composed: true` and `bubbles: true`, so host-element `x-on` listeners receive them across the shadow boundary.
 - Screen readers can traverse Shadow DOM in modern browsers. ARIA roles, labels, and live regions set inside the template are announced normally.
 
