@@ -104,7 +104,7 @@
         <button
           x-bind:id="`tab-${tabItem.id}`"
           x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
-          x-bind:aria-controls="`panel-${tabItem.id}`"
+          aria-controls="hux-tabs-panel"
           x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
           role="tab"
           type="button"
@@ -124,17 +124,13 @@
       </template>
     </div>
 
-    <template x-for="tabItem in tabItems" x-bind:key="`panel-${tabItem.id}`">
-      <div
-        x-bind:id="`panel-${tabItem.id}`"
-        x-bind:aria-labelledby="`tab-${tabItem.id}`"
-        role="tabpanel"
-        tabindex="0"
-        x-cloak
-        x-show="activeTabId === tabItem.id"
-        x-html="tabItem.content"
-      ></div>
-    </template>
+    <div
+      id="hux-tabs-panel"
+      x-bind:aria-labelledby="`tab-${activeTabId}`"
+      role="tabpanel"
+      tabindex="0"
+      x-text="tabItems.find(t => t.id === activeTabId)?.description ?? ''"
+    ></div>
   </div>
 </template>
 
@@ -524,7 +520,7 @@
       <p class="text-gray-700">
         Two tab groups from a single <code>hux-tabs</code> template. Each host's
         <code>tabsConfig</code> sets its own <code>tabItems</code> — each item carries a
-        <code>content</code> string rendered with <code>x-html</code> for the panel body. Tab focus
+        <code>description</code> string shown as the panel body. Tab focus
         and keyboard navigation work inside Shadow DOM because <code>$el.querySelectorAll</code>
         queries within the same shadow tree as the generated tab buttons.
       </p>
@@ -535,9 +531,9 @@
             tabsConfig: {
               listLabel: 'Account settings',
               tabItems: [
-                { label: 'General', id: 'general', content: '<p>Manage your account name, email, and preferences.</p>' },
-                { label: 'Security', id: 'security', content: '<p>Update your password and two-factor authentication options.</p>' },
-                { label: 'Notifications', id: 'notifications', content: '<p>Choose which notifications you want to receive.</p>' }
+                { label: 'General', id: 'general', description: 'Manage your account name, email, and preferences.' },
+                { label: 'Security', id: 'security', description: 'Update your password and two-factor authentication options.' },
+                { label: 'Notifications', id: 'notifications', description: 'Choose which notifications you want to receive.' }
               ]
             }
           }"
@@ -550,9 +546,9 @@
             tabsConfig: {
               listLabel: 'Pricing plans',
               tabItems: [
-                { label: 'Free', id: 'free', content: '<p>Up to 3 projects, community support, and core features.</p>' },
-                { label: 'Pro', id: 'pro', content: '<p>Unlimited projects, priority support, and advanced analytics.</p>' },
-                { label: 'Enterprise', id: 'enterprise', content: '<p>Custom pricing, dedicated support, and SLA guarantees.</p>' }
+                { label: 'Free', id: 'free', description: 'Up to 3 projects, community support, and core features.' },
+                { label: 'Pro', id: 'pro', description: 'Unlimited projects, priority support, and advanced analytics.' },
+                { label: 'Enterprise', id: 'enterprise', description: 'Custom pricing, dedicated support, and SLA guarantees.' }
               ]
             }
           }"
