@@ -246,11 +246,11 @@ Not every HyperUX pattern can be componentized with `alpinejs-component`. The ta
 
 | Pattern | Works? | Notes |
 |---|---|---|
-| `huxDropdown` | ✅ | Fully data-driven. Demonstrated in this page. |
+| `huxDropdown` | ⚠️ | Data-driven, but `focusItem()` uses `document.getElementById` which cannot find elements inside a Shadow root — keyboard focus does not move when used as an `alpinejs-component`. |
 | `huxCopy` | ✅ | Fully data-driven. Demonstrated in this page. |
 | `huxCommandPalette` | ✅ | Works with the `dialogIsOpen` bridge pattern. Demonstrated in this page. |
-| `huxCombobox` | ✅ | Fully data-driven. |
-| `huxResizable` | ✅ | Resize shell is data-driven; iframe `src` can be passed via config. |
+| `huxCombobox` | ⚠️ | Data-driven, but `x-on:click.outside` uses event target retargeting that breaks inside Shadow DOM — the list stays open when clicking away. |
+| `huxResizable` | ⚠️ | Resize shell is data-driven, but the template currently hardcodes an iframe `src` — a small change is needed to accept `src` via config before it can be used as a reusable component. |
 | `huxTabs` | ❌ | Panel content is arbitrary static HTML in the DOM — cannot be passed via `x-data`. |
 | `huxDialog` | ❌ | Modal body content is arbitrary HTML; `x-teleport` does not work inside Shadow DOM. |
 | `huxScrollSpy` | ❌ | The scrollable region with headings is static HTML; different instances need different heading markup, which cannot be passed via `x-data`. |
