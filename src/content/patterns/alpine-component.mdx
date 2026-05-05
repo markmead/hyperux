@@ -281,12 +281,14 @@ Not every HyperUX pattern can be componentized with `alpinejs-component`. The ta
       return {
         ...dialogComponent,
         ...paletteComponent,
+        paletteId: paletteConfig.paletteId,
         dialogIsOpen: false,
         init() {
           dialogComponent.init.call(this)
           paletteComponent.init.call(this)
         },
         openDialog() {
+          window.dispatchEvent(new CustomEvent('hux-command-palette:open', { detail: { paletteId: paletteConfig.paletteId } }))
           dialogComponent.openDialog.call(this)
           this.dialogIsOpen = true
         },
@@ -297,6 +299,7 @@ Not every HyperUX pattern can be componentized with `alpinejs-component`. The ta
       }
     })()"
     x-on:keydown.window="handleGlobalShortcut($event)"
+    x-on:hux-command-palette:open.window="if ($event.detail.paletteId !== paletteId) closeDialog()"
     x-on:hux-command-palette:close.window="closeDialog()"
   >
     ...
