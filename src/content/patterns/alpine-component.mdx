@@ -252,10 +252,10 @@ Not every HyperUX pattern can be componentized with `alpinejs-component`. The ta
 | `huxCombobox` | ⚠️ | Data-driven, but `x-on:click.outside` uses event target retargeting that breaks inside Shadow DOM — the list stays open when clicking away. |
 | `huxResizable` | ⚠️ | Resize shell is data-driven, but the template currently hardcodes an iframe `src` — a small change is needed to accept `src` via config before it can be used as a reusable component. |
 | `huxTabs` | ❌ | Panel content is arbitrary static HTML in the DOM — cannot be passed via `x-data`. |
-| `huxDialog` | ❌ | Modal body content is arbitrary HTML; `x-teleport` does not work inside Shadow DOM. |
+| `huxDialog` | ❌ | As a standalone pattern, modal body content is arbitrary user HTML that cannot be passed via `x-data`. However, it can work as an internal primitive within a higher-order component template (like `huxCommandPalette`) where the dialog body is fixed and data-driven. `x-teleport` also does not work inside Shadow DOM. |
 | `huxScrollSpy` | ❌ | The scrollable region with headings is static HTML; different instances need different heading markup, which cannot be passed via `x-data`. |
 
-The three patterns that cannot be componentized all share the same root cause: their variable parts are arbitrary HTML fragments, not data. `alpinejs-component` can only pass data (strings, numbers, arrays, objects) through `x-data` — not HTML fragments. Any workaround that stores markup as a string in the config object misrepresents the pattern API and limits what can be rendered.
+`huxTabs` and `huxScrollSpy` cannot be componentized because their variable parts are arbitrary HTML fragments (tab panel content, scrollable headings) that cannot be passed via `x-data`. `huxDialog` has the same constraint when used standalone, but it can serve as an internal primitive inside another component where the dialog body is fixed and data-driven — exactly how `huxCommandPalette` uses it. Any workaround that stores user markup as a string in the config object misrepresents the pattern API and limits what can be rendered.
 
 ### Nested Pattern Config: Command Palette
 
