@@ -12,7 +12,7 @@
 
     <div
       data-hux-copy="huxResizableDemo"
-      x-data="huxResizable({ stopAtLastBreakpoint: true, preventOverflow: false })"
+      x-data="huxResizable({ stopAtLastBreakpoint: true, preventOverflow: false, iframeSrc: '/examples/resizable.html' })"
       class="space-y-3"
     >
       <div class="flex flex-wrap items-center gap-3">
@@ -58,7 +58,7 @@
       >
         <iframe
           x-ref="iframeEl"
-          src="/examples/resizable.html"
+          x-bind:src="iframeSrc"
           class="block w-full border-none"
           style="height: 400px"
           title="Component preview"></iframe>
