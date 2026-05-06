@@ -40,6 +40,7 @@ Returns an Alpine data object with:
 - `paletteId: string | null`
 - `shortcutKey: string`
 - `shortcutHint: string`
+- `openPalette(): void` — dispatches `hux-command-palette:open` (with `paletteId` in the event detail) then calls `openDialog()`; any other open palette instance receives this event and closes itself, ensuring only one palette is open at a time
 - `handleGlobalShortcut(event): void`
 - `findPaletteItem(itemLabel: string): object | null`
 - `selectItem(itemLabel: string): object | null`
