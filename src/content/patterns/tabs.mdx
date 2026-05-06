@@ -1,7 +1,7 @@
 ---
 slug: tabs
 title: Tabs
-description: Build accessible tab interfaces with huxTabs for Alpine.js with keyboard support and optional hash sync.
+description: Build accessible tab interfaces with huxTabs for Alpine.js with keyboard support, optional hash sync, and support for owned or decoupled tab panels.
 terms:
   - tabs
   - alpinejs
@@ -10,7 +10,7 @@ terms:
   - roving-tabindex
   - hash-routing
 pubDate: 2026-04-20
-modDate: 2026-04-20
+modDate: 2026-05-06
 ---
 
 import Demo from '../../components/demos/Tabs.astro'
@@ -22,7 +22,7 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 # Alpine.js {frontmatter.title}
 
-`huxTabs` manages active tab state, keyboard focus movement, and optional URL hash synchronization. Use it to attach behavior to your own tablist and panel markup.
+`huxTabs` manages active tab state, keyboard focus movement, and optional URL hash synchronization. Use it to attach behavior to your own tablist and panel markup. Panels can either live inside the same `x-data` scope (owned) or in a separate scope via `huxTabPanel` (decoupled).
 
 <LastUpdated date={frontmatter.modDate} />
 
@@ -35,6 +35,7 @@ Returns an Alpine data object with:
 - `activeTabId: string | null`
 - `tabItems: Array<{ label: string, id: string }>`
 - `useHash: boolean`
+- `tabsId: string | null`
 - `activeTabIndex: number`
 - `selectTab(tabId: string): void`
 - `focusTab(tabId: string): void`
@@ -45,11 +46,27 @@ Returns an Alpine data object with:
 
 _Internal helper methods are private implementation details and are not part of the supported API contract._
 
+### `huxTabPanel(config)`
+
+Returns an Alpine data object for a decoupled tab panel with:
+
+- `isActive: boolean`
+- `tabsId: string`
+- `tabId: string`
+
 ## Options
+
+### `huxTabs`
 
 - `tabItems: Array<{ label: string, id: string }>` (default: `[]`)
 - `activeTab: string` (optional initial active id)
 - `useHash: boolean` (default: `false`)
+- `id: string` (optional; enables `hux-tabs:{id}:change` events for decoupled panels)
+
+### `huxTabPanel`
+
+- `tabsId: string` (required; matches the `id` passed to `huxTabs`)
+- `tabId: string` (required; the tab id this panel belongs to)
 
 ## Quick Start
 
@@ -119,6 +136,63 @@ huxTabs({
 })
 ```
 
+### Decoupled Panels
+
+Use `id` on `huxTabs` and `huxTabPanel` on each panel to place tablist and panels in separate DOM scopes.
+
+```html
+<div
+  x-data="huxTabs({
+    id: 'settings',
+    tabItems: [
+      { label: 'General', id: 'general' },
+      { label: 'Security', id: 'security' }
+    ]
+  })"
+>
+  <div role="tablist" aria-label="Settings">
+    <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
+      <button
+        type="button"
+        role="tab"
+        x-bind:id="`tab-${tabItem.id}`"
+        x-bind:aria-controls="`panel-${tabItem.id}`"
+        x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
+        x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
+        x-on:click="selectTab(tabItem.id)"
+        x-on:keydown.right.prevent="focusNextTab()"
+        x-on:keydown.left.prevent="focusPreviousTab()"
+        x-text="tabItem.label"
+      ></button>
+    </template>
+  </div>
+</div>
+
+<section
+  id="panel-general"
+  role="tabpanel"
+  aria-labelledby="tab-general"
+  tabindex="0"
+  x-data="huxTabPanel({ tabsId: 'settings', tabId: 'general' })"
+  x-show="isActive"
+  x-cloak
+>
+  ...
+</section>
+
+<section
+  id="panel-security"
+  role="tabpanel"
+  aria-labelledby="tab-security"
+  tabindex="0"
+  x-data="huxTabPanel({ tabsId: 'settings', tabId: 'security' })"
+  x-show="isActive"
+  x-cloak
+>
+  ...
+</section>
+```
+
 ## Behavior Contract
 
 - Invalid tab items are filtered out during initialization.
@@ -127,12 +201,16 @@ huxTabs({
 - `selectTab()` ignores unknown ids and only updates state for valid ids.
 - `focusNextTab()` and `focusPreviousTab()` wrap at boundaries.
 - When `useHash` is enabled, `selectTab()` updates hash with `history.replaceState`.
+- When `id` is set, `selectTab()` dispatches `hux-tabs:{id}:change` on `window` with `{ tabId }` in `event.detail`. No event is dispatched when `activeTabId` is `null`.
+- When `id` is set, the initial active tab is also dispatched via `hux-tabs:{id}:change` after all components in the current render have initialized. No event is dispatched when `tabItems` is empty.
+- `huxTabPanel` toggles `isActive` on every `hux-tabs:{tabsId}:change` event — `true` when the event's `tabId` matches its own `tabId`, `false` otherwise.
 
 ## Error Handling
 
 - Malformed hash decoding is caught and ignored without throwing.
 - Unknown tab ids no-op in `selectTab()` and focus helpers.
 - Empty tab arrays initialize with `activeTabId = null`.
+- `huxTabPanel` logs a console error and no-ops when `tabsId` or `tabId` is missing.
 
 ## Accessibility Notes
 
@@ -144,5 +222,8 @@ huxTabs({
 ## Notes
 
 - Hash sync uses `replaceState`, so tab changes do not add browser history entries.
+- Events emitted when `id` is set:
+  - `hux-tabs:{id}:change` — dispatched on `window` with `{ tabId: string }` detail on init and on every `selectTab()` call. Not dispatched when `activeTabId` is `null` (empty tab list).
+- Owned panels (no `id` needed) still work via `x-show="activeTabId === 'general'"` inside the same `x-data` scope.
 
 </div>
