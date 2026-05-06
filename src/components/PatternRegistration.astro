@@ -260,6 +260,18 @@
         this.shortcutHint = /mac/i.test(platformString)
           ? `Command + ${uppercaseShortcutKey}`
           : `Control + ${uppercaseShortcutKey}`
+
+        const handleOtherPaletteOpen = (event) => {
+          if (event.detail?.paletteId !== this.paletteId) {
+            this.closeDialog?.()
+          }
+        }
+
+        window.addEventListener('hux-command-palette:open', handleOtherPaletteOpen)
+
+        this.$cleanup(() =>
+          window.removeEventListener('hux-command-palette:open', handleOtherPaletteOpen),
+        )
       },
 
       openPalette() {

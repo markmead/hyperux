@@ -10,7 +10,7 @@ terms:
   - dialog
   - combobox
 pubDate: 2026-04-20
-modDate: 2026-04-21
+modDate: 2026-05-06
 ---
 
 import Demo from '../../components/demos/CommandPalette.astro'
@@ -40,7 +40,7 @@ Returns an Alpine data object with:
 - `paletteId: string | null`
 - `shortcutKey: string`
 - `shortcutHint: string`
-- `openPalette(): void` — dispatches `hux-command-palette:open` (with `paletteId` in the event detail) then calls `openDialog()`; any other open palette instance receives this event and closes itself, ensuring only one palette is open at a time
+- `openPalette(): void` — dispatches `hux-command-palette:open` (with `paletteId` in the event detail) then calls `openDialog()`; every other `huxCommandPalette` instance on the page automatically closes when it receives this event, ensuring only one palette is open at a time
 - `handleGlobalShortcut(event): void`
 - `findPaletteItem(itemLabel: string): object | null`
 - `selectItem(itemLabel: string): object | null`

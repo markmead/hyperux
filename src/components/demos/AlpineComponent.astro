@@ -117,7 +117,6 @@
       }
     })()"
     x-on:keydown.window="handleGlobalShortcut($event)"
-    x-on:hux-command-palette:open.window="if ($event.detail.paletteId !== paletteId) closeDialog()"
     x-on:hux-command-palette:close.window="closeDialog()"
   >
     <div class="space-y-2">
