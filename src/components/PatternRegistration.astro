@@ -1110,6 +1110,7 @@
       activeTabId: initialConfig.activeTab ?? null,
       tabItems: [],
       useHash: initialConfig.useHash ?? false,
+      tabsId: initialConfig.id ?? null,
 
       init() {
         this.tabItems = (initialConfig.tabItems ?? []).filter(
@@ -1135,6 +1136,12 @@
         if (!this.activeTabId || !validIds.includes(this.activeTabId)) {
           this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
         }
+
+        if (this.tabsId) {
+          // Defer initial event so all huxTabPanel instances in the current render
+          // have had a chance to register their window listeners in init().
+          this.$nextTick(() => this._dispatchChangeEvent())
+        }
       },
 
       get activeTabIndex() {
@@ -1145,6 +1152,14 @@
 
       findTabIndex(tabId) {
         return this.tabItems.findIndex((tabItem) => tabItem.id === tabId)
+      },
+
+      _dispatchChangeEvent() {
+        window.dispatchEvent(
+          new CustomEvent(`hux-tabs:${this.tabsId}:change`, {
+            detail: { tabId: this.activeTabId },
+          }),
+        )
       },
 
       selectTab(tabId) {
@@ -1158,6 +1173,10 @@
 
         if (this.useHash && typeof globalThis.history !== 'undefined') {
           history.replaceState(null, '', `#${encodeURIComponent(tabId)}`)
+        }
+
+        if (this.tabsId) {
+          this._dispatchChangeEvent()
         }
       },
 
@@ -1211,6 +1230,38 @@
 
         this.selectTab(lastTabId)
         this.focusTab(lastTabId)
+      },
+    }))
+  })
+</script>
+
+<script is:inline data-hux-copy="huxTabPanelRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxTabPanel', (initialConfig = {}) => ({
+      tabsId: initialConfig.tabsId ?? null,
+      tabId: initialConfig.tabId ?? null,
+      isActive: false,
+      _changeHandler: null,
+
+      init() {
+        if (!this.tabsId || !this.tabId) {
+          console.error('[huxTabPanel] "tabsId" and "tabId" are required.')
+
+          return
+        }
+
+        this._changeHandler = (event) => {
+          this.isActive = event.detail.tabId === this.tabId
+        }
+
+        window.addEventListener(`hux-tabs:${this.tabsId}:change`, this._changeHandler)
+      },
+
+      destroy() {
+        if (this._changeHandler) {
+          window.removeEventListener(`hux-tabs:${this.tabsId}:change`, this._changeHandler)
+          this._changeHandler = null
+        }
       },
     }))
   })
