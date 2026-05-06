@@ -261,17 +261,19 @@
           ? `Command + ${uppercaseShortcutKey}`
           : `Control + ${uppercaseShortcutKey}`
 
-        const handleOtherPaletteOpen = (event) => {
+        this._handleOtherPaletteOpen = (event) => {
           if (event.detail?.paletteId !== this.paletteId) {
             this.closeDialog?.()
           }
         }
 
-        window.addEventListener('hux-command-palette:open', handleOtherPaletteOpen)
+        window.addEventListener('hux-command-palette:open', this._handleOtherPaletteOpen)
+      },
 
-        this.$cleanup(() =>
-          window.removeEventListener('hux-command-palette:open', handleOtherPaletteOpen),
-        )
+      destroy() {
+        if (this._handleOtherPaletteOpen) {
+          window.removeEventListener('hux-command-palette:open', this._handleOtherPaletteOpen)
+        }
       },
 
       openPalette() {

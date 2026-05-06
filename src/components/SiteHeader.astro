@@ -37,6 +37,7 @@ const paletteItemsJson = JSON.stringify(paletteItems)
         x-data={`(() => {
             const dialogComponent = huxDialog({ dialogId: 'site-pattern-search' })
             const paletteComponent = huxCommandPalette({
+              paletteId: 'site-search',
               paletteItems: ${paletteItemsJson}
             })
 
@@ -55,7 +56,7 @@ const paletteItemsJson = JSON.stringify(paletteItems)
         <button
           type="button"
           class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-gray-50 px-4 py-2 text-gray-700"
-          x-on:click="openDialog()"
+          x-on:click="openPalette()"
           aria-label="Search patterns"
         >
           <Search class="size-4" />
