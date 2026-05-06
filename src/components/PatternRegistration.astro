@@ -1156,6 +1156,10 @@
       },
 
       _dispatchChangeEvent() {
+        if (this.activeTabId === null) {
+          return
+        }
+
         window.dispatchEvent(
           new CustomEvent(`hux-tabs:${this.tabsId}:change`, {
             detail: { tabId: this.activeTabId },
@@ -1252,7 +1256,7 @@
         }
 
         this._changeHandler = (event) => {
-          this.isActive = event.detail.tabId === this.tabId
+          this.isActive = event.detail?.tabId === this.tabId
         }
 
         window.addEventListener(`hux-tabs:${this.tabsId}:change`, this._changeHandler)

@@ -201,9 +201,9 @@ Use `id` on `huxTabs` and `huxTabPanel` on each panel to place tablist and panel
 - `selectTab()` ignores unknown ids and only updates state for valid ids.
 - `focusNextTab()` and `focusPreviousTab()` wrap at boundaries.
 - When `useHash` is enabled, `selectTab()` updates hash with `history.replaceState`.
-- When `id` is set, `selectTab()` dispatches `hux-tabs:{id}:change` on `window` with `{ tabId }` in `event.detail`.
-- When `id` is set, the initial active tab is also dispatched via `hux-tabs:{id}:change` after all components in the current render have initialized.
-- `huxTabPanel` sets `isActive` to `true` when it receives a `hux-tabs:{tabsId}:change` event whose `tabId` matches its own `tabId`.
+- When `id` is set, `selectTab()` dispatches `hux-tabs:{id}:change` on `window` with `{ tabId }` in `event.detail`. No event is dispatched when `activeTabId` is `null`.
+- When `id` is set, the initial active tab is also dispatched via `hux-tabs:{id}:change` after all components in the current render have initialized. No event is dispatched when `tabItems` is empty.
+- `huxTabPanel` toggles `isActive` on every `hux-tabs:{tabsId}:change` event — `true` when the event's `tabId` matches its own `tabId`, `false` otherwise.
 
 ## Error Handling
 
@@ -223,7 +223,7 @@ Use `id` on `huxTabs` and `huxTabPanel` on each panel to place tablist and panel
 
 - Hash sync uses `replaceState`, so tab changes do not add browser history entries.
 - Events emitted when `id` is set:
-  - `hux-tabs:{id}:change` — dispatched on `window` with `{ tabId: string }` detail on init and on every `selectTab()` call.
+  - `hux-tabs:{id}:change` — dispatched on `window` with `{ tabId: string }` detail on init and on every `selectTab()` call. Not dispatched when `activeTabId` is `null` (empty tab list).
 - Owned panels (no `id` needed) still work via `x-show="activeTabId === 'general'"` inside the same `x-data` scope.
 
 </div>

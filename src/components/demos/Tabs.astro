@@ -103,7 +103,7 @@
       <div role="tablist" aria-label="Account settings" class="flex gap-1 border-b border-gray-200">
         <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
           <button
-            x-bind:id="`tab-${tabItem.id}`"
+            x-bind:id="`decoupled-tab-${tabItem.id}`"
             x-bind:aria-selected="(activeTabId === tabItem.id).toString()"
             x-bind:aria-controls="`decoupled-panel-${tabItem.id}`"
             x-bind:tabindex="activeTabId === tabItem.id ? '0' : '-1'"
@@ -127,7 +127,7 @@
 
     <div
       id="decoupled-panel-general"
-      aria-labelledby="tab-general"
+      aria-labelledby="decoupled-tab-general"
       role="tabpanel"
       tabindex="0"
       x-data="huxTabPanel({ tabsId: 'account', tabId: 'general' })"
@@ -140,7 +140,7 @@
 
     <div
       id="decoupled-panel-security"
-      aria-labelledby="tab-security"
+      aria-labelledby="decoupled-tab-security"
       role="tabpanel"
       tabindex="0"
       x-data="huxTabPanel({ tabsId: 'account', tabId: 'security' })"
@@ -153,7 +153,7 @@
 
     <div
       id="decoupled-panel-notifications"
-      aria-labelledby="tab-notifications"
+      aria-labelledby="decoupled-tab-notifications"
       role="tabpanel"
       tabindex="0"
       x-data="huxTabPanel({ tabsId: 'account', tabId: 'notifications' })"
