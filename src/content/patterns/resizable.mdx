@@ -10,7 +10,7 @@ terms:
   - iframe-preview
   - responsive-testing
 pubDate: 2026-04-20
-modDate: 2026-04-20
+modDate: 2026-05-06
 ---
 
 import Demo from '../../components/demos/Resizable.astro'
@@ -37,6 +37,7 @@ Returns an Alpine data object with:
 - `maxWidth: number | null`
 - `preventOverflow: boolean`
 - `stopAtLastBreakpoint: boolean`
+- `iframeSrc: string | null`
 - `breakpointItems: Array<{ label: string, minWidth: number }>`
 - `activeBreakpoint: string | null`
 - `startDrag(pointerEvent): void`
@@ -54,16 +55,17 @@ _Internal helper methods are private implementation details and are not part of 
 - `maxWidth: number | null` (default: `null`)
 - `preventOverflow: boolean` (default: `true`)
 - `stopAtLastBreakpoint: boolean` (default: `false`)
+- `iframeSrc: string | null` (default: `null`)
 
 ## Quick Start
 
 ```html
-<div x-data="huxResizable({ stopAtLastBreakpoint: true })">
+<div x-data="huxResizable({ iframeSrc: '/examples/preview.html', stopAtLastBreakpoint: true })">
   <div
     x-ref="resizableContainer"
     x-bind:style="`width: ${currentWidth}px; min-width: ${minWidth}px;`"
   >
-    <iframe x-ref="iframeEl" src="/examples/resizable.html" title="Preview"></iframe>
+    <iframe x-ref="iframeEl" x-bind:src="iframeSrc" title="Preview"></iframe>
 
     <button
       type="button"
@@ -108,6 +110,18 @@ huxResizable({
   ],
 })
 ```
+
+### Dynamic iframe Source
+
+Pass `iframeSrc` to load a specific URL into the preview iframe. This allows multiple resizable containers on the same page to each load different content without duplicating markup.
+
+```js
+huxResizable({
+  iframeSrc: '/preview/my-component',
+})
+```
+
+When `iframeSrc` is `null` (the default), the iframe renders without a `src` attribute and displays a blank page.
 
 ## Behavior Contract
 
