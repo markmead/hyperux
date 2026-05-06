@@ -300,7 +300,9 @@
         const target = event.target
         const tagName = target?.tagName?.toLowerCase()
 
-        if (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable) {
+        const isInsideDialog = !!target?.closest?.('[role="dialog"]')
+
+        if (!isInsideDialog && (tagName === 'input' || tagName === 'textarea' || target?.isContentEditable)) {
           return
         }
 
