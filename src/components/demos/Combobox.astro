@@ -1,3 +1,7 @@
+---
+import { X } from '@lucide/astro'
+---
+
 <div class="relative rounded-lg border border-gray-300 bg-white p-6">
   <span
     class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
@@ -102,21 +106,11 @@
 
         <button
           type="button"
-          class="-mr-1.5 inline-flex size-4 items-center justify-center rounded-full bg-emerald-200/80 p-1 text-emerald-900 hover:bg-emerald-300"
+          class="-mr-1.5 inline-flex size-5 items-center justify-center rounded-full bg-emerald-200/80 text-emerald-900 hover:bg-emerald-300"
           aria-label="Clear selected value"
           x-on:click.stop="clearSelection()"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            aria-hidden="true"
-            class="size-5"
-          >
-            <path
-              d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
-            ></path>
-          </svg>
+          <X class="size-3" />
         </button>
       </div>
     </div>
