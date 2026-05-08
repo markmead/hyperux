@@ -1280,6 +1280,7 @@
       inputValue: '',
       suggestedPrompts: initialConfig.suggestedPrompts ?? [],
       isVoiceEnabled: false,
+      thinkingMessage: '',
 
       init() {
         try {
@@ -1321,6 +1322,7 @@
           role: 'user',
           content,
           status: 'complete',
+          rating: null,
         }
 
         this.messages.push(userMessage)
@@ -1333,6 +1335,7 @@
         // API Integration Point: replace _simulateResponse() with your fetch/SSE/stream logic.
         // The assistant message is already pushed with status: 'sending' in _simulateResponse().
         // Update message.content incrementally for streaming, then set status: 'complete' when done.
+        // Set this.thinkingMessage at key points to surface interim status to the user.
         this._simulateResponse()
       },
 
@@ -1342,13 +1345,26 @@
           role: 'assistant',
           content: '',
           status: 'sending',
+          rating: null,
         }
 
         this.messages.push(assistantMessage)
         this.scrollToBottom()
 
         // Demo simulation — replace this block with real fetch/SSE/stream logic
+        const thinkingSteps = ['Working on it…', 'Crunching the numbers…', 'Almost there…']
+        let stepIndex = 0
+
+        this.thinkingMessage = thinkingSteps[stepIndex]
+
+        const stepInterval = setInterval(() => {
+          stepIndex = (stepIndex + 1) % thinkingSteps.length
+          this.thinkingMessage = thinkingSteps[stepIndex]
+        }, 500)
+
         setTimeout(() => {
+          clearInterval(stepInterval)
+
           const lastMessage = this.messages.at(-1)
 
           if (lastMessage && lastMessage.status === 'sending') {
@@ -1357,9 +1373,10 @@
             lastMessage.status = 'complete'
           }
 
+          this.thinkingMessage = ''
           this.isLoading = false
           this.scrollToBottom()
-        }, 1200)
+        }, 1800)
       },
 
       _resetTextarea() {
@@ -1410,6 +1427,40 @@
 
         // API Integration Point: replace _simulateResponse() with your fetch/SSE/stream logic
         this._simulateResponse()
+      },
+
+      rateMessage(id, rating) {
+        const message = this.messages.find((m) => m.id === id)
+
+        if (!message) {
+          console.error('[huxChat] rateMessage: message not found', id)
+
+          return
+        }
+
+        message.rating = message.rating === rating ? null : rating
+      },
+
+      exportChat() {
+        const completedMessages = this.messages.filter((m) => m.status === 'complete')
+
+        if (completedMessages.length === 0) {
+          return
+        }
+
+        const text = completedMessages
+          .map((m) => `${m.role === 'user' ? 'You' : 'Assistant'}: ${m.content}`)
+          .join('\n\n')
+
+        const blob = new Blob([text], { type: 'text/plain' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+
+        link.href = url
+        link.download = 'chat-export.txt'
+        link.click()
+
+        URL.revokeObjectURL(url)
       },
 
       toggleVoice() {
