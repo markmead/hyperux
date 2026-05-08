@@ -1357,26 +1357,48 @@
 
         this.thinkingMessage = thinkingSteps[stepIndex]
 
-        const stepInterval = setInterval(() => {
+        const thinkingInterval = setInterval(() => {
           stepIndex = (stepIndex + 1) % thinkingSteps.length
           this.thinkingMessage = thinkingSteps[stepIndex]
-        }, 500)
+        }, 3000)
+
+        const demoResponses = [
+          'This scaffold handles the full chat UI — message thread, loading state, streaming, input, suggested prompts, ratings, export, and voice toggle. Wire up _simulateResponse() to any AI backend and you\'re good to go.',
+          'Streaming works by appending chunks to message.content in place while status is "sending". Set status to "complete" when the stream ends. The UI updates reactively as each chunk arrives.',
+          'To connect a real API, replace _simulateResponse() with a fetch or SSE call. Push an assistant message with status: "sending", then update its content incrementally as chunks arrive.',
+          'You can export the full conversation as a plain-text file using exportChat(). It collects all complete messages and triggers a download of chat-export.txt.',
+        ]
+
+        const messageId = assistantMessage.id
+        const response = demoResponses[Math.floor(Math.random() * demoResponses.length)]
+        const words = response.split(' ')
+        let wordIndex = 0
 
         setTimeout(() => {
-          clearInterval(stepInterval)
+          clearInterval(thinkingInterval)
+          this.thinkingMessage = ''
 
-          const lastMessage = this.messages.at(-1)
+          const target = this.messages.find((m) => m.id === messageId)
 
-          if (lastMessage && lastMessage.status === 'sending') {
-            lastMessage.content =
-              'This is a demo response. Replace the _simulateResponse() block with your API integration.'
-            lastMessage.status = 'complete'
+          if (!target || target.status !== 'sending') {
+            this.isLoading = false
+
+            return
           }
 
-          this.thinkingMessage = ''
-          this.isLoading = false
-          this.scrollToBottom()
-        }, 1800)
+          const streamInterval = setInterval(() => {
+            if (wordIndex < words.length) {
+              target.content += (wordIndex === 0 ? '' : ' ') + words[wordIndex]
+              wordIndex++
+              this.scrollToBottom()
+            } else {
+              clearInterval(streamInterval)
+              target.status = 'complete'
+              this.isLoading = false
+              this.scrollToBottom()
+            }
+          }, 55)
+        }, 1500)
       },
 
       _resetTextarea() {
