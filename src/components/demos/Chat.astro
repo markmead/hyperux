@@ -1,0 +1,254 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Stream-ready AI chat scaffold with suggested prompts, auto-scroll, typing indicator, message
+      actions, and persistent voice toggle.
+    </p>
+
+    <div
+      data-hux-copy="huxChatDemo"
+      x-data="huxChat({
+        suggestedPrompts: [
+          'What is Alpine.js?',
+          'How do I use x-data?',
+          'Show me a simple counter example'
+        ]
+      })"
+      class="flex h-[520px] flex-col rounded-lg border border-gray-200 bg-gray-50"
+    >
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-2">
+        <span class="text-sm font-medium text-gray-700">AI Chat</span>
+
+        <button
+          type="button"
+          x-on:click="toggleVoice()"
+          x-bind:aria-pressed="isVoiceEnabled.toString()"
+          x-bind:aria-label="isVoiceEnabled ? 'Disable voice' : 'Enable voice'"
+          x-bind:class="isVoiceEnabled ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'"
+          class="inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-xs font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+            class="size-3.5"
+          >
+            <path
+              d="M7 4a3 3 0 0 1 6 0v6a3 3 0 1 1-6 0V4Z"
+            ></path>
+            <path
+              d="M5.5 9.643a.75.75 0 0 0-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-1.5v-1.546A6.001 6.001 0 0 0 16 10v-.357a.75.75 0 0 0-1.5 0V10a4.5 4.5 0 0 1-9 0v-.357Z"
+            ></path>
+          </svg>
+          <span x-text="isVoiceEnabled ? 'Voice on' : 'Voice off'">Voice off</span>
+        </button>
+      </div>
+
+      <!-- Message list -->
+      <div
+        x-ref="messageList"
+        class="flex-1 space-y-4 overflow-y-auto px-4 py-4"
+        role="log"
+        aria-label="Chat messages"
+        aria-live="polite"
+      >
+        <!-- Suggested prompts — visible only when no messages exist -->
+        <template x-if="messages.length === 0">
+          <div class="flex h-full flex-col items-center justify-center gap-4">
+            <p class="text-sm font-medium text-gray-500">Try a suggested prompt to get started</p>
+
+            <div class="flex flex-wrap justify-center gap-2">
+              <template x-for="prompt in suggestedPrompts" x-bind:key="prompt">
+                <button
+                  type="button"
+                  x-text="prompt"
+                  x-on:click="selectSuggestedPrompt(prompt)"
+                  class="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                ></button>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <!-- Messages -->
+        <template x-for="message in messages" x-bind:key="message.id">
+          <div
+            x-bind:class="message.role === 'user' ? 'justify-end' : 'justify-start'"
+            class="flex gap-3"
+          >
+            <!-- Assistant avatar -->
+            <template x-if="message.role === 'assistant'">
+              <div
+                aria-hidden="true"
+                class="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white"
+              >
+                AI
+              </div>
+            </template>
+
+            <div
+              x-bind:class="message.role === 'user'
+                ? 'bg-blue-600 text-white rounded-br-sm'
+                : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'"
+              class="group relative max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
+            >
+              <!-- Sending indicator -->
+              <template x-if="message.status === 'sending' && message.content === ''">
+                <span class="flex items-center gap-1 py-0.5" aria-label="Assistant is typing">
+                  <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]"></span>
+                  <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"></span>
+                  <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"></span>
+                </span>
+              </template>
+
+              <template x-if="message.content !== ''">
+                <span x-text="message.content"></span>
+              </template>
+
+              <!-- Message actions — assistant messages only, when complete -->
+              <template x-if="message.role === 'assistant' && message.status === 'complete'">
+                <div class="mt-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                  <button
+                    type="button"
+                    x-on:click="copyToClipboard(message.id)"
+                    aria-label="Copy message"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      class="size-3.5"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M11.986 3H12a2 2 0 0 1 2 2v6a2 2 0 0 1-1.5 1.937V13a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 2 13V6.5A2.5 2.5 0 0 1 4.5 4h.543A2 2 0 0 1 7 3h4.986ZM10.5 5H7a.5.5 0 0 0-.5.5v.5H6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-.5v-.5a.5.5 0 0 0-.5-.5Zm-3 1h2v.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V6Z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    x-on:click="regenerateResponse(message.id)"
+                    aria-label="Regenerate response"
+                    class="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      fill="currentColor"
+                      aria-hidden="true"
+                      class="size-3.5"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M13.836 2.477a.75.75 0 0 1 .75.75v3.182a.75.75 0 0 1-.75.75h-3.182a.75.75 0 0 1 0-1.5h1.37l-.84-.841a4.5 4.5 0 0 0-7.08.932.75.75 0 0 1-1.3-.75 6 6 0 0 1 9.44-1.242l.842.84V3.227a.75.75 0 0 1 .75-.75Zm-.911 7.5A.75.75 0 0 1 13.199 11a6 6 0 0 1-9.44 1.241l-.84-.84v1.371a.75.75 0 0 1-1.5 0V9.591a.75.75 0 0 1 .75-.75H5.35a.75.75 0 0 1 0 1.5H3.98l.841.841a4.5 4.5 0 0 0 7.08-.932.75.75 0 0 1 1.025-.273Z"
+                        clip-rule="evenodd"
+                      ></path>
+                    </svg>
+                  </button>
+                </div>
+              </template>
+            </div>
+
+            <!-- User avatar -->
+            <template x-if="message.role === 'user'">
+              <div
+                aria-hidden="true"
+                class="mt-1 flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-600"
+              >
+                You
+              </div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Global loading indicator (visible while a response is streaming in) -->
+        <template x-if="isLoading && messages.at(-1)?.status !== 'sending'">
+          <div class="flex items-center gap-2 text-xs text-gray-400" aria-live="polite">
+            <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]"></span>
+            <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"></span>
+            <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"></span>
+            <span>Thinking…</span>
+          </div>
+        </template>
+      </div>
+
+      <!-- Input area -->
+      <div class="border-t border-gray-200 bg-white px-4 py-3">
+        <div class="flex items-end gap-2">
+          <label for="hux-chat-input-demo" class="sr-only">Message</label>
+
+          <textarea
+            id="hux-chat-input-demo"
+            x-ref="chatInput"
+            x-model="inputValue"
+            x-on:keydown="handleKeydown($event)"
+            x-on:input="$event.target.style.height = 'auto'; $event.target.style.height = $event.target.scrollHeight + 'px'"
+            x-bind:disabled="isLoading"
+            rows="1"
+            placeholder="Message… (Enter to send, Shift+Enter for new line)"
+            class="flex-1 resize-none overflow-hidden rounded-lg border border-gray-300 px-3 py-2 text-sm leading-relaxed placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          ></textarea>
+
+          <button
+            type="button"
+            x-on:click="sendMessage()"
+            x-bind:disabled="isLoading || inputValue.trim() === ''"
+            aria-label="Send message"
+            class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+              class="size-4"
+            >
+              <path
+                d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxChatDemo', 'huxChatRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>

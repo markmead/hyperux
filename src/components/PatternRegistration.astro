@@ -1271,3 +1271,162 @@
     }))
   })
 </script>
+
+<script is:inline data-hux-copy="huxChatRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxChat', (initialConfig = {}) => ({
+      messages: initialConfig.messages ?? [],
+      isLoading: false,
+      inputValue: '',
+      suggestedPrompts: initialConfig.suggestedPrompts ?? [],
+      isVoiceEnabled: false,
+
+      init() {
+        try {
+          const stored = localStorage.getItem('hux-chat:voice-enabled')
+
+          this.isVoiceEnabled = stored === 'true'
+        } catch {
+          // localStorage unavailable; keep default false
+        }
+      },
+
+      scrollToBottom() {
+        this.$nextTick(() => {
+          const container = this.$refs.messageList
+
+          if (container) {
+            container.scrollTop = container.scrollHeight
+          }
+        })
+      },
+
+      handleKeydown(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault()
+
+          this.sendMessage()
+        }
+      },
+
+      sendMessage() {
+        const content = this.inputValue.trim()
+
+        if (!content || this.isLoading) {
+          return
+        }
+
+        const userMessage = {
+          id: crypto.randomUUID(),
+          role: 'user',
+          content,
+          status: 'complete',
+        }
+
+        this.messages.push(userMessage)
+        this.inputValue = ''
+        this.isLoading = true
+
+        this._resetTextarea()
+        this.scrollToBottom()
+
+        // API Integration Point: replace _simulateResponse() with your fetch/SSE/stream logic.
+        // The assistant message is already pushed with status: 'sending' in _simulateResponse().
+        // Update message.content incrementally for streaming, then set status: 'complete' when done.
+        this._simulateResponse()
+      },
+
+      _simulateResponse() {
+        const assistantMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '',
+          status: 'sending',
+        }
+
+        this.messages.push(assistantMessage)
+        this.scrollToBottom()
+
+        // Demo simulation — replace this block with real fetch/SSE/stream logic
+        setTimeout(() => {
+          const lastMessage = this.messages.at(-1)
+
+          if (lastMessage && lastMessage.status === 'sending') {
+            lastMessage.content =
+              'This is a demo response. Replace the _simulateResponse() block with your API integration.'
+            lastMessage.status = 'complete'
+          }
+
+          this.isLoading = false
+          this.scrollToBottom()
+        }, 1200)
+      },
+
+      _resetTextarea() {
+        this.$nextTick(() => {
+          const textarea = this.$refs.chatInput
+
+          if (textarea) {
+            textarea.style.height = 'auto'
+          }
+        })
+      },
+
+      async copyToClipboard(id) {
+        const message = this.messages.find((m) => m.id === id)
+
+        if (!message) {
+          console.error('[huxChat] copyToClipboard: message not found', id)
+
+          return
+        }
+
+        try {
+          await navigator.clipboard.writeText(message.content)
+        } catch (copyError) {
+          console.error('[huxChat] copyToClipboard failed', copyError)
+        }
+      },
+
+      regenerateResponse(id) {
+        const messageIndex = this.messages.findIndex((m) => m.id === id)
+
+        if (messageIndex === -1) {
+          console.error('[huxChat] regenerateResponse: message not found', id)
+
+          return
+        }
+
+        const previousUserMessage = this.messages
+          .slice(0, messageIndex)
+          .findLast((m) => m.role === 'user')
+
+        if (!previousUserMessage) {
+          return
+        }
+
+        this.messages.splice(messageIndex)
+        this.isLoading = true
+
+        // API Integration Point: replace _simulateResponse() with your fetch/SSE/stream logic
+        this._simulateResponse()
+      },
+
+      toggleVoice() {
+        this.isVoiceEnabled = !this.isVoiceEnabled
+
+        try {
+          localStorage.setItem('hux-chat:voice-enabled', this.isVoiceEnabled.toString())
+        } catch {
+          // localStorage unavailable; state not persisted
+        }
+      },
+
+      selectSuggestedPrompt(prompt) {
+        this.inputValue = prompt
+
+        this.sendMessage()
+      },
+    }))
+  })
+</script>

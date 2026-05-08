@@ -1,0 +1,226 @@
+---
+slug: chat
+title: Chat
+description: Stream-ready AI chat scaffold for Alpine.js with suggested prompts, auto-scroll, typing indicator, message actions, and persistent voice toggle.
+terms:
+  - chat
+  - ai
+  - alpinejs
+  - streaming
+  - conversational-ui
+  - message-actions
+  - suggested-prompts
+  - voice
+pubDate: 2026-05-08
+modDate: 2026-05-08
+---
+
+import Demo from '../../components/demos/Chat.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxChat` is a logic scaffold for ChatGPT/Claude-style UIs. It manages a message thread, loading state, input handling, message actions, suggested prompts, and a voice toggle — without coupling you to any specific backend or streaming protocol.
+
+Replace the `_simulateResponse()` call in `sendMessage()` and `regenerateResponse()` with your own `fetch`/SSE/WebSocket logic to connect to any AI backend.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxChat(config)`
+
+Returns an Alpine data object with:
+
+- `messages: Array<{ id: string, role: 'user' | 'assistant', content: string, status: 'sending' | 'complete' | 'error' }>`
+- `isLoading: boolean`
+- `inputValue: string`
+- `suggestedPrompts: string[]`
+- `isVoiceEnabled: boolean`
+- `sendMessage(): void`
+- `handleKeydown(event: KeyboardEvent): void`
+- `scrollToBottom(): void`
+- `copyToClipboard(id: string): Promise<void>`
+- `regenerateResponse(id: string): void`
+- `toggleVoice(): void`
+- `selectSuggestedPrompt(prompt: string): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `messages: Array<{ id, role, content, status }>` (default: `[]`)
+  Pre-populate the message thread (for example, with a system greeting).
+- `suggestedPrompts: string[]` (default: `[]`)
+  Starter prompt buttons shown when the thread is empty. Clicking one pre-fills and sends the message.
+
+## Quick Start
+
+### Minimal
+
+```html
+<div x-data="huxChat()">
+  <div x-ref="messageList" style="height: 400px; overflow-y: auto;">
+    <template x-for="message in messages" x-bind:key="message.id">
+      <div x-text="message.content"></div>
+    </template>
+  </div>
+
+  <textarea
+    x-model="inputValue"
+    x-on:keydown="handleKeydown($event)"
+    x-bind:disabled="isLoading"
+    placeholder="Message…"
+  ></textarea>
+
+  <button type="button" x-on:click="sendMessage()">Send</button>
+</div>
+```
+
+### With Suggested Prompts
+
+```js
+huxChat({
+  suggestedPrompts: [
+    'What is Alpine.js?',
+    'How do I use x-data?',
+    'Show me a simple counter example',
+  ],
+})
+```
+
+## Common Usage Patterns
+
+### Pre-populate with a Greeting
+
+```js
+huxChat({
+  messages: [
+    {
+      id: 'greeting',
+      role: 'assistant',
+      content: 'Hello! How can I help you today?',
+      status: 'complete',
+    },
+  ],
+})
+```
+
+### Connect to a Real AI API
+
+Replace `_simulateResponse()` in `sendMessage()` and `regenerateResponse()` with your own logic. The scaffold adds a `sending` assistant message before the call so your streaming loop can update `message.content` in place:
+
+```js
+// API Integration Point
+async function streamResponse(messages, onChunk, onDone) {
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages }),
+  })
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    onChunk(decoder.decode(value))
+  }
+
+  onDone()
+}
+```
+
+### Message Actions on Hover
+
+Wire `copyToClipboard(message.id)` and `regenerateResponse(message.id)` to action buttons inside the message template:
+
+```html
+<template x-if="message.role === 'assistant' && message.status === 'complete'">
+  <div>
+    <button type="button" x-on:click="copyToClipboard(message.id)" aria-label="Copy message">
+      Copy
+    </button>
+
+    <button
+      type="button"
+      x-on:click="regenerateResponse(message.id)"
+      aria-label="Regenerate response"
+    >
+      Regenerate
+    </button>
+  </div>
+</template>
+```
+
+### Voice Toggle
+
+The voice preference is read from and written to `localStorage` under the key `hux-chat:voice-enabled`. Bind `toggleVoice()` to a button and read `isVoiceEnabled` to drive your TTS logic:
+
+```html
+<button
+  type="button"
+  x-on:click="toggleVoice()"
+  x-bind:aria-pressed="isVoiceEnabled.toString()"
+  x-bind:aria-label="isVoiceEnabled ? 'Disable voice' : 'Enable voice'"
+>
+  <span x-text="isVoiceEnabled ? 'Voice on' : 'Voice off'">Voice off</span>
+</button>
+```
+
+### Auto-Expanding Textarea
+
+Use an `input` handler on the textarea to grow it as the user types:
+
+```html
+<textarea
+  x-ref="chatInput"
+  x-model="inputValue"
+  x-on:keydown="handleKeydown($event)"
+  x-on:input="$event.target.style.height = 'auto'; $event.target.style.height = $event.target.scrollHeight + 'px'"
+  rows="1"
+  style="resize: none; overflow: hidden;"
+></textarea>
+```
+
+## Behavior Contract
+
+- `sendMessage()` does nothing if `inputValue` is empty or `isLoading` is `true`.
+- Each call to `sendMessage()` appends a `{ role: 'user', status: 'complete' }` message, clears `inputValue`, sets `isLoading = true`, and calls the response handler.
+- The response handler appends a `{ role: 'assistant', status: 'sending' }` message. Update `content` in place during streaming. Set `status = 'complete'` and `isLoading = false` when done.
+- `scrollToBottom()` defers to `$nextTick` and scrolls `x-ref="messageList"` to the bottom.
+- `handleKeydown()` intercepts `Enter` (without `Shift`) to call `sendMessage()` and prevents the default newline. `Shift+Enter` falls through for normal newline behavior.
+- `regenerateResponse(id)` removes the targeted assistant message and all messages after it, then re-invokes the response handler.
+- `toggleVoice()` flips `isVoiceEnabled` and persists the new value to `localStorage`.
+- `selectSuggestedPrompt(prompt)` sets `inputValue` to the prompt and immediately calls `sendMessage()`.
+
+## Error Handling
+
+- If `copyToClipboard(id)` cannot find the message, it logs: `[huxChat] copyToClipboard: message not found`.
+- If the clipboard write fails, it logs: `[huxChat] copyToClipboard failed`.
+- If `regenerateResponse(id)` cannot find the message, it logs: `[huxChat] regenerateResponse: message not found`.
+- If `localStorage` is unavailable, `init()` silently keeps `isVoiceEnabled = false` and `toggleVoice()` silently skips the write.
+
+## Accessibility Notes
+
+- Wrap the message list in a `role="log"` element with `aria-live="polite"` and an accessible label so screen readers announce new messages.
+- Use `aria-live="polite"` on any loading/typing indicator.
+- Keep send and action buttons as labeled `button` elements. Use `aria-label` for icon-only controls.
+- Add `type="button"` to all non-submit buttons to prevent accidental form submission.
+- Provide a visible `<label>` (or `<label class="sr-only">`) for the textarea to support keyboard and screen reader users.
+- Bind `x-bind:disabled="isLoading"` to the textarea and send button to prevent input during a pending response.
+- Use `aria-pressed` on the voice toggle to communicate its on/off state.
+
+## Notes
+
+- The `_simulateResponse()` method is a demo stub. It is not part of the public API and will be removed once you connect a real backend.
+- The `status` field supports `'sending'`, `'complete'`, and `'error'`. The scaffold uses `'sending'` during streaming and `'complete'` on success. Implement `'error'` handling in your API integration layer as needed.
+- Voice enablement is stored under the key `hux-chat:voice-enabled` in `localStorage`. The component does not implement TTS itself — use `isVoiceEnabled` to gate your own speech synthesis call.
+- Auto-scroll uses `x-ref="messageList"` on the scrollable container. If you rename the ref, pass the new name or call `scrollToBottom()` with a custom container reference in your integration.
+
+</div>
