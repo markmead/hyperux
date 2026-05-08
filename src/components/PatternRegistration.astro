@@ -1436,11 +1436,15 @@
           return
         }
 
-        const previousUserMessage = this.messages
-          .slice(0, messageIndex)
-          .findLast((m) => m.role === 'user')
+        const target = this.messages[messageIndex]
 
-        if (!previousUserMessage) {
+        if (target.role !== 'assistant' || target.status !== 'complete') {
+          console.error('[huxChat] regenerateResponse: target must be a complete assistant message', id)
+
+          return
+        }
+
+        if (!this.messages.slice(0, messageIndex).some((m) => m.role === 'user')) {
           return
         }
 

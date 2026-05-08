@@ -126,8 +126,9 @@
             >
               <!-- Sending indicator -->
               <template x-if="message.status === 'sending' && message.content === ''">
-                <span class="flex items-center gap-2 py-0.5">
-                  <span class="flex items-center gap-1" aria-label="Assistant is typing">
+                <span class="flex items-center gap-2 py-0.5" role="status" aria-live="polite">
+                  <span class="sr-only">Assistant is typing</span>
+                  <span class="flex items-center gap-1" aria-hidden="true">
                     <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]"></span>
                     <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"></span>
                     <span class="size-1.5 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"></span>
@@ -135,7 +136,7 @@
                   <span
                     x-show="thinkingMessage !== ''"
                     x-text="thinkingMessage"
-                    aria-live="polite"
+                    aria-hidden="true"
                     class="text-xs text-gray-400 italic"
                   ></span>
                 </span>

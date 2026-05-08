@@ -57,7 +57,7 @@ _Internal helper methods are private implementation details and are not part of 
 
 ## Options
 
-- `messages: Array<{ id, role, content, status }>` (default: `[]`)
+- `messages: Array<{ id: string, role: 'user' | 'assistant', content: string, status: 'sending' | 'complete' | 'error', rating: 'up' | 'down' | null }>` (default: `[]`)
   Pre-populate the message thread (for example, with a system greeting).
 - `suggestedPrompts: string[]` (default: `[]`)
   Starter prompt buttons shown when the thread is empty. Clicking one pre-fills and sends the message.
@@ -253,13 +253,14 @@ Use an `input` handler on the textarea to grow it as the user types:
 - If `copyToClipboard(id)` cannot find the message, it logs: `[huxChat] copyToClipboard: message not found`.
 - If the clipboard write fails, it logs: `[huxChat] copyToClipboard failed`.
 - If `regenerateResponse(id)` cannot find the message, it logs: `[huxChat] regenerateResponse: message not found`.
+- If `regenerateResponse(id)` is called on a non-assistant or non-complete message, it logs: `[huxChat] regenerateResponse: target must be a complete assistant message`.
 - If `rateMessage(id, rating)` cannot find the message, it logs: `[huxChat] rateMessage: message not found`.
 - If `localStorage` is unavailable, `init()` silently keeps `isVoiceEnabled = false` and `toggleVoice()` silently skips the write.
 
 ## Accessibility Notes
 
 - Wrap the message list in a `role="log"` element with `aria-live="polite"` and an accessible label so screen readers announce new messages.
-- Add `aria-live="polite"` to the `thinkingMessage` display so status updates are announced.
+- The typing indicator container uses `role="status"` and `aria-live="polite"`. It includes an `sr-only` text node ("Assistant is typing") so screen readers announce the typing status. The decorative dots and visible `thinkingMessage` text are marked `aria-hidden="true"` to avoid duplication.
 - Keep send and action buttons as labeled `button` elements. Use `aria-label` for icon-only controls.
 - Add `type="button"` to all non-submit buttons to prevent accidental form submission.
 - Provide a visible `<label>` (or `<label class="sr-only">`) for the textarea to support keyboard and screen reader users.
@@ -273,6 +274,6 @@ Use an `input` handler on the textarea to grow it as the user types:
 - The `status` field supports `'sending'`, `'complete'`, and `'error'`. The scaffold uses `'sending'` during streaming and `'complete'` on success. Implement `'error'` handling in your API integration layer as needed.
 - Voice enablement is stored under the key `hux-chat:voice-enabled` in `localStorage`. The component does not implement TTS itself — use `isVoiceEnabled` to gate your own speech synthesis call.
 - `copyToClipboard(id)` writes message content from component state directly via `navigator.clipboard`. It does not use `huxCopy` because the source is reactive state rather than a DOM element. The toolbar "Copy Alpine.js + HTML" button uses `huxCopy` to copy the snippet sources.
-- Auto-scroll uses `x-ref="messageList"` on the scrollable container. If you rename the ref, pass the new name or call `scrollToBottom()` with a custom container reference in your integration.
+- Auto-scroll uses `x-ref="messageList"` on the scrollable container. The ref name is fixed; if you rename the element, update the `x-ref` value to `messageList` to match.
 
 </div>
