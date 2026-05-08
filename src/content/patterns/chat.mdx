@@ -29,6 +29,8 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 Replace the `_simulateResponse()` call in `sendMessage()` and `regenerateResponse()` with your own `fetch`/SSE/WebSocket logic to connect to any AI backend.
 
+`copyToClipboard()` uses the [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API), which requires a **secure context (HTTPS or localhost)** and, in some browsers, a user gesture. Copy actions will silently fail (with a logged error) in non-secure contexts.
+
 <LastUpdated date={frontmatter.modDate} />
 
 ## API

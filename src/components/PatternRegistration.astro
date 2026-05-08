@@ -1360,7 +1360,7 @@
         const thinkingInterval = setInterval(() => {
           stepIndex = (stepIndex + 1) % thinkingSteps.length
           this.thinkingMessage = thinkingSteps[stepIndex]
-        }, 3000)
+        }, 1000)
 
         const demoResponses = [
           'This scaffold handles the full chat UI — message thread, loading state, streaming, input, suggested prompts, ratings, export, and voice toggle. Wire up _simulateResponse() to any AI backend and you\'re good to go.',
@@ -1486,7 +1486,7 @@
         link.download = 'chat-export.txt'
         link.click()
 
-        URL.revokeObjectURL(url)
+        setTimeout(() => URL.revokeObjectURL(url), 300)
       },
 
       toggleVoice() {
