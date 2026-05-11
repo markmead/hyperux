@@ -1281,6 +1281,7 @@
       suggestedPrompts: initialConfig.suggestedPrompts ?? [],
       isVoiceEnabled: false,
       thinkingMessage: '',
+      copiedMessageId: null,
 
       init() {
         try {
@@ -1422,6 +1423,12 @@
 
         try {
           await navigator.clipboard.writeText(message.content)
+
+          this.copiedMessageId = id
+
+          setTimeout(() => {
+            this.copiedMessageId = null
+          }, 2000)
         } catch (copyError) {
           console.error('[huxChat] copyToClipboard failed', copyError)
         }
