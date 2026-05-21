@@ -545,6 +545,7 @@
       editorId: initialConfig.editorId ?? null,
       inputTemplateRefName: initialConfig.inputTemplateRef ?? 'inlineEditorInput',
       focusTrapTemplateRefName: initialConfig.focusTrapTemplateRef ?? 'inlineEditor',
+      returnFocusTemplateRefName: initialConfig.returnFocusTemplateRef ?? null,
       _returnFocusElement: null,
       _activeInputElement: null,
 
@@ -711,15 +712,15 @@
       getFocusableElements() {
         const focusTrapRoot = this.$refs[this.focusTrapTemplateRefName] ?? this.$el
 
-        if (!(focusTrapRoot instanceof HTMLElement)) {
+        return this.getFocusableElementsFromRoot(focusTrapRoot)
+      },
+
+      getFocusableElementsFromRoot(rootElement) {
+        if (!(rootElement instanceof HTMLElement)) {
           return []
         }
 
-        return [
-          ...focusTrapRoot.querySelectorAll(
-            '[tabindex]:not([tabindex="-1"]), a[href], button, input, select, textarea',
-          ),
-        ]
+        return [...rootElement.querySelectorAll('[tabindex]:not([tabindex="-1"]), a[href], button, input, select, textarea')]
           .filter((focusableElement) => focusableElement instanceof HTMLElement)
           .filter(
             (focusableElement) =>
@@ -730,17 +731,42 @@
           )
       },
 
+      resolveReturnFocusElement(returnFocusElement) {
+        if (returnFocusElement instanceof HTMLElement && returnFocusElement.isConnected) {
+          return returnFocusElement
+        }
+
+        const refBasedFocusElement =
+          typeof this.returnFocusTemplateRefName === 'string' && this.returnFocusTemplateRefName
+            ? this.$refs[this.returnFocusTemplateRefName]
+            : null
+
+        if (refBasedFocusElement instanceof HTMLElement && refBasedFocusElement.isConnected) {
+          return refBasedFocusElement
+        }
+
+        const fallbackFocusableElement = this.getFocusableElementsFromRoot(this.$el)[0]
+
+        if (fallbackFocusableElement instanceof HTMLElement) {
+          return fallbackFocusableElement
+        }
+
+        return null
+      },
+
       restoreFocus() {
         const returnFocusElement = this._returnFocusElement
 
         this._returnFocusElement = null
 
-        if (!returnFocusElement) {
-          return
-        }
-
         this.$nextTick(() => {
-          returnFocusElement.focus()
+          const focusTarget = this.resolveReturnFocusElement(returnFocusElement)
+
+          if (!focusTarget) {
+            return
+          }
+
+          focusTarget.focus()
         })
       },
 

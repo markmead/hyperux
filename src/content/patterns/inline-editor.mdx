@@ -28,6 +28,7 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 - No special runtime requirements beyond Alpine.js.
 - For robust keyboard behavior, keep all editable controls inside the focus-trap container ref.
+- Prefer `x-show` + `x-cloak` + `x-transition` for read/edit toggles when you want smoother visual transitions.
 
 <LastUpdated date={frontmatter.modDate} />
 
@@ -62,33 +63,32 @@ _Internal helper methods are private implementation details and are not part of 
   `x-ref` used for auto-focus and select-all behavior in edit mode.
 - `focusTrapTemplateRef: string` (default: `'inlineEditor'`)
   `x-ref` used as the keyboard focus-trap root while editing.
+- `returnFocusTemplateRef: string` (optional)
+  Optional `x-ref` used as the primary focus return target after commit/revert if the previously
+  focused element is disconnected.
 
 ## Quick Start
 
 ```html
-<div x-data="huxInlineEditor({ inputValue: 'Ada Lovelace' })">
-  <template x-if="!isEditing">
-    <div>
-      <span x-text="inputValue"></span>
-      <button type="button" x-on:click="enterEditMode()">Edit</button>
-    </div>
-  </template>
+<div x-data="huxInlineEditor({ inputValue: 'Ada Lovelace', returnFocusTemplateRef: 'editButton' })">
+  <div x-show="!isEditing" x-cloak x-transition.opacity.duration.150ms>
+    <span x-text="inputValue"></span>
+    <button type="button" x-ref="editButton" x-on:click="enterEditMode()">Edit</button>
+  </div>
 
-  <template x-if="isEditing">
-    <div x-ref="inlineEditor" x-on:keydown="trapFocus($event)">
-      <input
-        x-ref="inlineEditorInput"
-        x-model="draftValue"
-        type="text"
-        x-init="registerInput($el)"
-        aria-describedby="profile-name-inline-editor-help"
-        x-on:focus="handleInputFocus($event)"
-        x-on:keydown="handleInputKeydown($event)"
-      />
-      <button type="button" x-on:click="commitChanges()">Save</button>
-      <button type="button" x-on:click="revertChanges()">Cancel</button>
-    </div>
-  </template>
+  <div x-show="isEditing" x-cloak x-transition.opacity.duration.150ms x-ref="inlineEditor" x-on:keydown="trapFocus($event)">
+    <input
+      x-ref="inlineEditorInput"
+      x-model="draftValue"
+      type="text"
+      x-init="registerInput($el)"
+      aria-describedby="profile-name-inline-editor-help"
+      x-on:focus="handleInputFocus($event)"
+      x-on:keydown="handleInputKeydown($event)"
+    />
+    <button type="button" x-on:click="commitChanges()">Save</button>
+    <button type="button" x-on:click="revertChanges()">Cancel</button>
+  </div>
 
   <p id="profile-name-inline-editor-help">
     Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
@@ -130,8 +130,8 @@ _Internal helper methods are private implementation details and are not part of 
 - `handleInputFocus()` selects all text in the focused input/textarea.
 - `handleInputKeydown()` commits on `Enter` and reverts on `Escape`.
 - `trapFocus()` cycles `Tab` and `Shift+Tab` inside the active focus-trap root while editing.
-- `commitChanges()` sets `inputValue = draftValue`, exits edit mode, restores prior focus, and dispatches commit event(s).
-- `revertChanges()` resets `draftValue = inputValue`, exits edit mode, restores prior focus, and dispatches revert event(s).
+- `commitChanges()` sets `inputValue = draftValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable fallback), and dispatches commit event(s).
+- `revertChanges()` resets `draftValue = inputValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable fallback), and dispatches revert event(s).
 
 ## Error Handling
 

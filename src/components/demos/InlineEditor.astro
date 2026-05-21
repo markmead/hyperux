@@ -13,62 +13,67 @@
 
     <div
       data-hux-copy="huxInlineEditorDemo"
-      x-data="huxInlineEditor({ editorId: 'profile-name', inputValue: 'Ada Lovelace' })"
+      x-data="huxInlineEditor({ editorId: 'profile-name', inputValue: 'Ada Lovelace', returnFocusTemplateRef: 'inlineEditorTrigger' })"
       class="space-y-3 rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
     >
       <p class="text-sm text-gray-500">Profile name</p>
 
-      <template x-if="!isEditing">
-        <div class="flex flex-wrap items-center gap-3">
-          <p class="text-lg font-semibold text-gray-900" x-text="inputValue"></p>
+      <div
+        x-show="!isEditing"
+        x-cloak
+        x-transition.opacity.duration.150ms
+        class="flex flex-wrap items-center gap-3"
+      >
+        <p class="text-lg font-semibold text-gray-900" x-text="inputValue"></p>
 
-          <button
-            type="button"
-            class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
-            x-on:click="enterEditMode()"
-          >
-            Edit
-          </button>
-        </div>
-      </template>
-
-      <template x-if="isEditing">
-        <div
-          x-ref="inlineEditor"
-          class="flex flex-wrap items-center gap-2"
-          x-on:keydown="trapFocus($event)"
+        <button
+          type="button"
+          x-ref="inlineEditorTrigger"
+          class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+          x-on:click="enterEditMode()"
         >
-          <label for="profile-name-inline-editor" class="sr-only">Profile name</label>
+          Edit
+        </button>
+      </div>
 
-          <input
-            id="profile-name-inline-editor"
-            x-ref="inlineEditorInput"
-            x-model="draftValue"
-            type="text"
-            x-init="registerInput($el)"
-            aria-describedby="profile-name-inline-editor-help"
-            class="h-10 rounded-md border-gray-300 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            x-on:focus="handleInputFocus($event)"
-            x-on:keydown="handleInputKeydown($event)"
-          />
+      <div
+        x-show="isEditing"
+        x-cloak
+        x-transition.opacity.duration.150ms
+        x-ref="inlineEditor"
+        class="flex flex-wrap items-center gap-2"
+        x-on:keydown="trapFocus($event)"
+      >
+        <label for="profile-name-inline-editor" class="sr-only">Profile name</label>
 
-          <button
-            type="button"
-            class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            x-on:click="commitChanges()"
-          >
-            Save
-          </button>
+        <input
+          id="profile-name-inline-editor"
+          x-ref="inlineEditorInput"
+          x-model="draftValue"
+          type="text"
+          x-init="registerInput($el)"
+          aria-describedby="profile-name-inline-editor-help"
+          class="h-10 rounded-md border-gray-300 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          x-on:focus="handleInputFocus($event)"
+          x-on:keydown="handleInputKeydown($event)"
+        />
 
-          <button
-            type="button"
-            class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
-            x-on:click="revertChanges()"
-          >
-            Cancel
-          </button>
-        </div>
-      </template>
+        <button
+          type="button"
+          class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          x-on:click="commitChanges()"
+        >
+          Save
+        </button>
+
+        <button
+          type="button"
+          class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+          x-on:click="revertChanges()"
+        >
+          Cancel
+        </button>
+      </div>
 
       <p id="profile-name-inline-editor-help" class="text-sm text-gray-500">
         Tip: Press <kbd>Enter</kbd> to save, <kbd>Escape</kbd> to cancel, and <kbd>Tab</kbd> to cycle
