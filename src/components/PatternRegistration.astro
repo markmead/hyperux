@@ -530,8 +530,18 @@
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxInlineEditor', (initialConfig = {}) => ({
       isEditing: false,
-      value: typeof initialConfig.value === 'string' ? initialConfig.value : '',
-      draftValue: typeof initialConfig.value === 'string' ? initialConfig.value : '',
+      inputValue:
+        typeof initialConfig.inputValue === 'string'
+          ? initialConfig.inputValue
+          : typeof initialConfig.value === 'string'
+            ? initialConfig.value
+            : '',
+      draftValue:
+        typeof initialConfig.inputValue === 'string'
+          ? initialConfig.inputValue
+          : typeof initialConfig.value === 'string'
+            ? initialConfig.value
+            : '',
       editorId: initialConfig.editorId ?? null,
       inputTemplateRefName: initialConfig.inputTemplateRef ?? 'inlineEditorInput',
       focusTrapTemplateRefName: initialConfig.focusTrapTemplateRef ?? 'inlineEditor',
@@ -539,14 +549,14 @@
       _activeInputElement: null,
 
       get hasChanges() {
-        return this.draftValue !== this.value
+        return this.draftValue !== this.inputValue
       },
 
       enterEditMode() {
         this._returnFocusElement =
           document.activeElement instanceof HTMLElement ? document.activeElement : null
 
-        this.draftValue = this.value
+        this.draftValue = this.inputValue
         this.isEditing = true
 
         this.$nextTick(() => {
@@ -555,7 +565,7 @@
       },
 
       commitChanges() {
-        this.value = this.draftValue
+        this.inputValue = this.draftValue
         this.isEditing = false
         this._activeInputElement = null
         this.restoreFocus()
@@ -563,7 +573,7 @@
       },
 
       revertChanges() {
-        this.draftValue = this.value
+        this.draftValue = this.inputValue
         this.isEditing = false
         this._activeInputElement = null
         this.restoreFocus()
@@ -741,7 +751,8 @@
 
         this.$dispatch(scopedEventName, {
           editorId: this.editorId,
-          value: this.value,
+          inputValue: this.inputValue,
+          value: this.inputValue,
         })
       },
     }))

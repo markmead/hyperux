@@ -13,14 +13,14 @@
 
     <div
       data-hux-copy="huxInlineEditorDemo"
-      x-data="huxInlineEditor({ editorId: 'profile-name', value: 'Ada Lovelace' })"
+      x-data="huxInlineEditor({ editorId: 'profile-name', inputValue: 'Ada Lovelace' })"
       class="space-y-3 rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
     >
       <p class="text-sm text-gray-500">Profile name</p>
 
       <template x-if="!isEditing">
         <div class="flex flex-wrap items-center gap-3">
-          <p class="text-lg font-semibold text-gray-900" x-text="value"></p>
+          <p class="text-lg font-semibold text-gray-900" x-text="inputValue"></p>
 
           <button
             type="button"
