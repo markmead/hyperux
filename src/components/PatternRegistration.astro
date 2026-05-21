@@ -720,7 +720,11 @@
           return []
         }
 
-        return [...rootElement.querySelectorAll('[tabindex]:not([tabindex="-1"]), a[href], button, input, select, textarea')]
+        return [
+          ...rootElement.querySelectorAll(
+            '[tabindex]:not([tabindex="-1"]), a[href], button, input, select, textarea',
+          ),
+        ]
           .filter((focusableElement) => focusableElement instanceof HTMLElement)
           .filter(
             (focusableElement) =>
