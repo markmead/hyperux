@@ -1105,6 +1105,115 @@
   })
 </script>
 
+<script is:inline data-hux-copy="huxStepperRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxStepper', (initialConfig = {}) => ({
+      stepItems: [],
+      activeStepId: initialConfig.activeStep ?? null,
+      stepperId: initialConfig.id ?? null,
+      stepsAreViewable: initialConfig.stepsAreViewable ?? false,
+
+      init() {
+        this.stepItems = (initialConfig.stepItems ?? []).filter(
+          (stepItem) => stepItem?.label && stepItem?.id,
+        )
+
+        const validStepIds = this.stepItems.map((stepItem) => stepItem.id)
+
+        if (!this.activeStepId || !validStepIds.includes(this.activeStepId)) {
+          this.activeStepId = this.stepItems.length > 0 ? this.stepItems[0].id : null
+        }
+
+        if (this.stepperId) {
+          this.$nextTick(() => this._dispatchChangeEvent())
+        }
+      },
+
+      get activeStepIndex() {
+        const foundIndex = this.findStepIndex(this.activeStepId)
+
+        return foundIndex >= 0 ? foundIndex : 0
+      },
+
+      get isFirstStep() {
+        return this.activeStepIndex === 0
+      },
+
+      get isLastStep() {
+        return this.stepItems.length === 0 || this.activeStepIndex === this.stepItems.length - 1
+      },
+
+      findStepIndex(stepId) {
+        return this.stepItems.findIndex((stepItem) => stepItem.id === stepId)
+      },
+
+      _dispatchChangeEvent() {
+        if (this.activeStepId === null) {
+          return
+        }
+
+        window.dispatchEvent(
+          new CustomEvent(`hux-stepper:${this.stepperId}:change`, {
+            detail: {
+              stepId: this.activeStepId,
+              stepIndex: this.activeStepIndex,
+              totalSteps: this.stepItems.length,
+            },
+          }),
+        )
+      },
+
+      goToStep(stepId) {
+        const stepExists = this.findStepIndex(stepId) >= 0
+
+        if (!stepExists) {
+          return
+        }
+
+        this.activeStepId = stepId
+
+        if (this.stepperId) {
+          this._dispatchChangeEvent()
+        }
+      },
+
+      goToPreviousStep() {
+        if (this.stepItems.length === 0 || this.isFirstStep) return
+
+        const previousStepId = this.stepItems[this.activeStepIndex - 1].id
+
+        this.goToStep(previousStepId)
+      },
+
+      goToNextStep() {
+        if (this.stepItems.length === 0 || this.isLastStep) return
+
+        const nextStepId = this.stepItems[this.activeStepIndex + 1].id
+
+        this.goToStep(nextStepId)
+      },
+
+      isStepComplete(stepId) {
+        const stepIndex = this.findStepIndex(stepId)
+
+        if (stepIndex === -1) {
+          return false
+        }
+
+        if (this.stepsAreViewable) {
+          return false
+        }
+
+        return stepIndex < this.activeStepIndex
+      },
+
+      isStepCurrent(stepId) {
+        return this.activeStepId === stepId
+      },
+    }))
+  })
+</script>
+
 <script is:inline data-hux-copy="huxTabsRegistration">
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxTabs', (initialConfig = {}) => ({

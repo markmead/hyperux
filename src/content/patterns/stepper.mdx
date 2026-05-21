@@ -1,0 +1,173 @@
+---
+slug: stepper
+title: Stepper
+description: Build accessible multi-step progress flows with huxStepper for Alpine.js, including next/previous controls, direct step selection, and state helpers for Wizard-style composition.
+terms:
+  - stepper
+  - wizard
+  - multi-step-form
+  - alpinejs
+  - progress-navigation
+  - accessibility
+pubDate: 2026-05-21
+modDate: 2026-05-21
+---
+
+import Demo from '../../components/demos/Stepper.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxStepper` manages active step state for linear or direct-navigation flows. Use it as a base primitive for Wizard-style experiences where each stage has its own content, validation, and completion rules.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## Runtime Constraints
+
+No special browser or runtime constraints beyond Alpine.js initialization.
+
+## API
+
+### `huxStepper(config)`
+
+Returns an Alpine data object with:
+
+- `activeStepId: string | null`
+- `stepItems: Array<{ label: string, id: string }>`
+- `stepperId: string | null`
+- `stepsAreViewable: boolean`
+- `activeStepIndex: number`
+- `isFirstStep: boolean`
+- `isLastStep: boolean`
+- `goToStep(stepId: string): void`
+- `goToPreviousStep(): void`
+- `goToNextStep(): void`
+- `isStepComplete(stepId: string): boolean`
+- `isStepCurrent(stepId: string): boolean`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `stepItems: Array<{ label: string, id: string }>` (default: `[]`)
+- `activeStep: string` (optional initial active step id)
+- `id: string` (optional; enables `hux-stepper:{id}:change` events)
+- `stepsAreViewable: boolean` (default: `false`; when `true`, clicking steps only changes what is viewed and `isStepComplete()` does not infer completion)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxStepper({
+    stepItems: [
+      { label: 'Contact', id: 'contact' },
+      { label: 'Shipping', id: 'shipping' },
+      { label: 'Payment', id: 'payment' }
+    ]
+  })"
+>
+  <ol aria-label="Checkout steps">
+    <template x-for="stepItem in stepItems" x-bind:key="stepItem.id">
+      <li>
+        <button
+          type="button"
+          x-bind:id="`step-${stepItem.id}`"
+          x-bind:aria-controls="`step-panel-${stepItem.id}`"
+          x-bind:aria-current="isStepCurrent(stepItem.id) ? 'step' : null"
+          x-on:click="goToStep(stepItem.id)"
+          x-text="stepItem.label"
+        ></button>
+      </li>
+    </template>
+  </ol>
+
+  <section
+    id="step-panel-contact"
+    role="region"
+    aria-labelledby="step-contact"
+    aria-live="polite"
+    x-show="activeStepId === 'contact'"
+    x-cloak
+  >
+    ...
+  </section>
+
+  <button type="button" x-bind:disabled="isFirstStep" x-on:click="goToPreviousStep()">
+    Previous
+  </button>
+  <button type="button" x-bind:disabled="isLastStep" x-on:click="goToNextStep()">Next</button>
+</div>
+```
+
+## Common Usage Patterns
+
+### Set an Explicit Initial Step
+
+```js
+huxStepper({
+  stepsAreViewable: true,
+  activeStep: 'shipping',
+  stepItems: [
+    { label: 'Contact', id: 'contact' },
+    { label: 'Shipping', id: 'shipping' },
+    { label: 'Payment', id: 'payment' },
+  ],
+})
+```
+
+### Subscribe to Change Events for Decoupled Composition
+
+Use `id` to emit changes and coordinate external UI or validation logic.
+
+```js
+huxStepper({
+  id: 'checkout',
+  stepItems: [
+    { label: 'Contact', id: 'contact' },
+    { label: 'Shipping', id: 'shipping' },
+    { label: 'Payment', id: 'payment' },
+  ],
+})
+```
+
+```js
+window.addEventListener('hux-stepper:checkout:change', (event) => {
+  const { stepId, stepIndex, totalSteps } = event.detail
+  console.log(stepId, stepIndex, totalSteps)
+})
+```
+
+## Behavior Contract
+
+- Invalid step items are filtered during initialization.
+- If `activeStep` is missing or invalid, active step falls back to the first valid step id.
+- `goToStep()` ignores unknown ids.
+- `goToPreviousStep()` and `goToNextStep()` no-op when already at boundaries.
+- `isStepComplete()` returns `true` only for steps before the active step when `stepsAreViewable` is `false`.
+- When `stepsAreViewable` is `true`, `goToStep()` is view-only and `isStepComplete()` always returns `false`.
+- When `id` is set, `hux-stepper:{id}:change` is dispatched on init and on every successful step change.
+
+## Error Handling
+
+- Invalid `stepItems` entries are ignored without throwing.
+- Unknown step ids no-op in `goToStep()` and completion/current helpers.
+- Empty step arrays initialize with `activeStepId = null`, `isLastStep = true`, and boundary navigation no-ops.
+- With `stepsAreViewable: true`, completion is never inferred from navigation state.
+
+## Accessibility Notes
+
+- Use semantic step navigation such as `<ol>` with clear step labels.
+- Use `aria-current="step"` on the active step trigger.
+- Keep controls as `button type="button"` and provide visible text labels.
+- Keep active panel content announced with `aria-live="polite"` when the content swap is meaningful for assistive technology users.
+
+## Notes
+
+- Event payload when `id` is set: `{ stepId: string, stepIndex: number, totalSteps: number }`.
+- `huxStepper` is designed to be composed with form validation, conditional logic, and route/state persistence when building a full Wizard flow.
+
+</div>

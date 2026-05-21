@@ -1,0 +1,144 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-6">
+    <p class="text-gray-700">
+      Stepper pattern for linear progress with selectable steps, optional view-only step clicks, and
+      previous/next controls.
+    </p>
+
+    <div
+      data-hux-copy="huxStepperDemo"
+      x-data="huxStepper({
+        id: 'checkout',
+        stepsAreViewable: true,
+        stepItems: [
+          { label: 'Contact', id: 'contact' },
+          { label: 'Shipping', id: 'shipping' },
+          { label: 'Payment', id: 'payment' }
+        ]
+      })"
+      class="space-y-6"
+    >
+      <ol class="grid gap-3 sm:grid-cols-3" aria-label="Checkout steps">
+        <template x-for="(stepItem, stepIndex) in stepItems" x-bind:key="stepItem.id">
+          <li>
+            <button
+              type="button"
+              x-bind:id="`step-${stepItem.id}`"
+              x-bind:aria-controls="`step-panel-${stepItem.id}`"
+              class="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+              x-bind:class="isStepCurrent(stepItem.id)
+                ? 'border-blue-600 bg-blue-50 text-blue-800'
+                : isStepComplete(stepItem.id)
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
+              x-bind:aria-current="isStepCurrent(stepItem.id) ? 'step' : null"
+              x-bind:aria-label="`Step ${stepIndex + 1} of ${stepItems.length}: ${stepItem.label}`"
+              x-on:click="goToStep(stepItem.id)"
+            >
+              <span
+                class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold"
+                x-bind:class="isStepCurrent(stepItem.id)
+                  ? 'border-blue-600 bg-blue-600 text-white'
+                  : isStepComplete(stepItem.id)
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : 'border-gray-300 bg-white text-gray-700'"
+                x-text="stepIndex + 1"
+              ></span>
+              <span x-text="stepItem.label"></span>
+            </button>
+          </li>
+        </template>
+      </ol>
+
+      <section
+        id="step-panel-contact"
+        role="region"
+        aria-labelledby="step-contact"
+        aria-live="polite"
+        class="rounded-lg border border-gray-200 bg-white p-4"
+        x-show="activeStepId === 'contact'"
+        x-cloak
+      >
+        <h3 class="font-semibold text-gray-900">Contact details</h3>
+        <p class="text-sm text-gray-600">Capture the customer name, email, and phone number.</p>
+      </section>
+
+      <section
+        id="step-panel-shipping"
+        role="region"
+        aria-labelledby="step-shipping"
+        aria-live="polite"
+        class="rounded-lg border border-gray-200 bg-white p-4"
+        x-show="activeStepId === 'shipping'"
+        x-cloak
+      >
+        <h3 class="font-semibold text-gray-900">Shipping information</h3>
+        <p class="text-sm text-gray-600">Collect shipping address and delivery preferences.</p>
+      </section>
+
+      <section
+        id="step-panel-payment"
+        role="region"
+        aria-labelledby="step-payment"
+        aria-live="polite"
+        class="rounded-lg border border-gray-200 bg-white p-4"
+        x-show="activeStepId === 'payment'"
+        x-cloak
+      >
+        <h3 class="font-semibold text-gray-900">Payment method</h3>
+        <p class="text-sm text-gray-600">Confirm card details and billing information.</p>
+      </section>
+
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+          x-bind:disabled="isFirstStep"
+          x-on:click="goToPreviousStep()"
+        >
+          Previous step
+        </button>
+
+        <button
+          type="button"
+          class="rounded-md border border-gray-900 bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
+          x-bind:disabled="isLastStep"
+          x-on:click="goToNextStep()"
+        >
+          Next step
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxStepperDemo', 'huxStepperRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>
