@@ -193,7 +193,10 @@
         </button>
 
         <span aria-live="polite" class="text-sm text-gray-600">
-          <span x-show="!hasPendingUpdate" x-text="`${filteredItems.length} of ${sourceItems.length} matches`"></span>
+          <span
+            x-show="!hasPendingUpdate"
+            x-text="`${filteredItems.length} of ${sourceItems.length} ${filteredItems.length === 1 ? 'match' : 'matches'}`"
+          ></span>
           <span x-show="hasPendingUpdate">Updating…</span>
         </span>
       </div>
