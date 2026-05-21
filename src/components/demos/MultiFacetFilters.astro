@@ -1,0 +1,264 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Multi-facet filter orchestration with debounced search and range inputs, intersection-aware
+      option states, and a unified filter state tree.
+    </p>
+
+    <div
+      data-hux-copy="huxMultiFacetFiltersDemo"
+      x-data="huxMultiFacetFilters({
+        filtersId: 'catalog-filters',
+        debounceMs: 250,
+        sourceItems: [
+          {
+            id: 'item-1',
+            name: 'Alpine Docs',
+            description: 'Interactive docs for Alpine.js component patterns.',
+            categories: ['docs', 'education'],
+            price: 0,
+            rating: '5'
+          },
+          {
+            id: 'item-2',
+            name: 'UI Kit Starter',
+            description: 'Starter UI kit with Alpine.js-ready examples.',
+            categories: ['template', 'ui'],
+            price: 29,
+            rating: '4'
+          },
+          {
+            id: 'item-3',
+            name: 'Accessibility Audit Pack',
+            description: 'Checklist and scripts for accessibility reviews.',
+            categories: ['a11y', 'education'],
+            price: 49,
+            rating: '5'
+          },
+          {
+            id: 'item-4',
+            name: 'Component Playbook',
+            description: 'Pattern recipes for dropdowns, dialogs, and tabs.',
+            categories: ['docs', 'template'],
+            price: 19,
+            rating: '3'
+          },
+          {
+            id: 'item-5',
+            name: 'Marketing Site Theme',
+            description: 'Production theme with responsive components.',
+            categories: ['template', 'ui'],
+            price: 79,
+            rating: '4'
+          },
+          {
+            id: 'item-6',
+            name: 'Focus Utilities',
+            description: 'Utilities focused on keyboard and focus behavior.',
+            categories: ['a11y', 'ui'],
+            price: 39,
+            rating: '5'
+          }
+        ],
+        facets: {
+          categories: {
+            type: 'multi',
+            values: ['docs', 'education', 'template', 'ui', 'a11y'],
+            getItemValue: (item) => item.categories
+          },
+          query: {
+            type: 'search',
+            getItemValue: (item) => `${item.name} ${item.description}`
+          },
+          price: {
+            type: 'range',
+            getItemValue: (item) => item.price
+          },
+          rating: {
+            type: 'single',
+            values: ['5', '4', '3'],
+            getItemValue: (item) => item.rating
+          }
+        },
+        filterState: {
+          categories: [],
+          query: '',
+          price: { min: 0, max: 100 },
+          rating: null
+        }
+      })"
+      class="space-y-4"
+    >
+      <div class="grid gap-4 md:grid-cols-2">
+        <fieldset class="space-y-2">
+          <legend class="text-sm font-medium text-gray-900">Categories</legend>
+
+          <template x-for="option in facetOptions('categories')" x-bind:key="option.value">
+            <label
+              class="flex items-center gap-2 text-sm"
+              x-bind:class="option.isInvalid && !option.isSelected ? 'text-gray-400' : 'text-gray-700'"
+            >
+              <input
+                type="checkbox"
+                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                x-bind:checked="option.isSelected"
+                x-bind:disabled="option.isInvalid && !option.isSelected"
+                x-on:change="toggleFilterValue('categories', option.value)"
+              />
+              <span x-text="option.value"></span>
+            </label>
+          </template>
+        </fieldset>
+
+        <div class="space-y-3">
+          <label for="hux-multi-facet-query" class="block text-sm font-medium text-gray-900">
+            Search
+          </label>
+
+          <input
+            id="hux-multi-facet-query"
+            type="search"
+            class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+            x-model="filterState.query"
+            x-on:input="setFilterValue('query', filterState.query)"
+            placeholder="Search by title or description"
+          />
+
+          <div class="space-y-2">
+            <p class="text-sm font-medium text-gray-900">Price range</p>
+
+            <label for="hux-multi-facet-price-min" class="block text-xs text-gray-600">
+              Minimum price: <span x-text="filterState.price.min"></span>
+            </label>
+            <input
+              id="hux-multi-facet-price-min"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              class="w-full"
+              x-model.number="filterState.price.min"
+              x-on:input="setFilterValue('price', { min: filterState.price.min, max: filterState.price.max })"
+            />
+
+            <label for="hux-multi-facet-price-max" class="block text-xs text-gray-600">
+              Maximum price: <span x-text="filterState.price.max"></span>
+            </label>
+            <input
+              id="hux-multi-facet-price-max"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              class="w-full"
+              x-model.number="filterState.price.max"
+              x-on:input="setFilterValue('price', { min: filterState.price.min, max: filterState.price.max })"
+            />
+          </div>
+
+          <label for="hux-multi-facet-rating" class="block text-sm font-medium text-gray-900">
+            Minimum rating
+          </label>
+          <select
+            id="hux-multi-facet-rating"
+            class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+            x-model="filterState.rating"
+            x-on:change="setFilterValue('rating', filterState.rating, { debounce: false })"
+          >
+            <option value="">Any rating</option>
+            <template x-for="option in facetOptions('rating')" x-bind:key="option.value">
+              <option
+                x-bind:value="option.value"
+                x-bind:disabled="option.isInvalid && !option.isSelected"
+                x-text="`${option.value} stars`"
+              ></option>
+            </template>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+          x-on:click="clearAllFilters()"
+        >
+          Clear all filters
+        </button>
+
+        <span aria-live="polite" class="text-sm text-gray-600">
+          <span
+            x-show="!hasPendingUpdate"
+            x-text="`${filteredItems.length} of ${sourceItems.length} ${filteredItems.length === 1 ? 'match' : 'matches'}`"
+          ></span>
+          <span x-show="hasPendingUpdate">Updating…</span>
+        </span>
+      </div>
+
+      <div class="rounded-md border border-gray-200 bg-gray-50 p-3">
+        <p class="text-xs font-medium tracking-wide text-gray-500 uppercase">Unavailable combinations</p>
+
+        <p class="mt-1 text-sm text-gray-700" x-show="(invalidValueMap.categories || []).length === 0">
+          None for current filter state.
+        </p>
+
+        <ul
+          class="mt-2 flex flex-wrap gap-2"
+          x-show="(invalidValueMap.categories || []).length > 0"
+        >
+          <template x-for="category in invalidValueMap.categories" x-bind:key="category">
+            <li class="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+              <span x-text="category"></span>
+            </li>
+          </template>
+        </ul>
+      </div>
+
+      <ul class="space-y-2">
+        <template x-for="item in filteredItems" x-bind:key="item.id">
+          <li class="rounded-md border border-gray-200 bg-white p-3">
+            <div class="flex items-center justify-between gap-3">
+              <p class="font-medium text-gray-900" x-text="item.name"></p>
+              <p class="text-sm text-gray-600"><span x-text="`$${item.price}`"></span></p>
+            </div>
+            <p class="mt-1 text-sm text-gray-600" x-text="item.description"></p>
+            <p class="mt-2 text-xs text-gray-500" x-text="`Rating: ${item.rating} • ${item.categories.join(', ')}`"></p>
+          </li>
+        </template>
+      </ul>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxMultiFacetFiltersDemo', 'huxMultiFacetFiltersRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>

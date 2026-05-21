@@ -1,0 +1,186 @@
+---
+slug: multi-facet-filters
+title: Multi-Facet / Nested Filters
+description: Orchestrate advanced search and nested filtering UIs with huxMultiFacetFilters for Alpine.js, including debounced updates and invalid combination hints.
+terms:
+  - faceted-search
+  - nested-filters
+  - alpinejs
+  - debounced-input
+  - intersection-logic
+  - filter-orchestration
+pubDate: 2026-05-21
+modDate: 2026-05-21
+---
+
+import Demo from '../../components/demos/MultiFacetFilters.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxMultiFacetFilters` coordinates complex filter screens by keeping a single reactive state tree, debouncing updates, and exposing option intersection metadata for custom UI composition.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## Runtime constraints
+
+- The pattern is UI-agnostic and requires your markup to call the provided methods (`setFilterValue`, `toggleFilterValue`, `clearAllFilters`) on interaction.
+- Debounced updates use `setTimeout`; call `destroy()` if you remove the component manually in long-lived pages.
+- For large datasets, prefer a custom `match` function per facet to avoid expensive repeated value transformations.
+
+## API
+
+### `huxMultiFacetFilters(config)`
+
+Returns an Alpine data object with:
+
+- `filtersId: string | null`
+- `sourceItems: Array<unknown>`
+- `debounceMs: number`
+- `facets: Record<string, FacetConfig>`
+- `filterState: Record<string, unknown>`
+- `filteredItems: Array<unknown>`
+- `availableValueMap: Record<string, Array<string | number | boolean>>`
+- `invalidValueMap: Record<string, Array<string | number | boolean>>`
+- `hasPendingUpdate: boolean`
+- `registerFacet(facetName, facetConfig, shouldApplyFilters?): void`
+- `unregisterFacet(facetName, shouldApplyFilters?): void`
+- `setFilterValue(facetName, nextValue, options?): void`
+- `toggleFilterValue(facetName, optionValue, options?): void`
+- `clearFacet(facetName, options?): void`
+- `clearAllFilters(options?): void`
+- `applyFilters(shouldDebounce?): void`
+- `isValueAvailable(facetName, candidateValue): boolean`
+- `isValueInvalid(facetName, candidateValue): boolean`
+- `facetOptions(facetName): Array<{ value, isSelected, isAvailable, isInvalid }>`
+- `destroy(): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `filtersId: string | null` (default: `null`)
+  Optional event scope key for change events.
+- `sourceItems: unknown[]` (default: `[]`)
+  Dataset that all facet matching runs against.
+- `debounceMs: number` (default: `200`)
+  Debounce duration used when filter methods run with `debounce: true`.
+- `facets: Record<string, FacetConfig>` (default: `{}`)
+  Initial facet registration map keyed by facet name.
+- `filterState: Record<string, unknown>` (default: `{}`)
+  Initial facet values merged after facet registration.
+
+`FacetConfig` supports:
+
+- `type: 'multi' | 'single' | 'search' | 'range'` (default: `'multi'`)
+- `values?: Array<string | number | boolean>` (used for option availability/invalidation)
+- `getItemValue?: (item) => unknown` (defaults to `item[facetName]`)
+- `match?: ({ item, value, facetName, filterState }) => boolean` (overrides built-in matching)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxMultiFacetFilters({
+    sourceItems: products,
+    facets: {
+      categories: { type: 'multi', values: ['books', 'apps'], getItemValue: (item) => item.categories },
+      query: { type: 'search', getItemValue: (item) => `${item.name} ${item.description}` },
+      price: { type: 'range', getItemValue: (item) => item.price }
+    },
+    filterState: {
+      categories: [],
+      query: '',
+      price: { min: 0, max: 100 }
+    }
+  })"
+>
+  <input
+    type="search"
+    x-model="filterState.query"
+    x-on:input="setFilterValue('query', filterState.query)"
+  />
+
+  <button type="button" x-on:click="clearAllFilters()">Clear filters</button>
+
+  <ul>
+    <template x-for="item in filteredItems" x-bind:key="item.id">
+      <li x-text="item.name"></li>
+    </template>
+  </ul>
+</div>
+```
+
+## Common Usage Patterns
+
+### Register facets after initialization
+
+```js
+registerFacet('status', {
+  type: 'single',
+  values: ['active', 'paused', 'archived'],
+})
+
+setFilterValue('status', 'active', { debounce: false })
+```
+
+### Disable impossible checkbox options
+
+```html
+<template x-for="option in facetOptions('categories')" x-bind:key="option.value">
+  <label>
+    <input
+      type="checkbox"
+      x-bind:checked="option.isSelected"
+      x-bind:disabled="option.isInvalid && !option.isSelected"
+      x-on:change="toggleFilterValue('categories', option.value)"
+    />
+    <span x-text="option.value"></span>
+  </label>
+</template>
+```
+
+### Listen for orchestrator change events
+
+```html
+<div
+  x-data="huxMultiFacetFilters({ filtersId: 'catalog', sourceItems: products })"
+  x-on:hux-multi-facet-filters:catalog:change.window="console.log($event.detail)"
+></div>
+```
+
+## Behavior Contract
+
+- Facets can register and unregister at runtime; `filterState` is normalized to each facet type.
+- `setFilterValue()` and `toggleFilterValue()` debounce by default.
+- `applyFilters(false)` always computes immediately.
+- `filteredItems` contains only items that match every registered facet.
+- `availableValueMap` and `invalidValueMap` are recomputed from source data using current facet intersections.
+- For `multi` facets, candidate availability is evaluated as “current selected values plus candidate value.”
+- Range values with `min > max` are normalized by swapping bounds.
+- Each recompute dispatches `hux-multi-facet-filters:change`, plus `hux-multi-facet-filters:{filtersId}:change` when `filtersId` is set.
+
+## Error Handling
+
+- Invalid facet names passed to `registerFacet()` are rejected with a console error.
+- Unsupported facet types fall back to `'multi'` and log a console error.
+- Non-array `sourceItems` and invalid `values` entries fail safely by normalizing to empty structures.
+- Non-numeric range item values are treated as non-matches when range filters are active.
+
+## Accessibility Notes
+
+- Keep all actions on semantic controls (`button`, `input`, `select`) and set `type="button"` on non-submit buttons.
+- Expose result updates with `aria-live="polite"` text tied to `hasPendingUpdate`/`filteredItems.length`.
+- Preserve visible labels for filters and controls so state changes remain understandable for screen readers.
+- When disabling invalid options, avoid disabling currently selected options so keyboard users can still deselect them.
+
+## Notes
+
+- `huxMultiFacetFilters` provides state and events only; UI layout and semantics stay fully in your markup.
+- Use `match` for backend-backed or pre-indexed datasets when built-in facet logic is insufficient.
+
+</div>

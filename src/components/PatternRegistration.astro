@@ -719,6 +719,485 @@
   })
 </script>
 
+<script is:inline data-hux-copy="huxMultiFacetFiltersRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxMultiFacetFilters', (initialConfig = {}) => ({
+      filtersId: initialConfig.filtersId ?? null,
+      sourceItems: Array.isArray(initialConfig.sourceItems) ? initialConfig.sourceItems : [],
+      debounceMs:
+        Number.isFinite(initialConfig.debounceMs) && initialConfig.debounceMs >= 0
+          ? initialConfig.debounceMs
+          : 200,
+      facets: {},
+      filterState: {},
+      filteredItems: [],
+      availableValueMap: {},
+      invalidValueMap: {},
+      hasPendingUpdate: false,
+      _debounceTimer: null,
+
+      init() {
+        const configuredFacets =
+          initialConfig.facets && typeof initialConfig.facets === 'object'
+            ? initialConfig.facets
+            : {}
+
+        Object.entries(configuredFacets).forEach(([facetName, facetConfig]) => {
+          this.registerFacet(facetName, facetConfig, false)
+        })
+
+        const configuredFilterState =
+          initialConfig.filterState && typeof initialConfig.filterState === 'object'
+            ? initialConfig.filterState
+            : {}
+
+        Object.entries(configuredFilterState).forEach(([facetName, facetValue]) => {
+          if (!(facetName in this.facets)) {
+            return
+          }
+
+          this.filterState[facetName] = this.normalizeFacetValue(this.facets[facetName].type, facetValue)
+        })
+
+        this.applyFilters(false)
+      },
+
+      registerFacet(facetName, rawFacetConfig = {}, shouldApplyFilters = true) {
+        if (typeof facetName !== 'string' || facetName.trim() === '') {
+          console.error('[huxMultiFacetFilters] registerFacet requires a non-empty facet name.')
+
+          return
+        }
+
+        const normalizedFacetName = facetName.trim()
+        const normalizedFacetConfig = this.normalizeFacetConfig(rawFacetConfig)
+
+        this.facets[normalizedFacetName] = normalizedFacetConfig
+
+        if (!(normalizedFacetName in this.filterState)) {
+          this.filterState[normalizedFacetName] = this.defaultFacetValue(normalizedFacetConfig.type)
+        } else {
+          this.filterState[normalizedFacetName] = this.normalizeFacetValue(
+            normalizedFacetConfig.type,
+            this.filterState[normalizedFacetName],
+          )
+        }
+
+        if (shouldApplyFilters) {
+          this.applyFilters(false)
+        }
+      },
+
+      unregisterFacet(facetName, shouldApplyFilters = true) {
+        if (!(facetName in this.facets)) {
+          return
+        }
+
+        delete this.facets[facetName]
+        delete this.filterState[facetName]
+        delete this.availableValueMap[facetName]
+        delete this.invalidValueMap[facetName]
+
+        if (shouldApplyFilters) {
+          this.applyFilters(false)
+        }
+      },
+
+      setFilterValue(facetName, nextValue, options = {}) {
+        if (!(facetName in this.facets)) {
+          return
+        }
+
+        const shouldDebounce = options.debounce ?? true
+
+        this.filterState[facetName] = this.normalizeFacetValue(this.facets[facetName].type, nextValue)
+
+        this.applyFilters(shouldDebounce)
+      },
+
+      toggleFilterValue(facetName, optionValue, options = {}) {
+        if (!(facetName in this.facets)) {
+          return
+        }
+
+        if (this.facets[facetName].type !== 'multi') {
+          return
+        }
+
+        const shouldDebounce = options.debounce ?? true
+        const selectedValues = Array.isArray(this.filterState[facetName])
+          ? [...this.filterState[facetName]]
+          : []
+        const selectedIndex = selectedValues.findIndex((selectedValue) => selectedValue === optionValue)
+
+        if (selectedIndex === -1) {
+          selectedValues.push(optionValue)
+        } else {
+          selectedValues.splice(selectedIndex, 1)
+        }
+
+        this.filterState[facetName] = selectedValues
+
+        this.applyFilters(shouldDebounce)
+      },
+
+      clearFacet(facetName, options = {}) {
+        if (!(facetName in this.facets)) {
+          return
+        }
+
+        const shouldDebounce = options.debounce ?? false
+
+        this.filterState[facetName] = this.defaultFacetValue(this.facets[facetName].type)
+
+        this.applyFilters(shouldDebounce)
+      },
+
+      clearAllFilters(options = {}) {
+        const shouldDebounce = options.debounce ?? false
+
+        Object.entries(this.facets).forEach(([facetName, facetConfig]) => {
+          this.filterState[facetName] = this.defaultFacetValue(facetConfig.type)
+        })
+
+        this.applyFilters(shouldDebounce)
+      },
+
+      applyFilters(shouldDebounce = true) {
+        if (this._debounceTimer) {
+          clearTimeout(this._debounceTimer)
+          this._debounceTimer = null
+        }
+
+        if (shouldDebounce && this.debounceMs > 0) {
+          this.hasPendingUpdate = true
+
+          this._debounceTimer = setTimeout(() => {
+            this.hasPendingUpdate = false
+            this.recomputeState()
+            this._debounceTimer = null
+          }, this.debounceMs)
+
+          return
+        }
+
+        this.hasPendingUpdate = false
+        this.recomputeState()
+      },
+
+      recomputeState() {
+        const sourceItems = Array.isArray(this.sourceItems) ? this.sourceItems : []
+
+        this.filteredItems = sourceItems.filter((item) => this.itemMatchesAllFacets(item))
+        this.availableValueMap = {}
+        this.invalidValueMap = {}
+
+        Object.entries(this.facets).forEach(([facetName, facetConfig]) => {
+          const optionValues = facetConfig.values
+
+          if (!Array.isArray(optionValues) || optionValues.length === 0) {
+            return
+          }
+
+          const availableValues = optionValues.filter((candidateValue) =>
+            sourceItems.some((item) =>
+              this.itemMatchesAllFacets(item, {
+                [facetName]: this.buildCandidateFacetValue(facetName, candidateValue),
+              }),
+            ),
+          )
+
+          this.availableValueMap[facetName] = availableValues
+          this.invalidValueMap[facetName] = optionValues.filter(
+            (candidateValue) =>
+              !availableValues.some((availableValue) => availableValue === candidateValue),
+          )
+        })
+
+        this.dispatchChangeEvent()
+      },
+
+      itemMatchesAllFacets(item, overrides = {}) {
+        return Object.entries(this.facets).every(([facetName, facetConfig]) => {
+          const facetValue =
+            facetName in overrides ? overrides[facetName] : this.filterState[facetName]
+
+          return this.itemMatchesFacet(item, facetName, facetConfig, facetValue)
+        })
+      },
+
+      itemMatchesFacet(item, facetName, facetConfig, facetValue) {
+        if (typeof facetConfig.match === 'function') {
+          return facetConfig.match({
+            item,
+            value: facetValue,
+            facetName,
+            filterState: this.filterState,
+          })
+        }
+
+        const itemFacetValue =
+          typeof facetConfig.getItemValue === 'function'
+            ? facetConfig.getItemValue(item)
+            : item?.[facetName]
+
+        if (facetConfig.type === 'multi') {
+          if (!Array.isArray(facetValue) || facetValue.length === 0) {
+            return true
+          }
+
+          const itemValues = Array.isArray(itemFacetValue) ? itemFacetValue : [itemFacetValue]
+
+          return itemValues.some((value) => facetValue.some((selectedValue) => selectedValue === value))
+        }
+
+        if (facetConfig.type === 'single') {
+          if (facetValue === null || facetValue === '') {
+            return true
+          }
+
+          return itemFacetValue === facetValue
+        }
+
+        if (facetConfig.type === 'search') {
+          const normalizedQuery = typeof facetValue === 'string' ? facetValue.trim().toLowerCase() : ''
+
+          if (normalizedQuery === '') {
+            return true
+          }
+
+          const searchValue = Array.isArray(itemFacetValue)
+            ? itemFacetValue.join(' ')
+            : `${itemFacetValue ?? ''}`
+
+          return searchValue.toLowerCase().includes(normalizedQuery)
+        }
+
+        if (facetConfig.type === 'range') {
+          const minValue = Number.isFinite(facetValue?.min) ? facetValue.min : null
+          const maxValue = Number.isFinite(facetValue?.max) ? facetValue.max : null
+
+          if (minValue === null && maxValue === null) {
+            return true
+          }
+
+          const numericItemValue = Number(itemFacetValue)
+
+          if (!Number.isFinite(numericItemValue)) {
+            return false
+          }
+
+          if (minValue !== null && numericItemValue < minValue) {
+            return false
+          }
+
+          if (maxValue !== null && numericItemValue > maxValue) {
+            return false
+          }
+
+          return true
+        }
+
+        return true
+      },
+
+      normalizeFacetConfig(rawFacetConfig = {}) {
+        const allowedFacetTypes = ['multi', 'single', 'search', 'range']
+        const requestedFacetType =
+          typeof rawFacetConfig.type === 'string' ? rawFacetConfig.type.trim().toLowerCase() : 'multi'
+        const facetType = allowedFacetTypes.includes(requestedFacetType) ? requestedFacetType : 'multi'
+
+        if (requestedFacetType !== facetType) {
+          console.error(
+            `[huxMultiFacetFilters] Unsupported facet type "${requestedFacetType}". Falling back to "multi".`,
+          )
+        }
+
+        const normalizedValues = Array.isArray(rawFacetConfig.values)
+          ? rawFacetConfig.values.filter(
+              (candidateValue) =>
+                typeof candidateValue === 'string' ||
+                typeof candidateValue === 'number' ||
+                typeof candidateValue === 'boolean',
+            )
+          : []
+
+        return {
+          type: facetType,
+          values: normalizedValues,
+          getItemValue:
+            typeof rawFacetConfig.getItemValue === 'function' ? rawFacetConfig.getItemValue : null,
+          match: typeof rawFacetConfig.match === 'function' ? rawFacetConfig.match : null,
+        }
+      },
+
+      defaultFacetValue(facetType) {
+        if (facetType === 'multi') {
+          return []
+        }
+
+        if (facetType === 'search') {
+          return ''
+        }
+
+        if (facetType === 'range') {
+          return {
+            min: null,
+            max: null,
+          }
+        }
+
+        return null
+      },
+
+      normalizeFacetValue(facetType, rawValue) {
+        if (facetType === 'multi') {
+          return Array.isArray(rawValue)
+            ? rawValue.filter(
+                (candidateValue) =>
+                  typeof candidateValue === 'string' ||
+                  typeof candidateValue === 'number' ||
+                  typeof candidateValue === 'boolean',
+              )
+            : []
+        }
+
+        if (facetType === 'search') {
+          return typeof rawValue === 'string' ? rawValue : ''
+        }
+
+        if (facetType === 'range') {
+          const rawMin = Number(rawValue?.min)
+          const rawMax = Number(rawValue?.max)
+          const minValue = Number.isFinite(rawMin) ? rawMin : null
+          const maxValue = Number.isFinite(rawMax) ? rawMax : null
+
+          if (minValue !== null && maxValue !== null && minValue > maxValue) {
+            return {
+              min: maxValue,
+              max: minValue,
+            }
+          }
+
+          return {
+            min: minValue,
+            max: maxValue,
+          }
+        }
+
+        if (
+          typeof rawValue === 'string' ||
+          typeof rawValue === 'number' ||
+          typeof rawValue === 'boolean'
+        ) {
+          return rawValue
+        }
+
+        return null
+      },
+
+      buildCandidateFacetValue(facetName, candidateValue) {
+        const facetConfig = this.facets[facetName]
+        const currentFacetValue = this.filterState[facetName]
+
+        if (!facetConfig || facetConfig.type !== 'multi') {
+          return candidateValue
+        }
+
+        const normalizedCurrentValues = Array.isArray(currentFacetValue) ? [...currentFacetValue] : []
+        const candidateExists = normalizedCurrentValues.some(
+          (selectedValue) => selectedValue === candidateValue,
+        )
+
+        if (!candidateExists) {
+          normalizedCurrentValues.push(candidateValue)
+        }
+
+        return normalizedCurrentValues
+      },
+
+      isValueAvailable(facetName, candidateValue) {
+        const availableValues = this.availableValueMap[facetName]
+
+        if (!Array.isArray(availableValues)) {
+          return true
+        }
+
+        return availableValues.some((value) => value === candidateValue)
+      },
+
+      isValueInvalid(facetName, candidateValue) {
+        return !this.isValueAvailable(facetName, candidateValue)
+      },
+
+      facetOptions(facetName) {
+        const facetConfig = this.facets[facetName]
+        const selectedValues = this.filterState[facetName]
+        const normalizedValues = Array.isArray(facetConfig?.values) ? facetConfig.values : []
+
+        return normalizedValues.map((value) => ({
+          value,
+          isSelected: Array.isArray(selectedValues)
+            ? selectedValues.some((selectedValue) => selectedValue === value)
+            : selectedValues === value,
+          isAvailable: this.isValueAvailable(facetName, value),
+          isInvalid: this.isValueInvalid(facetName, value),
+        }))
+      },
+
+      dispatchChangeEvent() {
+        const filterStateSnapshot = Object.fromEntries(
+          Object.entries(this.filterState).map(([facetName, facetValue]) => {
+            if (Array.isArray(facetValue)) {
+              return [facetName, [...facetValue]]
+            }
+
+            if (facetValue && typeof facetValue === 'object') {
+              return [facetName, { ...facetValue }]
+            }
+
+            return [facetName, facetValue]
+          }),
+        )
+
+        const eventDetail = {
+          filtersId: this.filtersId,
+          filterState: filterStateSnapshot,
+          filteredItems: [...this.filteredItems],
+          totalItems: this.sourceItems.length,
+          matchesCount: this.filteredItems.length,
+          hasPendingUpdate: this.hasPendingUpdate,
+          availableValueMap: Object.fromEntries(
+            Object.entries(this.availableValueMap).map(([facetName, values]) => [
+              facetName,
+              Array.isArray(values) ? [...values] : [],
+            ]),
+          ),
+          invalidValueMap: Object.fromEntries(
+            Object.entries(this.invalidValueMap).map(([facetName, values]) => [
+              facetName,
+              Array.isArray(values) ? [...values] : [],
+            ]),
+          ),
+        }
+
+        this.$dispatch('hux-multi-facet-filters:change', eventDetail)
+
+        if (this.filtersId) {
+          this.$dispatch(`hux-multi-facet-filters:${this.filtersId}:change`, eventDetail)
+        }
+      },
+
+      destroy() {
+        if (this._debounceTimer) {
+          clearTimeout(this._debounceTimer)
+          this._debounceTimer = null
+        }
+      },
+    }))
+  })
+</script>
+
 <script is:inline data-hux-copy="huxResizableRegistration">
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxResizable', (initialConfig = {}) => ({
