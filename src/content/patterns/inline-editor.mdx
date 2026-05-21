@@ -1,0 +1,149 @@
+---
+slug: inline-editor
+title: Inline Editor
+description: Toggle between read and inline edit states with huxInlineEditor for Alpine.js.
+terms:
+  - inline-editor
+  - alpinejs
+  - editable-text
+  - keyboard
+  - focus-management
+  - ux-pattern
+pubDate: 2026-05-21
+modDate: 2026-05-21
+---
+
+import Demo from '../../components/demos/InlineEditor.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<Demo />
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+# Alpine.js {frontmatter.title}
+
+`huxInlineEditor` manages the behavior switch between static display and inline editing. It keeps value state, supports commit/revert keyboard shortcuts, and traps focus within the active editor controls.
+
+## Runtime Constraints
+
+- No special runtime requirements beyond Alpine.js.
+- For robust keyboard behavior, keep all editable controls inside the focus-trap container ref.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxInlineEditor(config)`
+
+Returns an Alpine data object with:
+
+- `isEditing: boolean`
+- `value: string`
+- `draftValue: string`
+- `editorId: string | null`
+- `hasChanges: boolean`
+- `enterEditMode(): void`
+- `commitChanges(): void`
+- `revertChanges(): void`
+- `registerInput(targetElement: HTMLInputElement | HTMLTextAreaElement): void`
+- `handleInputFocus(event: FocusEvent): void`
+- `handleInputKeydown(event: KeyboardEvent): void`
+- `trapFocus(event: KeyboardEvent): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `value: string` (default: `''`)
+  Initial committed value and initial draft value.
+- `editorId: string` (optional)
+  Adds scoped events: `hux-inline-editor:{editorId}:commit` and `hux-inline-editor:{editorId}:revert`.
+- `inputTemplateRef: string` (default: `'inlineEditorInput'`)
+  `x-ref` used for auto-focus and select-all behavior in edit mode.
+- `focusTrapTemplateRef: string` (default: `'inlineEditor'`)
+  `x-ref` used as the keyboard focus-trap root while editing.
+
+## Quick Start
+
+```html
+<div x-data="huxInlineEditor({ value: 'Ada Lovelace' })">
+  <template x-if="!isEditing">
+    <div>
+      <span x-text="value"></span>
+      <button type="button" x-on:click="enterEditMode()">Edit</button>
+    </div>
+  </template>
+
+  <template x-if="isEditing">
+    <div x-ref="inlineEditor" x-on:keydown="trapFocus($event)">
+      <input
+        x-ref="inlineEditorInput"
+        x-model="draftValue"
+        type="text"
+        x-init="registerInput($el)"
+        x-on:focus="handleInputFocus($event)"
+        x-on:keydown="handleInputKeydown($event)"
+      />
+      <button type="button" x-on:click="commitChanges()">Save</button>
+      <button type="button" x-on:click="revertChanges()">Cancel</button>
+    </div>
+  </template>
+</div>
+```
+
+## Common Usage Patterns
+
+### Listen for commit events
+
+```html
+<div
+  x-data="huxInlineEditor({ editorId: 'profile-name', value: 'Ada Lovelace' })"
+  x-on:hux-inline-editor:profile-name:commit.window="console.log($event.detail.value)"
+>
+  ...
+</div>
+```
+
+### Commit and revert with keyboard
+
+```html
+<input
+  x-ref="inlineEditorInput"
+  x-model="draftValue"
+  type="text"
+  x-init="registerInput($el)"
+  x-on:focus="handleInputFocus($event)"
+  x-on:keydown="handleInputKeydown($event)"
+/>
+```
+
+## Behavior Contract
+
+- `enterEditMode()` copies `value` into `draftValue`, sets `isEditing = true`, focuses the configured input ref, and selects all text.
+- `registerInput()` stores the active input/textarea element, focuses it, and selects all text.
+- `handleInputFocus()` selects all text in the focused input/textarea.
+- `handleInputKeydown()` commits on `Enter` and reverts on `Escape`.
+- `trapFocus()` cycles `Tab` and `Shift+Tab` inside the active focus-trap root while editing.
+- `commitChanges()` sets `value = draftValue`, exits edit mode, restores prior focus, and dispatches commit event(s).
+- `revertChanges()` resets `draftValue = value`, exits edit mode, restores prior focus, and dispatches revert event(s).
+
+## Error Handling
+
+- If the configured input ref is missing when edit mode starts, the component logs:
+  `[huxInlineEditor] Missing x-ref target for {inputTemplateRef}.`
+- Missing optional listeners do not affect commit/revert behavior.
+
+## Accessibility Notes
+
+- Use a real `button` (`type="button"`) to enter edit mode.
+- Keep editable controls within the focus-trap container to preserve keyboard containment while active.
+- Keep visible labels for the editable field, or use an explicit `<label>` for screen readers.
+- If you surface status updates, use an `aria-live="polite"` region.
+
+## Notes
+
+- Default event names:
+  - `hux-inline-editor:commit`
+  - `hux-inline-editor:revert`
+
+</div>

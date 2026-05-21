@@ -1,0 +1,105 @@
+<div class="relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Inline edit behavior that swaps between read and edit states, selects text on input focus, traps
+      keyboard focus while active, and supports Enter to save or Escape to cancel.
+    </p>
+
+    <div
+      data-hux-copy="huxInlineEditorDemo"
+      x-data="huxInlineEditor({ editorId: 'profile-name', value: 'Ada Lovelace' })"
+      class="space-y-3 rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
+    >
+      <p class="text-sm text-gray-500">Profile name</p>
+
+      <template x-if="!isEditing">
+        <div class="flex flex-wrap items-center gap-3">
+          <p class="text-lg font-semibold text-gray-900" x-text="value"></p>
+
+          <button
+            type="button"
+            class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+            x-on:click="enterEditMode()"
+          >
+            Edit
+          </button>
+        </div>
+      </template>
+
+      <template x-if="isEditing">
+        <div
+          x-ref="inlineEditor"
+          class="flex flex-wrap items-center gap-2"
+          x-on:keydown="trapFocus($event)"
+        >
+          <label for="profile-name-inline-editor" class="sr-only">Profile name</label>
+
+          <input
+            id="profile-name-inline-editor"
+            x-ref="inlineEditorInput"
+            x-model="draftValue"
+            type="text"
+            x-init="registerInput($el)"
+            class="h-10 rounded-md border-gray-300 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            x-on:focus="handleInputFocus($event)"
+            x-on:keydown="handleInputKeydown($event)"
+          />
+
+          <button
+            type="button"
+            class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            x-on:click="commitChanges()"
+          >
+            Save
+          </button>
+
+          <button
+            type="button"
+            class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+            x-on:click="revertChanges()"
+          >
+            Cancel
+          </button>
+        </div>
+      </template>
+
+      <p class="text-sm text-gray-500">
+        Tip: Press <kbd>Enter</kbd> to save, <kbd>Escape</kbd> to cancel, and <kbd>Tab</kbd> to cycle
+        within the active editor controls.
+      </p>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxInlineEditorDemo', 'huxInlineEditorRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>
