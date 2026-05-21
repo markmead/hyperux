@@ -28,7 +28,7 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 - No special runtime requirements beyond Alpine.js.
 - For robust keyboard behavior, keep all editable controls inside the focus-trap container ref.
-- Prefer `x-show` + `x-cloak` + `x-transition` for read/edit toggles to keep focus targets connected for restoration and provide smoother visual transitions.
+- Prefer `x-show` + `x-cloak` + `x-transition` for read/edit toggles because it keeps DOM elements connected (improving focus restoration reliability) and provides smoother visual transitions.
 - `x-if` is supported, but when toggling with DOM removal you should configure `returnFocusTemplateRef` for consistent focus return.
 
 <LastUpdated date={frontmatter.modDate} />
@@ -67,7 +67,7 @@ _Internal helper methods are private implementation details and are not part of 
 - `returnFocusTemplateRef: string` (optional)
   Optional `x-ref` used as the primary focus return target after commit/revert.
   If the previously focused element is disconnected, focus attempts this ref first.
-  If unavailable, focus falls back to the first visible focusable element in the component.
+  If unavailable, focus falls back to the first visible focusable element in DOM order within the component.
 
 ## Quick Start
 
@@ -141,8 +141,8 @@ _Internal helper methods are private implementation details and are not part of 
 - `handleInputFocus()` selects all text in the focused input/textarea.
 - `handleInputKeydown()` commits on `Enter` and reverts on `Escape`.
 - `trapFocus()` cycles `Tab` and `Shift+Tab` inside the active focus-trap root while editing.
-- `commitChanges()` sets `inputValue = draftValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable fallback), and dispatches commit event(s).
-- `revertChanges()` resets `draftValue = inputValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable fallback), and dispatches revert event(s).
+- `commitChanges()` sets `inputValue = draftValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable element in DOM order), and dispatches commit event(s).
+- `revertChanges()` resets `draftValue = inputValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable element in DOM order), and dispatches revert event(s).
 
 ## Error Handling
 
