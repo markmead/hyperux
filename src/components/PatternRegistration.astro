@@ -748,7 +748,7 @@
           return refBasedFocusElement
         }
 
-        const fallbackFocusableElement = this.getFocusableElementsFromRoot(this.$el)[0]
+        const fallbackFocusableElement = this.getFocusableElementsFromRoot(this.$el).at(0)
 
         if (fallbackFocusableElement instanceof HTMLElement) {
           return fallbackFocusableElement

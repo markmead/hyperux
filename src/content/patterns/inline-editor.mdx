@@ -73,12 +73,12 @@ _Internal helper methods are private implementation details and are not part of 
 
 ```html
 <div x-data="huxInlineEditor({ inputValue: 'Ada Lovelace' })">
-  <div x-show="!isEditing" x-cloak x-transition.opacity.duration.150ms>
+  <div x-show="!isEditing" x-cloak x-transition.opacity>
     <span x-text="inputValue"></span>
     <button type="button" x-on:click="enterEditMode()">Edit</button>
   </div>
 
-  <div x-show="isEditing" x-cloak x-transition.opacity.duration.150ms x-ref="inlineEditor" x-on:keydown="trapFocus($event)">
+  <div x-show="isEditing" x-cloak x-transition.opacity x-ref="inlineEditor" x-on:keydown="trapFocus($event)">
     <input
       x-ref="inlineEditorInput"
       x-model="draftValue"

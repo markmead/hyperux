@@ -21,7 +21,7 @@
       <div
         x-show="!isEditing"
         x-cloak
-        x-transition.opacity.duration.150ms
+        x-transition.opacity
         class="flex flex-wrap items-center gap-3"
       >
         <p class="text-lg font-semibold text-gray-900" x-text="inputValue"></p>
@@ -39,7 +39,7 @@
       <div
         x-show="isEditing"
         x-cloak
-        x-transition.opacity.duration.150ms
+        x-transition.opacity
         x-ref="inlineEditor"
         class="flex flex-wrap items-center gap-2"
         x-on:keydown="trapFocus($event)"
