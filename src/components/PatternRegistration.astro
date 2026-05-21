@@ -1146,10 +1146,6 @@
       },
 
       dispatchChangeEvent() {
-        const eventName = this.filtersId
-          ? `hux-multi-facet-filters:${this.filtersId}:change`
-          : 'hux-multi-facet-filters:change'
-
         const filterStateSnapshot = Object.fromEntries(
           Object.entries(this.filterState).map(([facetName, facetValue]) => {
             if (Array.isArray(facetValue)) {
@@ -1164,7 +1160,7 @@
           }),
         )
 
-        this.$dispatch(eventName, {
+        const eventDetail = {
           filtersId: this.filtersId,
           filterState: filterStateSnapshot,
           filteredItems: [...this.filteredItems],
@@ -1183,7 +1179,13 @@
               Array.isArray(values) ? [...values] : [],
             ]),
           ),
-        })
+        }
+
+        this.$dispatch('hux-multi-facet-filters:change', eventDetail)
+
+        if (this.filtersId) {
+          this.$dispatch(`hux-multi-facet-filters:${this.filtersId}:change`, eventDetail)
+        }
       },
 
       destroy() {

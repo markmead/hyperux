@@ -162,6 +162,7 @@ setFilterValue('status', 'active', { debounce: false })
 - `availableValueMap` and `invalidValueMap` are recomputed from source data using current facet intersections.
 - For `multi` facets, candidate availability is evaluated as “current selected values plus candidate value.”
 - Range values with `min > max` are normalized by swapping bounds.
+- Each recompute dispatches `hux-multi-facet-filters:change`, plus `hux-multi-facet-filters:{filtersId}:change` when `filtersId` is set.
 
 ## Error Handling
 
