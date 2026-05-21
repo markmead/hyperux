@@ -46,6 +46,7 @@
             x-model="draftValue"
             type="text"
             x-init="registerInput($el)"
+            aria-describedby="profile-name-inline-editor-help"
             class="h-10 rounded-md border-gray-300 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             x-on:focus="handleInputFocus($event)"
             x-on:keydown="handleInputKeydown($event)"
@@ -69,7 +70,7 @@
         </div>
       </template>
 
-      <p class="text-sm text-gray-500">
+      <p id="profile-name-inline-editor-help" class="text-sm text-gray-500">
         Tip: Press <kbd>Enter</kbd> to save, <kbd>Escape</kbd> to cancel, and <kbd>Tab</kbd> to cycle
         within the active editor controls.
       </p>

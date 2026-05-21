@@ -688,6 +688,8 @@
         }
 
         if (remainingAttempts <= 0) {
+          console.error(`[huxInlineEditor] Missing x-ref target for ${this.inputTemplateRefName}.`)
+
           return
         }
 
@@ -703,7 +705,11 @@
           return []
         }
 
-        return [...focusTrapRoot.querySelectorAll('[tabindex], a[href], button, input, select, textarea')]
+        return [
+          ...focusTrapRoot.querySelectorAll(
+            '[tabindex]:not([tabindex="-1"]), a[href], button, input, select, textarea',
+          ),
+        ]
           .filter((focusableElement) => focusableElement instanceof HTMLElement)
           .filter(
             (focusableElement) =>

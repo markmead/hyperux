@@ -7,7 +7,7 @@ terms:
   - alpinejs
   - editable-text
   - keyboard
-  - focus-management
+  - focus-trap
   - ux-pattern
 pubDate: 2026-05-21
 modDate: 2026-05-21
@@ -81,6 +81,7 @@ _Internal helper methods are private implementation details and are not part of 
         x-model="draftValue"
         type="text"
         x-init="registerInput($el)"
+        aria-describedby="profile-name-inline-editor-help"
         x-on:focus="handleInputFocus($event)"
         x-on:keydown="handleInputKeydown($event)"
       />
@@ -88,6 +89,10 @@ _Internal helper methods are private implementation details and are not part of 
       <button type="button" x-on:click="revertChanges()">Cancel</button>
     </div>
   </template>
+
+  <p id="profile-name-inline-editor-help">
+    Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+  </p>
 </div>
 ```
 
@@ -112,6 +117,7 @@ _Internal helper methods are private implementation details and are not part of 
   x-model="draftValue"
   type="text"
   x-init="registerInput($el)"
+  aria-describedby="profile-name-inline-editor-help"
   x-on:focus="handleInputFocus($event)"
   x-on:keydown="handleInputKeydown($event)"
 />
@@ -130,7 +136,8 @@ _Internal helper methods are private implementation details and are not part of 
 ## Error Handling
 
 - If the configured input ref is missing when edit mode starts, the component logs:
-  `[huxInlineEditor] Missing x-ref target for {inputTemplateRef}.`
+  `[huxInlineEditor] Missing x-ref target for inlineEditorInput.` by default. If you override
+  `inputTemplateRef`, the logged value uses that configured ref name.
 - Missing optional listeners do not affect commit/revert behavior.
 
 ## Accessibility Notes
