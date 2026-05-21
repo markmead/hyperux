@@ -740,10 +740,9 @@
           return returnFocusElement
         }
 
-        const refBasedFocusElement =
-          typeof this.returnFocusTemplateRefName === 'string' && this.returnFocusTemplateRefName
-            ? this.$refs[this.returnFocusTemplateRefName]
-            : null
+        const refBasedFocusElement = this.returnFocusTemplateRefName
+          ? this.$refs[this.returnFocusTemplateRefName]
+          : null
 
         if (refBasedFocusElement instanceof HTMLElement && refBasedFocusElement.isConnected) {
           return refBasedFocusElement
