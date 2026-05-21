@@ -39,6 +39,7 @@ Returns an Alpine data object with:
 - `activeStepId: string | null`
 - `stepItems: Array<{ label: string, id: string }>`
 - `stepperId: string | null`
+- `stepsAreViewable: boolean`
 - `activeStepIndex: number`
 - `isFirstStep: boolean`
 - `isLastStep: boolean`
@@ -55,6 +56,7 @@ _Internal helper methods are private implementation details and are not part of 
 - `stepItems: Array<{ label: string, id: string }>` (default: `[]`)
 - `activeStep: string` (optional initial active step id)
 - `id: string` (optional; enables `hux-stepper:{id}:change` events)
+- `stepsAreViewable: boolean` (default: `false`; when `true`, clicking steps only changes what is viewed and `isStepComplete()` does not infer completion)
 
 ## Quick Start
 
@@ -107,6 +109,7 @@ _Internal helper methods are private implementation details and are not part of 
 
 ```js
 huxStepper({
+  stepsAreViewable: true,
   activeStep: 'shipping',
   stepItems: [
     { label: 'Contact', id: 'contact' },
@@ -144,7 +147,8 @@ window.addEventListener('hux-stepper:checkout:change', (event) => {
 - If `activeStep` is missing or invalid, active step falls back to the first valid step id.
 - `goToStep()` ignores unknown ids.
 - `goToPreviousStep()` and `goToNextStep()` no-op when already at boundaries.
-- `isStepComplete()` returns `true` only for steps before the active step.
+- `isStepComplete()` returns `true` only for steps before the active step when `stepsAreViewable` is `false`.
+- When `stepsAreViewable` is `true`, `goToStep()` is view-only and `isStepComplete()` always returns `false`.
 - When `id` is set, `hux-stepper:{id}:change` is dispatched on init and on every successful step change.
 
 ## Error Handling
@@ -152,6 +156,7 @@ window.addEventListener('hux-stepper:checkout:change', (event) => {
 - Invalid `stepItems` entries are ignored without throwing.
 - Unknown step ids no-op in `goToStep()` and completion/current helpers.
 - Empty step arrays initialize with `activeStepId = null`, `isLastStep = true`, and boundary navigation no-ops.
+- With `stepsAreViewable: true`, completion is never inferred from navigation state.
 
 ## Accessibility Notes
 

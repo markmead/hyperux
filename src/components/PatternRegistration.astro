@@ -1111,6 +1111,7 @@
       stepItems: [],
       activeStepId: initialConfig.activeStep ?? null,
       stepperId: initialConfig.id ?? null,
+      stepsAreViewable: initialConfig.stepsAreViewable ?? false,
 
       init() {
         this.stepItems = (initialConfig.stepItems ?? []).filter(
@@ -1196,6 +1197,10 @@
         const stepIndex = this.findStepIndex(stepId)
 
         if (stepIndex === -1) {
+          return false
+        }
+
+        if (this.stepsAreViewable) {
           return false
         }
 
