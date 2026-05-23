@@ -1149,7 +1149,7 @@
       },
 
       markStepComplete(stepId) {
-        if (this.findStepIndex(stepId) === -1 || this.completedStepIds.includes(stepId)) {
+        if (this.completedStepIds.includes(stepId) || this.findStepIndex(stepId) === -1) {
           return
         }
 
