@@ -7,8 +7,8 @@
 
   <div class="space-y-4">
     <p class="text-gray-700">
-      Multi-facet filter orchestration with debounced search and range inputs, intersection-aware
-      option states, and a unified filter state tree.
+      Multi-facet filter orchestration with debounced search and number-based price ranges,
+      intersection-aware option states, and a unified filter state tree.
     </p>
 
     <div
@@ -19,66 +19,137 @@
         sourceItems: [
           {
             id: 'item-1',
-            name: 'Alpine Docs',
-            description: 'Interactive docs for Alpine.js component patterns.',
-            categories: ['docs', 'education'],
-            price: 0,
+            name: 'Apex Ultralight Laptop 14”',
+            description: 'Portable laptop for travel and remote work.',
+            department: 'electronics',
+            brand: 'Apex',
+            categories: ['electronics', 'computers', 'laptops'],
+            price: 899,
+            freeShipping: true,
             rating: '5'
           },
           {
             id: 'item-2',
-            name: 'UI Kit Starter',
-            description: 'Starter UI kit with Alpine.js-ready examples.',
-            categories: ['template', 'ui'],
-            price: 29,
+            name: 'Nimbus Studio Desktop',
+            description: 'Compact desktop system for productivity workflows.',
+            department: 'electronics',
+            brand: 'Nimbus',
+            categories: ['electronics', 'computers', 'desktops'],
+            price: 1199,
+            freeShipping: false,
             rating: '4'
           },
           {
             id: 'item-3',
-            name: 'Accessibility Audit Pack',
-            description: 'Checklist and scripts for accessibility reviews.',
-            categories: ['a11y', 'education'],
-            price: 49,
+            name: 'PulseSound Noise-Canceling Headphones',
+            description: 'Over-ear wireless headphones with active noise canceling.',
+            department: 'electronics',
+            brand: 'PulseSound',
+            categories: ['electronics', 'audio', 'headphones'],
+            price: 249,
+            freeShipping: true,
             rating: '5'
           },
           {
             id: 'item-4',
-            name: 'Component Playbook',
-            description: 'Pattern recipes for dropdowns, dialogs, and tabs.',
-            categories: ['docs', 'template'],
-            price: 19,
+            name: 'PulseSound Smart Speaker',
+            description: 'Voice-enabled speaker for home audio and automation.',
+            department: 'electronics',
+            brand: 'PulseSound',
+            categories: ['electronics', 'audio', 'speakers'],
+            price: 179,
+            freeShipping: true,
             rating: '3'
           },
           {
             id: 'item-5',
-            name: 'Marketing Site Theme',
-            description: 'Production theme with responsive components.',
-            categories: ['template', 'ui'],
-            price: 79,
+            name: 'HomeCraft Ceramic Cookware Set',
+            description: '10-piece ceramic cookware set for everyday cooking.',
+            department: 'home',
+            brand: 'HomeCraft',
+            categories: ['home', 'kitchen', 'cookware'],
+            price: 199,
+            freeShipping: false,
             rating: '4'
           },
           {
             id: 'item-6',
-            name: 'Focus Utilities',
-            description: 'Utilities focused on keyboard and focus behavior.',
-            categories: ['a11y', 'ui'],
-            price: 39,
+            name: 'HomeCraft Air Fryer Pro',
+            description: 'Digital air fryer with six cooking modes.',
+            department: 'home',
+            brand: 'HomeCraft',
+            categories: ['home', 'kitchen', 'appliances'],
+            price: 159,
+            freeShipping: true,
+            rating: '4'
+          },
+          {
+            id: 'item-7',
+            name: 'TerraPeak Expedition Tent',
+            description: '4-person weatherproof tent designed for all-season camping.',
+            department: 'outdoors',
+            brand: 'TerraPeak',
+            categories: ['outdoors', 'camping', 'tents'],
+            price: 329,
+            freeShipping: false,
+            rating: '5'
+          },
+          {
+            id: 'item-8',
+            name: 'TerraPeak Trail Backpack 35L',
+            description: 'Lightweight technical backpack with hydration support.',
+            department: 'outdoors',
+            brand: 'TerraPeak',
+            categories: ['outdoors', 'hiking', 'backpacks'],
+            price: 139,
+            freeShipping: true,
             rating: '5'
           }
         ],
         facets: {
+          brands: {
+            type: 'multi',
+            values: ['Apex', 'Nimbus', 'PulseSound', 'HomeCraft', 'TerraPeak'],
+            getItemValue: (item) => item.brand
+          },
           categories: {
             type: 'multi',
-            values: ['docs', 'education', 'template', 'ui', 'a11y'],
+            values: [
+              'electronics',
+              'computers',
+              'laptops',
+              'desktops',
+              'audio',
+              'headphones',
+              'speakers',
+              'home',
+              'kitchen',
+              'cookware',
+              'appliances',
+              'outdoors',
+              'camping',
+              'tents',
+              'hiking',
+              'backpacks'
+            ],
             getItemValue: (item) => item.categories
+          },
+          department: {
+            type: 'single',
+            values: ['electronics', 'home', 'outdoors'],
+            getItemValue: (item) => item.department
           },
           query: {
             type: 'search',
-            getItemValue: (item) => `${item.name} ${item.description}`
+            getItemValue: (item) => `${item.name} ${item.description} ${item.brand} ${item.department}`
           },
           price: {
             type: 'range',
             getItemValue: (item) => item.price
+          },
+          freeShipping: {
+            type: 'single',
+            getItemValue: (item) => item.freeShipping
           },
           rating: {
             type: 'single',
@@ -87,34 +158,279 @@
           }
         },
         filterState: {
+          brands: [],
           categories: [],
+          department: null,
           query: '',
-          price: { min: 0, max: 100 },
+          price: { min: 0, max: 1500 },
+          freeShipping: null,
           rating: null
         }
       })"
       class="space-y-4"
     >
       <div class="grid gap-4 md:grid-cols-2">
-        <fieldset class="space-y-2">
-          <legend class="text-sm font-medium text-gray-900">Categories</legend>
+        <div class="space-y-4">
+          <fieldset class="space-y-2">
+            <legend class="text-sm font-medium text-gray-900">Brands</legend>
 
-          <template x-for="option in facetOptions('categories')" x-bind:key="option.value">
-            <label
-              class="flex items-center gap-2 text-sm"
-              x-bind:class="option.isInvalid && !option.isSelected ? 'text-gray-400' : 'text-gray-700'"
-            >
-              <input
-                type="checkbox"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                x-bind:checked="option.isSelected"
-                x-bind:disabled="option.isInvalid && !option.isSelected"
-                x-on:change="toggleFilterValue('categories', option.value)"
-              />
-              <span x-text="option.value"></span>
-            </label>
-          </template>
-        </fieldset>
+            <template x-for="option in facetOptions('brands')" x-bind:key="option.value">
+              <label
+                class="flex items-center gap-2 text-sm"
+                x-bind:class="option.isInvalid && !option.isSelected ? 'text-gray-400' : 'text-gray-700'"
+              >
+                <input
+                  type="checkbox"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  x-bind:checked="option.isSelected"
+                  x-bind:disabled="option.isInvalid && !option.isSelected"
+                  x-on:change="toggleFilterValue('brands', option.value)"
+                />
+                <span x-text="option.value"></span>
+              </label>
+            </template>
+          </fieldset>
+
+          <fieldset class="space-y-3">
+            <legend class="text-sm font-medium text-gray-900">Categories (tree)</legend>
+
+            <div class="space-y-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+              <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Electronics</p>
+              <label
+                class="flex items-center gap-2 text-sm"
+                x-bind:class="isValueInvalid('categories', 'electronics') && !filterState.categories.includes('electronics') ? 'text-gray-400' : 'text-gray-700'"
+              >
+                <input
+                  type="checkbox"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  x-bind:checked="filterState.categories.includes('electronics')"
+                  x-bind:disabled="isValueInvalid('categories', 'electronics') && !filterState.categories.includes('electronics')"
+                  x-on:change="toggleFilterValue('categories', 'electronics')"
+                />
+                <span>All electronics</span>
+              </label>
+              <div class="space-y-2 pl-4">
+                <label
+                  class="flex items-center gap-2 text-sm"
+                  x-bind:class="isValueInvalid('categories', 'computers') && !filterState.categories.includes('computers') ? 'text-gray-400' : 'text-gray-700'"
+                >
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    x-bind:checked="filterState.categories.includes('computers')"
+                    x-bind:disabled="isValueInvalid('categories', 'computers') && !filterState.categories.includes('computers')"
+                    x-on:change="toggleFilterValue('categories', 'computers')"
+                  />
+                  <span>Computers</span>
+                </label>
+                <div class="space-y-2 pl-4">
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'laptops') && !filterState.categories.includes('laptops') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('laptops')"
+                      x-bind:disabled="isValueInvalid('categories', 'laptops') && !filterState.categories.includes('laptops')"
+                      x-on:change="toggleFilterValue('categories', 'laptops')"
+                    />
+                    <span>Laptops</span>
+                  </label>
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'desktops') && !filterState.categories.includes('desktops') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('desktops')"
+                      x-bind:disabled="isValueInvalid('categories', 'desktops') && !filterState.categories.includes('desktops')"
+                      x-on:change="toggleFilterValue('categories', 'desktops')"
+                    />
+                    <span>Desktops</span>
+                  </label>
+                </div>
+                <label
+                  class="flex items-center gap-2 text-sm"
+                  x-bind:class="isValueInvalid('categories', 'audio') && !filterState.categories.includes('audio') ? 'text-gray-400' : 'text-gray-700'"
+                >
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    x-bind:checked="filterState.categories.includes('audio')"
+                    x-bind:disabled="isValueInvalid('categories', 'audio') && !filterState.categories.includes('audio')"
+                    x-on:change="toggleFilterValue('categories', 'audio')"
+                  />
+                  <span>Audio</span>
+                </label>
+                <div class="space-y-2 pl-4">
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'headphones') && !filterState.categories.includes('headphones') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('headphones')"
+                      x-bind:disabled="isValueInvalid('categories', 'headphones') && !filterState.categories.includes('headphones')"
+                      x-on:change="toggleFilterValue('categories', 'headphones')"
+                    />
+                    <span>Headphones</span>
+                  </label>
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'speakers') && !filterState.categories.includes('speakers') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('speakers')"
+                      x-bind:disabled="isValueInvalid('categories', 'speakers') && !filterState.categories.includes('speakers')"
+                      x-on:change="toggleFilterValue('categories', 'speakers')"
+                    />
+                    <span>Speakers</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+              <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Home</p>
+              <label
+                class="flex items-center gap-2 text-sm"
+                x-bind:class="isValueInvalid('categories', 'home') && !filterState.categories.includes('home') ? 'text-gray-400' : 'text-gray-700'"
+              >
+                <input
+                  type="checkbox"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  x-bind:checked="filterState.categories.includes('home')"
+                  x-bind:disabled="isValueInvalid('categories', 'home') && !filterState.categories.includes('home')"
+                  x-on:change="toggleFilterValue('categories', 'home')"
+                />
+                <span>All home</span>
+              </label>
+              <div class="space-y-2 pl-4">
+                <label
+                  class="flex items-center gap-2 text-sm"
+                  x-bind:class="isValueInvalid('categories', 'kitchen') && !filterState.categories.includes('kitchen') ? 'text-gray-400' : 'text-gray-700'"
+                >
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    x-bind:checked="filterState.categories.includes('kitchen')"
+                    x-bind:disabled="isValueInvalid('categories', 'kitchen') && !filterState.categories.includes('kitchen')"
+                    x-on:change="toggleFilterValue('categories', 'kitchen')"
+                  />
+                  <span>Kitchen</span>
+                </label>
+                <div class="space-y-2 pl-4">
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'cookware') && !filterState.categories.includes('cookware') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('cookware')"
+                      x-bind:disabled="isValueInvalid('categories', 'cookware') && !filterState.categories.includes('cookware')"
+                      x-on:change="toggleFilterValue('categories', 'cookware')"
+                    />
+                    <span>Cookware</span>
+                  </label>
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'appliances') && !filterState.categories.includes('appliances') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('appliances')"
+                      x-bind:disabled="isValueInvalid('categories', 'appliances') && !filterState.categories.includes('appliances')"
+                      x-on:change="toggleFilterValue('categories', 'appliances')"
+                    />
+                    <span>Appliances</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+              <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Outdoors</p>
+              <label
+                class="flex items-center gap-2 text-sm"
+                x-bind:class="isValueInvalid('categories', 'outdoors') && !filterState.categories.includes('outdoors') ? 'text-gray-400' : 'text-gray-700'"
+              >
+                <input
+                  type="checkbox"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  x-bind:checked="filterState.categories.includes('outdoors')"
+                  x-bind:disabled="isValueInvalid('categories', 'outdoors') && !filterState.categories.includes('outdoors')"
+                  x-on:change="toggleFilterValue('categories', 'outdoors')"
+                />
+                <span>All outdoors</span>
+              </label>
+              <div class="space-y-2 pl-4">
+                <label
+                  class="flex items-center gap-2 text-sm"
+                  x-bind:class="isValueInvalid('categories', 'camping') && !filterState.categories.includes('camping') ? 'text-gray-400' : 'text-gray-700'"
+                >
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    x-bind:checked="filterState.categories.includes('camping')"
+                    x-bind:disabled="isValueInvalid('categories', 'camping') && !filterState.categories.includes('camping')"
+                    x-on:change="toggleFilterValue('categories', 'camping')"
+                  />
+                  <span>Camping</span>
+                </label>
+                <div class="space-y-2 pl-4">
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'tents') && !filterState.categories.includes('tents') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('tents')"
+                      x-bind:disabled="isValueInvalid('categories', 'tents') && !filterState.categories.includes('tents')"
+                      x-on:change="toggleFilterValue('categories', 'tents')"
+                    />
+                    <span>Tents</span>
+                  </label>
+                </div>
+                <label
+                  class="flex items-center gap-2 text-sm"
+                  x-bind:class="isValueInvalid('categories', 'hiking') && !filterState.categories.includes('hiking') ? 'text-gray-400' : 'text-gray-700'"
+                >
+                  <input
+                    type="checkbox"
+                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    x-bind:checked="filterState.categories.includes('hiking')"
+                    x-bind:disabled="isValueInvalid('categories', 'hiking') && !filterState.categories.includes('hiking')"
+                    x-on:change="toggleFilterValue('categories', 'hiking')"
+                  />
+                  <span>Hiking</span>
+                </label>
+                <div class="space-y-2 pl-4">
+                  <label
+                    class="flex items-center gap-2 text-sm"
+                    x-bind:class="isValueInvalid('categories', 'backpacks') && !filterState.categories.includes('backpacks') ? 'text-gray-400' : 'text-gray-700'"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      x-bind:checked="filterState.categories.includes('backpacks')"
+                      x-bind:disabled="isValueInvalid('categories', 'backpacks') && !filterState.categories.includes('backpacks')"
+                      x-on:change="toggleFilterValue('categories', 'backpacks')"
+                    />
+                    <span>Backpacks</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
 
         <div class="space-y-3">
           <label for="hux-multi-facet-query" class="block text-sm font-medium text-gray-900">
@@ -132,35 +448,65 @@
 
           <div class="space-y-2">
             <p class="text-sm font-medium text-gray-900">Price range</p>
-
-            <label for="hux-multi-facet-price-min" class="block text-xs text-gray-600">
-              Minimum price: <span x-text="filterState.price.min"></span>
-            </label>
-            <input
-              id="hux-multi-facet-price-min"
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              class="w-full"
-              x-model.number="filterState.price.min"
-              x-on:input="setFilterValue('price', { min: filterState.price.min, max: filterState.price.max })"
-            />
-
-            <label for="hux-multi-facet-price-max" class="block text-xs text-gray-600">
-              Maximum price: <span x-text="filterState.price.max"></span>
-            </label>
-            <input
-              id="hux-multi-facet-price-max"
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              class="w-full"
-              x-model.number="filterState.price.max"
-              x-on:input="setFilterValue('price', { min: filterState.price.min, max: filterState.price.max })"
-            />
+            <div class="grid grid-cols-2 gap-3">
+              <label for="hux-multi-facet-price-min" class="block text-xs text-gray-600">
+                Min price
+              </label>
+              <label for="hux-multi-facet-price-max" class="block text-xs text-gray-600">
+                Max price
+              </label>
+              <input
+                id="hux-multi-facet-price-min"
+                type="number"
+                min="0"
+                max="1500"
+                step="1"
+                class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                x-model.number="filterState.price.min"
+                x-on:input="setFilterValue('price', { min: filterState.price.min, max: filterState.price.max })"
+              />
+              <input
+                id="hux-multi-facet-price-max"
+                type="number"
+                min="0"
+                max="1500"
+                step="1"
+                class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+                x-model.number="filterState.price.max"
+                x-on:input="setFilterValue('price', { min: filterState.price.min, max: filterState.price.max })"
+              />
+            </div>
           </div>
+
+          <label for="hux-multi-facet-department" class="block text-sm font-medium text-gray-900">
+            Department
+          </label>
+          <select
+            id="hux-multi-facet-department"
+            class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500"
+            x-model="filterState.department"
+            x-on:change="setFilterValue('department', filterState.department, { debounce: false })"
+          >
+            <option value="">All departments</option>
+            <template x-for="option in facetOptions('department')" x-bind:key="option.value">
+              <option
+                x-bind:value="option.value"
+                x-bind:disabled="option.isInvalid && !option.isSelected"
+                x-text="option.value"
+              ></option>
+            </template>
+          </select>
+
+          <label class="inline-flex items-center gap-2 text-sm text-gray-700" for="hux-multi-facet-free-shipping">
+            <input
+              id="hux-multi-facet-free-shipping"
+              type="checkbox"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              x-bind:checked="filterState.freeShipping === true"
+              x-on:change="setFilterValue('freeShipping', $event.target.checked ? true : null, { debounce: false })"
+            />
+            <span>Free shipping only</span>
+          </label>
 
           <label for="hux-multi-facet-rating" class="block text-sm font-medium text-gray-900">
             Minimum rating
@@ -204,20 +550,51 @@
       <div class="rounded-md border border-gray-200 bg-gray-50 p-3">
         <p class="text-xs font-medium tracking-wide text-gray-500 uppercase">Unavailable combinations</p>
 
-        <p class="mt-1 text-sm text-gray-700" x-show="(invalidValueMap.categories || []).length === 0">
+        <p
+          class="mt-1 text-sm text-gray-700"
+          x-show="(invalidValueMap.categories || []).length === 0 && (invalidValueMap.brands || []).length === 0 && (invalidValueMap.department || []).length === 0"
+        >
           None for current filter state.
         </p>
 
-        <ul
-          class="mt-2 flex flex-wrap gap-2"
-          x-show="(invalidValueMap.categories || []).length > 0"
-        >
-          <template x-for="category in invalidValueMap.categories" x-bind:key="category">
-            <li class="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
-              <span x-text="category"></span>
-            </li>
-          </template>
-        </ul>
+        <template x-if="(invalidValueMap.brands || []).length > 0">
+          <div class="mt-2">
+            <p class="text-xs font-medium text-gray-500">Brands</p>
+            <ul class="mt-1 flex flex-wrap gap-2">
+              <template x-for="brand in invalidValueMap.brands" x-bind:key="brand">
+                <li class="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                  <span x-text="brand"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </template>
+
+        <template x-if="(invalidValueMap.categories || []).length > 0">
+          <div class="mt-2">
+            <p class="text-xs font-medium text-gray-500">Categories</p>
+            <ul class="mt-1 flex flex-wrap gap-2">
+              <template x-for="category in invalidValueMap.categories" x-bind:key="category">
+                <li class="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                  <span x-text="category"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </template>
+
+        <template x-if="(invalidValueMap.department || []).length > 0">
+          <div class="mt-2">
+            <p class="text-xs font-medium text-gray-500">Department</p>
+            <ul class="mt-1 flex flex-wrap gap-2">
+              <template x-for="department in invalidValueMap.department" x-bind:key="department">
+                <li class="rounded-full border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                  <span x-text="department"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </template>
       </div>
 
       <ul class="space-y-2">
@@ -228,7 +605,10 @@
               <p class="text-sm text-gray-600"><span x-text="`$${item.price}`"></span></p>
             </div>
             <p class="mt-1 text-sm text-gray-600" x-text="item.description"></p>
-            <p class="mt-2 text-xs text-gray-500" x-text="`Rating: ${item.rating} • ${item.categories.join(', ')}`"></p>
+            <p
+              class="mt-2 text-xs text-gray-500"
+              x-text="`Rating: ${item.rating} • ${item.brand} • ${item.department} • ${item.categories.join(', ')}`"
+            ></p>
           </li>
         </template>
       </ul>
