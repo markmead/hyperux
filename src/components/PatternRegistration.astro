@@ -1120,6 +1120,9 @@
         )
 
         const validStepIds = this.stepItems.map((stepItem) => stepItem.id)
+        this.completedStepIds = this.completedStepIds.filter((stepId) =>
+          validStepIds.includes(stepId),
+        )
 
         if (!this.activeStepId || !validStepIds.includes(this.activeStepId)) {
           this.activeStepId = this.stepItems.length > 0 ? this.stepItems[0].id : null
