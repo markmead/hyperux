@@ -7,18 +7,18 @@
 
   <div class="space-y-4">
     <p class="text-gray-700">
-      Focus-trapped slide-over panel built on Dialog logic, with Escape handling, backdrop
-      dismissal, and scoped open/close events.
+      Focus-trapped slide-over panel built with <code>huxDialog</code>, using CSS transitions for
+      the slide animation and edge positioning.
     </p>
 
     <div
-      data-hux-copy="huxSlideOverDemo"
-      x-data="huxSlideOver({ slideOverId: 'user-settings' })"
+      data-hux-copy="huxSlideOverDialogDemo"
+      x-data="huxDialog({ dialogId: 'user-settings' })"
     >
       <button
         type="button"
         class="rounded-md border border-gray-300 bg-white px-4 py-2 font-medium transition-colors hover:bg-gray-100"
-        x-on:click="openSlideOver()"
+        x-on:click="openDialog()"
       >
         Open Slide-over
       </button>
@@ -49,7 +49,7 @@
             x-transition:leave="transform transition-transform duration-200 ease-in"
             x-transition:leave-start="translate-x-0"
             x-transition:leave-end="translate-x-full"
-            x-bind:aria-labelledby="slideOverTitleId || null"
+            x-bind:aria-labelledby="dialogTitleId || null"
             role="dialog"
             aria-modal="true"
             class="fixed top-0 right-0 h-full w-full max-w-md overflow-y-auto bg-white shadow-xl"
@@ -57,7 +57,7 @@
             <div class="flex h-full flex-col">
               <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <h2
-                  x-bind:id="slideOverTitleId || null"
+                  x-bind:id="dialogTitleId || null"
                   class="text-base font-semibold text-gray-900"
                 >
                   User Settings
@@ -67,7 +67,7 @@
                   type="button"
                   class="shrink-0 rounded-md text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   aria-label="Close slide-over"
-                  x-on:click="closeSlideOver()"
+                  x-on:click="closeDialog()"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -145,7 +145,7 @@
                 <button
                   type="button"
                   class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100"
-                  x-on:click="closeSlideOver()"
+                  x-on:click="closeDialog()"
                 >
                   Cancel
                 </button>
@@ -153,7 +153,7 @@
                 <button
                   type="button"
                   class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-                  x-on:click="closeSlideOver()"
+                  x-on:click="closeDialog()"
                 >
                   Save changes
                 </button>
@@ -169,7 +169,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4">
       <button
         type="button"
-        x-data="huxCopy({ sourceNames: ['huxSlideOverDemo', 'huxSlideOverRegistration'] })"
+        x-data="huxCopy({ sourceNames: ['huxSlideOverDialogDemo', 'huxDialogRegistration'] })"
         class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
         x-on:click="copyToClipboard()"
       >
