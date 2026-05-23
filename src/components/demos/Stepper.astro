@@ -49,8 +49,7 @@
                   : isStepComplete(stepItem.id)
                     ? 'border-emerald-600 bg-emerald-600 text-white'
                     : 'border-gray-300 bg-white text-gray-700'"
-                x-text="stepIndex + 1"
-              ></span>
+                x-text="stepIndex + 1"></span>
               <span x-text="stepItem.label"></span>
               <span
                 class="ml-auto rounded px-2 py-0.5 text-xs font-semibold"
@@ -60,7 +59,7 @@
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-gray-100 text-gray-700'"
                 x-bind:id="`step-status-${stepItem.id}`"
-                x-text="isStepCurrent(stepItem.id) ? '● Current' : isStepComplete(stepItem.id) ? '✓ Completed' : '○ Not completed'"
+                x-text="isStepCurrent(stepItem.id) ? 'Current' : isStepComplete(stepItem.id) ? 'Completed' : 'Not completed'"
               ></span>
             </button>
           </li>

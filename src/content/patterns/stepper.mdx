@@ -85,7 +85,7 @@ _Internal helper methods are private implementation details and are not part of 
         ></button>
         <span
           x-bind:id="`step-status-${stepItem.id}`"
-          x-text="isStepCurrent(stepItem.id) ? '● Current' : isStepComplete(stepItem.id) ? '✓ Completed' : '○ Not completed'"
+          x-text="isStepCurrent(stepItem.id) ? 'Current' : isStepComplete(stepItem.id) ? 'Completed' : 'Not completed'"
         ></span>
       </li>
     </template>
@@ -169,7 +169,7 @@ window.addEventListener('hux-stepper:checkout:change', (event) => {
 
 - Use semantic step navigation such as `<ol>` with clear step labels.
 - Use `aria-current="step"` on the active step trigger.
-- Expose explicit step state text (for example, `● Current`, `✓ Completed`, `○ Not completed`) so users are not relying on color alone.
+- Expose explicit step state text (for example, `Current`, `Completed`, `Not completed`) so users are not relying on color alone.
 - Keep each trigger associated with its panel using `aria-controls`, and connect panel labels with `aria-labelledby`.
 - Keep controls as `button type="button"` and provide visible text labels.
 - Keep active panel content announced with `aria-live="polite"` when the content swap is meaningful for assistive technology users.
