@@ -7,8 +7,8 @@
 
   <div class="space-y-4">
     <p class="text-gray-700">
-      Inline edit behavior that swaps between read and edit states, selects text on input focus, traps
-      keyboard focus while active, and supports Enter to save or Escape to cancel.
+      Inline edit behavior that swaps between read and edit states, selects text on input focus,
+      traps keyboard focus while active, and supports Enter to save or Escape to cancel.
     </p>
 
     <div
@@ -18,12 +18,7 @@
     >
       <p class="text-sm text-gray-500">Profile name</p>
 
-      <div
-        x-show="!isEditing"
-        x-cloak
-        x-transition.opacity
-        class="flex flex-wrap items-center gap-3"
-      >
+      <div x-cloak x-show="!isEditing" class="flex flex-wrap items-center gap-3">
         <p class="text-lg font-semibold text-gray-900" x-text="inputValue"></p>
 
         <button
@@ -37,9 +32,8 @@
       </div>
 
       <div
-        x-show="isEditing"
         x-cloak
-        x-transition.opacity
+        x-show="isEditing"
         x-ref="inlineEditor"
         class="flex flex-wrap items-center gap-2"
         x-on:keydown="trapFocus($event)"
@@ -53,7 +47,7 @@
           type="text"
           x-init="registerInput($el)"
           aria-describedby="profile-name-inline-editor-help"
-          class="h-10 rounded-md border-gray-300 px-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          class="rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           x-on:focus="handleInputFocus($event)"
           x-on:keydown="handleInputKeydown($event)"
         />
