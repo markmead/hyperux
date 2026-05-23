@@ -588,6 +588,11 @@
         }
 
         this._activeInputElement = targetElement
+
+        if (!this.isEditing) {
+          return
+        }
+
         targetElement.focus()
         this.selectInputText(targetElement)
       },
