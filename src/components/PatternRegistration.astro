@@ -530,30 +530,22 @@
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxInlineEditor', (initialConfig = {}) => ({
       isEditing: false,
-      inputValue:
-        typeof initialConfig.inputValue === 'string'
-          ? initialConfig.inputValue
-          : typeof initialConfig.value === 'string'
-            ? initialConfig.value
-            : '',
-      draftValue:
-        typeof initialConfig.inputValue === 'string'
-          ? initialConfig.inputValue
-          : typeof initialConfig.value === 'string'
-            ? initialConfig.value
-            : '',
+      inputValue: typeof initialConfig.inputValue === 'string' ? initialConfig.inputValue : '',
+      draftValue: typeof initialConfig.inputValue === 'string' ? initialConfig.inputValue : '',
       editorId: initialConfig.editorId ?? null,
       inputTemplateRefName: initialConfig.inputTemplateRef ?? 'inlineEditorInput',
       focusTrapTemplateRefName: initialConfig.focusTrapTemplateRef ?? 'inlineEditor',
       returnFocusTemplateRefName: initialConfig.returnFocusTemplateRef ?? null,
       _returnFocusElement: null,
       _activeInputElement: null,
+      _focusInputRetryFrameId: null,
 
       get hasChanges() {
         return this.draftValue !== this.inputValue
       },
 
       enterEditMode() {
+        this.cancelFocusInputRetry()
         this._returnFocusElement =
           document.activeElement instanceof HTMLElement ? document.activeElement : null
 
@@ -566,6 +558,7 @@
       },
 
       commitChanges() {
+        this.cancelFocusInputRetry()
         this.inputValue = this.draftValue
         this.isEditing = false
         this._activeInputElement = null
@@ -574,6 +567,7 @@
       },
 
       revertChanges() {
+        this.cancelFocusInputRetry()
         this.draftValue = this.inputValue
         this.isEditing = false
         this._activeInputElement = null
@@ -689,9 +683,15 @@
       },
 
       focusInputWithRetry(remainingAttempts = 5) {
+        if (!this.isEditing) {
+          this.cancelFocusInputRetry()
+          return
+        }
+
         const inputElement = this.resolveInputElement()
 
         if (inputElement) {
+          this.cancelFocusInputRetry()
           inputElement.focus()
           this.selectInputText(inputElement)
 
@@ -699,14 +699,27 @@
         }
 
         if (remainingAttempts <= 0) {
-          console.error(`[huxInlineEditor] Missing x-ref target for ${this.inputTemplateRefName}.`)
+          this.cancelFocusInputRetry()
+          console.error(
+            `[huxInlineEditor] Unable to resolve input or textarea target for ${this.inputTemplateRefName}.`,
+          )
 
           return
         }
 
-        setTimeout(() => {
+        this._focusInputRetryFrameId = requestAnimationFrame(() => {
+          this._focusInputRetryFrameId = null
           this.focusInputWithRetry(remainingAttempts - 1)
-        }, 16)
+        })
+      },
+
+      cancelFocusInputRetry() {
+        if (typeof this._focusInputRetryFrameId !== 'number') {
+          return
+        }
+
+        cancelAnimationFrame(this._focusInputRetryFrameId)
+        this._focusInputRetryFrameId = null
       },
 
       getFocusableElements() {
@@ -781,7 +794,6 @@
         this.$dispatch(scopedEventName, {
           editorId: this.editorId,
           inputValue: this.inputValue,
-          value: this.inputValue,
         })
       },
     }))
