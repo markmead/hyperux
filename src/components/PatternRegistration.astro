@@ -1109,6 +1109,7 @@
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxStepper', (initialConfig = {}) => ({
       stepItems: [],
+      completedStepIds: [],
       activeStepId: initialConfig.activeStep ?? null,
       stepperId: initialConfig.id ?? null,
       stepsAreViewable: initialConfig.stepsAreViewable ?? false,
@@ -1145,6 +1146,14 @@
 
       findStepIndex(stepId) {
         return this.stepItems.findIndex((stepItem) => stepItem.id === stepId)
+      },
+
+      markStepComplete(stepId) {
+        if (this.findStepIndex(stepId) === -1 || this.completedStepIds.includes(stepId)) {
+          return
+        }
+
+        this.completedStepIds.push(stepId)
       },
 
       _dispatchChangeEvent() {
@@ -1188,6 +1197,10 @@
       goToNextStep() {
         if (this.stepItems.length === 0 || this.isLastStep) return
 
+        if (this.stepsAreViewable && this.activeStepId) {
+          this.markStepComplete(this.activeStepId)
+        }
+
         const nextStepId = this.stepItems[this.activeStepIndex + 1].id
 
         this.goToStep(nextStepId)
@@ -1201,7 +1214,7 @@
         }
 
         if (this.stepsAreViewable) {
-          return false
+          return this.completedStepIds.includes(stepId)
         }
 
         return stepIndex < this.activeStepIndex
