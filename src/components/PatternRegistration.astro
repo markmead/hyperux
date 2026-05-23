@@ -1271,3 +1271,68 @@
     }))
   })
 </script>
+
+<script is:inline data-hux-copy="huxSlideOverRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxSlideOver', (initialConfig = {}) => ({
+      isOpen: initialConfig.startsOpen ?? false,
+      slideOverId: initialConfig.slideOverId ?? null,
+      placement: initialConfig.placement ?? 'right',
+      isPersistent: initialConfig.isPersistent ?? false,
+      slideOverTitleId: null,
+
+      get closeOnBackdrop() {
+        return !this.isPersistent
+      },
+
+      get closeOnEscape() {
+        return !this.isPersistent
+      },
+
+      init() {
+        this.slideOverTitleId = this.slideOverId ? `${this.slideOverId}-title` : null
+      },
+
+      openSlideOver() {
+        this.isOpen = true
+        this.dispatchSlideOverEvent('open')
+      },
+
+      toggleSlideOver() {
+        if (this.isOpen) {
+          this.closeSlideOver()
+          return
+        }
+
+        this.openSlideOver()
+      },
+
+      closeSlideOver() {
+        this.isOpen = false
+        this.dispatchSlideOverEvent('close')
+      },
+
+      handleBackdropClick() {
+        if (this.closeOnBackdrop) {
+          this.closeSlideOver()
+        }
+      },
+
+      handleEscape() {
+        if (this.closeOnEscape) {
+          this.closeSlideOver()
+        }
+      },
+
+      dispatchSlideOverEvent(eventName) {
+        const scopedEventName = this.slideOverId
+          ? `hux-slide-over:${this.slideOverId}:${eventName}`
+          : `hux-slide-over:${eventName}`
+
+        this.$dispatch(scopedEventName, {
+          slideOverId: this.slideOverId,
+        })
+      },
+    }))
+  })
+</script>
