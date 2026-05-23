@@ -7,73 +7,379 @@
 
   <div class="space-y-4">
     <p class="text-gray-700">
-      Inline edit behavior that swaps between read and edit states, selects text on input focus,
-      traps keyboard focus while active, and supports Enter to save or Escape to cancel.
+      Website-style Edit profile section with multiple inline editors. Each row supports focus
+      trapping while active, Enter to save, and Escape to cancel.
     </p>
 
-    <div
+    <section
       data-hux-copy="huxInlineEditorDemo"
-      x-data="huxInlineEditor({ editorId: 'profile-name', inputValue: 'Ada Lovelace', returnFocusTemplateRef: 'inlineEditorTrigger' })"
-      class="space-y-3 rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
+      class="space-y-5 rounded-md border border-dashed border-gray-300 bg-gray-50 p-4"
     >
-      <p class="text-sm text-gray-500">Profile name</p>
-
-      <div x-cloak x-show="!isEditing" class="flex flex-wrap items-center gap-3">
-        <p class="text-lg font-semibold text-gray-900" x-text="inputValue"></p>
-
-        <button
-          type="button"
-          x-ref="inlineEditorTrigger"
-          class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
-          x-on:click="enterEditMode()"
-        >
-          Edit
-        </button>
-      </div>
-
-      <div
-        x-cloak
-        x-show="isEditing"
-        x-ref="inlineEditor"
-        class="flex flex-wrap items-center gap-2"
-        x-on:keydown="trapFocus($event)"
+      <header
+        class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-4"
       >
-        <label for="profile-name-inline-editor" class="sr-only">Profile name</label>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">Edit profile</h3>
+          <p class="text-sm text-gray-500">Update the public details shown on your profile page.</p>
+        </div>
 
-        <input
-          id="profile-name-inline-editor"
-          x-ref="inlineEditorInput"
-          x-model="draftValue"
-          type="text"
-          x-init="registerInput($el)"
-          aria-describedby="profile-name-inline-editor-help"
-          class="rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          x-on:focus="handleInputFocus($event)"
-          x-on:keydown="handleInputKeydown($event)"
-        />
-
-        <button
-          type="button"
-          class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          x-on:click="commitChanges()"
+        <span
+          class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
         >
-          Save
-        </button>
+          Changes save instantly in this demo
+        </span>
+      </header>
 
-        <button
-          type="button"
-          class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
-          x-on:click="revertChanges()"
+      <div class="grid gap-4 md:grid-cols-2">
+        <div
+          x-data="huxInlineEditor({ editorId: 'profile-display-name', inputValue: 'Ada Lovelace', returnFocusTemplateRef: 'displayNameTrigger' })"
+          class="rounded-md border border-gray-200 bg-white p-4"
         >
-          Cancel
-        </button>
+          <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Display name</p>
+
+          <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
+            <p class="text-base font-semibold text-gray-900" x-text="inputValue"></p>
+
+            <button
+              type="button"
+              x-ref="displayNameTrigger"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+              x-on:click="enterEditMode()"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div
+            x-cloak
+            x-show="isEditing"
+            x-ref="inlineEditor"
+            class="mt-2 flex flex-wrap items-center gap-2"
+            x-on:keydown="trapFocus($event)"
+          >
+            <label for="profile-display-name-inline-editor" class="sr-only">Display name</label>
+
+            <input
+              id="profile-display-name-inline-editor"
+              x-ref="inlineEditorInput"
+              x-model="draftValue"
+              type="text"
+              x-init="registerInput($el)"
+              aria-describedby="profile-inline-editor-help"
+              class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              x-on:focus="handleInputFocus($event)"
+              x-on:keydown="handleInputKeydown($event)"
+            />
+
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              x-on:click="commitChanges()"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              x-on:click="revertChanges()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div
+          x-data="huxInlineEditor({ editorId: 'profile-headline', inputValue: 'Mathematician and analytical engine enthusiast', returnFocusTemplateRef: 'headlineTrigger' })"
+          class="rounded-md border border-gray-200 bg-white p-4"
+        >
+          <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Headline</p>
+
+          <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
+            <p class="text-sm text-gray-900" x-text="inputValue"></p>
+
+            <button
+              type="button"
+              x-ref="headlineTrigger"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+              x-on:click="enterEditMode()"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div
+            x-cloak
+            x-show="isEditing"
+            x-ref="inlineEditor"
+            class="mt-2 flex flex-wrap items-center gap-2"
+            x-on:keydown="trapFocus($event)"
+          >
+            <label for="profile-headline-inline-editor" class="sr-only">Headline</label>
+
+            <input
+              id="profile-headline-inline-editor"
+              x-ref="inlineEditorInput"
+              x-model="draftValue"
+              type="text"
+              x-init="registerInput($el)"
+              aria-describedby="profile-inline-editor-help"
+              class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              x-on:focus="handleInputFocus($event)"
+              x-on:keydown="handleInputKeydown($event)"
+            />
+
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              x-on:click="commitChanges()"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              x-on:click="revertChanges()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div
+          x-data="huxInlineEditor({ editorId: 'profile-location', inputValue: 'London, United Kingdom', returnFocusTemplateRef: 'locationTrigger' })"
+          class="rounded-md border border-gray-200 bg-white p-4"
+        >
+          <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Location</p>
+
+          <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
+            <p class="text-sm text-gray-900" x-text="inputValue"></p>
+
+            <button
+              type="button"
+              x-ref="locationTrigger"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+              x-on:click="enterEditMode()"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div
+            x-cloak
+            x-show="isEditing"
+            x-ref="inlineEditor"
+            class="mt-2 flex flex-wrap items-center gap-2"
+            x-on:keydown="trapFocus($event)"
+          >
+            <label for="profile-location-inline-editor" class="sr-only">Location</label>
+
+            <input
+              id="profile-location-inline-editor"
+              x-ref="inlineEditorInput"
+              x-model="draftValue"
+              type="text"
+              x-init="registerInput($el)"
+              aria-describedby="profile-inline-editor-help"
+              class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              x-on:focus="handleInputFocus($event)"
+              x-on:keydown="handleInputKeydown($event)"
+            />
+
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              x-on:click="commitChanges()"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              x-on:click="revertChanges()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div
+          x-data="huxInlineEditor({ editorId: 'profile-website', inputValue: 'https://example.com/ada', returnFocusTemplateRef: 'websiteTrigger' })"
+          class="rounded-md border border-gray-200 bg-white p-4"
+        >
+          <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Website</p>
+
+          <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
+            <p class="text-sm text-gray-900" x-text="inputValue"></p>
+
+            <button
+              type="button"
+              x-ref="websiteTrigger"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+              x-on:click="enterEditMode()"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div
+            x-cloak
+            x-show="isEditing"
+            x-ref="inlineEditor"
+            class="mt-2 flex flex-wrap items-center gap-2"
+            x-on:keydown="trapFocus($event)"
+          >
+            <label for="profile-website-inline-editor" class="sr-only">Website</label>
+
+            <input
+              id="profile-website-inline-editor"
+              x-ref="inlineEditorInput"
+              x-model="draftValue"
+              type="url"
+              x-init="registerInput($el)"
+              aria-describedby="profile-inline-editor-help"
+              class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              x-on:focus="handleInputFocus($event)"
+              x-on:keydown="handleInputKeydown($event)"
+            />
+
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              x-on:click="commitChanges()"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              x-on:click="revertChanges()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div
+          x-data="huxInlineEditor({ editorId: 'profile-username', inputValue: '@ada-lovelace', returnFocusTemplateRef: 'usernameTrigger' })"
+          class="rounded-md border border-gray-200 bg-white p-4"
+        >
+          <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Username</p>
+
+          <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
+            <p class="text-sm text-gray-900" x-text="inputValue"></p>
+
+            <button
+              type="button"
+              x-ref="usernameTrigger"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+              x-on:click="enterEditMode()"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div
+            x-cloak
+            x-show="isEditing"
+            x-ref="inlineEditor"
+            class="mt-2 flex flex-wrap items-center gap-2"
+            x-on:keydown="trapFocus($event)"
+          >
+            <label for="profile-username-inline-editor" class="sr-only">Username</label>
+
+            <input
+              id="profile-username-inline-editor"
+              x-ref="inlineEditorInput"
+              x-model="draftValue"
+              type="text"
+              x-init="registerInput($el)"
+              aria-describedby="profile-inline-editor-help"
+              class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              x-on:focus="handleInputFocus($event)"
+              x-on:keydown="handleInputKeydown($event)"
+            />
+
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              x-on:click="commitChanges()"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              x-on:click="revertChanges()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div
+          x-data="huxInlineEditor({ editorId: 'profile-pronouns', inputValue: 'she/her', returnFocusTemplateRef: 'pronounsTrigger' })"
+          class="rounded-md border border-gray-200 bg-white p-4"
+        >
+          <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Pronouns</p>
+
+          <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
+            <p class="text-sm text-gray-900" x-text="inputValue"></p>
+
+            <button
+              type="button"
+              x-ref="pronounsTrigger"
+              class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
+              x-on:click="enterEditMode()"
+            >
+              Edit
+            </button>
+          </div>
+
+          <div
+            x-cloak
+            x-show="isEditing"
+            x-ref="inlineEditor"
+            class="mt-2 flex flex-wrap items-center gap-2"
+            x-on:keydown="trapFocus($event)"
+          >
+            <label for="profile-pronouns-inline-editor" class="sr-only">Pronouns</label>
+
+            <input
+              id="profile-pronouns-inline-editor"
+              x-ref="inlineEditorInput"
+              x-model="draftValue"
+              type="text"
+              x-init="registerInput($el)"
+              aria-describedby="profile-inline-editor-help"
+              class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              x-on:focus="handleInputFocus($event)"
+              x-on:keydown="handleInputKeydown($event)"
+            />
+
+            <button
+              type="button"
+              class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              x-on:click="commitChanges()"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium hover:bg-gray-100"
+              x-on:click="revertChanges()"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
-
-      <p id="profile-name-inline-editor-help" class="text-sm text-gray-500">
-        Tip: Press <kbd>Enter</kbd> to save, <kbd>Escape</kbd> to cancel, and <kbd>Tab</kbd> to cycle
-        within the active editor controls.
-      </p>
-    </div>
+    </section>
 
     <hr class="my-8 h-px w-full border-none bg-gray-200" />
 
