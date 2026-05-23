@@ -60,7 +60,7 @@
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-gray-100 text-gray-700'"
                 x-bind:id="`step-status-${stepItem.id}`"
-                x-text="isStepCurrent(stepItem.id) ? 'Current' : isStepComplete(stepItem.id) ? 'Completed' : 'Not completed'"
+                x-text="isStepCurrent(stepItem.id) ? '● Current' : isStepComplete(stepItem.id) ? '✓ Completed' : '○ Not completed'"
               ></span>
             </button>
           </li>
