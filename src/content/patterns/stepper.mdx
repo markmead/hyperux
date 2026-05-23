@@ -156,7 +156,7 @@ window.addEventListener('hux-stepper:checkout:change', (event) => {
 - `isStepComplete()` returns `true` only for steps before the active step when `stepsAreViewable` is `false`.
 - When `stepsAreViewable` is `true`, `goToStep()` is view-only and does not mark steps complete.
 - When `stepsAreViewable` is `true`, `goToNextStep()` marks the step being advanced from as complete.
-- When `stepperId` is set, `hux-stepper:{stepperId}:change` is dispatched on init and on every successful step change.
+- When `stepperId` is set, `hux-stepper:{stepperId}:change` is dispatched on init only when `activeStepId !== null`, and on every successful step change.
 
 ## Error Handling
 
