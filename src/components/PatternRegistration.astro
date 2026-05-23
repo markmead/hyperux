@@ -1115,14 +1115,12 @@
       stepsAreViewable: initialConfig.stepsAreViewable ?? false,
 
       init() {
-        this.stepItems = (initialConfig.stepItems ?? []).filter(
+        const stepItems = Array.isArray(initialConfig.stepItems) ? initialConfig.stepItems : []
+        this.stepItems = stepItems.filter(
           (stepItem) => stepItem?.label && stepItem?.id,
         )
 
         const validStepIds = this.stepItems.map((stepItem) => stepItem.id)
-        this.completedStepIds = this.completedStepIds.filter((stepId) =>
-          validStepIds.includes(stepId),
-        )
 
         if (!this.activeStepId || !validStepIds.includes(this.activeStepId)) {
           this.activeStepId = this.stepItems.length > 0 ? this.stepItems[0].id : null
@@ -1176,9 +1174,10 @@
       },
 
       goToStep(stepId) {
-        const stepExists = this.findStepIndex(stepId) >= 0
+        const stepIndex = this.findStepIndex(stepId)
+        const stepExists = stepIndex >= 0
 
-        if (!stepExists) {
+        if (!stepExists || this.activeStepId === stepId) {
           return
         }
 
