@@ -20,9 +20,9 @@ import Demo from '../../components/demos/Dialog.astro'
 import SlideOverDemo from '../../components/demos/SlideOver.astro'
 import LastUpdated from '../../components/LastUpdated.astro'
 
-<Demo />
-
 <div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+<Demo />
 
 # Alpine.js {frontmatter.title}
 
@@ -121,23 +121,35 @@ huxDialog({
   <button type="button" x-on:click="openDialog()">Open</button>
 
   <template x-teleport="body">
-    <div x-cloak x-show="isOpen" class="fixed inset-0 z-50"
-         x-on:keydown.escape.stop="handleEscape()">
+    <div
+      x-cloak
+      x-show="isOpen"
+      class="fixed inset-0 z-50"
+      x-on:keydown.escape.stop="handleEscape()"
+    >
       <!-- Backdrop -->
-      <div x-cloak x-show="showBackdrop" x-transition.opacity
-           class="fixed inset-0 bg-gray-900/60" aria-hidden="true"
-           x-on:click="handleBackdropClick()"></div>
+      <div
+        x-cloak
+        x-show="showBackdrop"
+        x-transition.opacity
+        class="fixed inset-0 bg-gray-900/60"
+        aria-hidden="true"
+        x-on:click="handleBackdropClick()"
+      ></div>
 
       <!-- Panel — slides in from the right -->
       <div
-        x-cloak x-show="isOpen" x-trap.noscroll="isOpen"
+        x-cloak
+        x-show="isOpen"
+        x-trap.noscroll="isOpen"
         x-transition:enter="transform transition-transform duration-300 ease-out"
         x-transition:enter-start="translate-x-full"
         x-transition:enter-end="translate-x-0"
         x-transition:leave="transform transition-transform duration-200 ease-in"
         x-transition:leave-start="translate-x-0"
         x-transition:leave-end="translate-x-full"
-        role="dialog" aria-modal="true"
+        role="dialog"
+        aria-modal="true"
         x-bind:aria-labelledby="dialogTitleId || null"
         class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl"
       >
