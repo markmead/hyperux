@@ -124,7 +124,7 @@ huxDialog({
     <div x-cloak x-show="isOpen" class="fixed inset-0 z-50"
          x-on:keydown.escape.stop="handleEscape()">
       <!-- Backdrop -->
-      <div x-cloak x-show="isOpen" x-transition.opacity
+      <div x-cloak x-show="showBackdrop" x-transition.opacity
            class="fixed inset-0 bg-gray-900/60" aria-hidden="true"
            x-on:click="handleBackdropClick()"></div>
 
