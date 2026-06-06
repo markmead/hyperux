@@ -1,0 +1,204 @@
+---
+slug: infinite-scroll
+title: Infinite Scroll
+description: Load paginated content automatically as users scroll with huxInfiniteScroll for Alpine.js — a behavior-first IntersectionObserver wrapper that fires load-more events.
+terms:
+  - infinite-scroll
+  - pagination
+  - alpinejs
+  - intersection-observer
+  - load-more
+  - virtual-list
+pubDate: 2026-06-06
+modDate: 2026-06-06
+---
+
+import Demo from '../../components/demos/InfiniteScroll.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+<Demo />
+
+# Alpine.js {frontmatter.title}
+
+`huxInfiniteScroll` wraps the native `IntersectionObserver` API to watch a sentinel element and fire a `load-more` event whenever it enters the observed area. The component manages debouncing via `isLoading`, handles cleanup on teardown, and exposes `disableScroll()` for when there are no more pages. Data fetching is handled entirely by the consumer.
+
+`huxInfiniteScroll` requires a valid `x-ref` sentinel element and a browser environment with `IntersectionObserver`. The component does not fetch data or manage a list — it only signals when the next page should load.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxInfiniteScroll(config)`
+
+Returns an Alpine data object with:
+
+- `isLoading: boolean`
+- `isDisabled: boolean`
+- `disableScroll(): void`
+- `enableScroll(): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+### Event Detail
+
+The `load-more` event `detail` object includes:
+
+- `scrollerId: string | null`
+- `done(hasMore?: boolean): void` — call when the fetch completes; pass `false` to stop the observer
+- `error(): void` — call when the fetch fails; resets `isLoading` without disabling
+
+## Options
+
+- `scrollerId: string` (optional)
+  Scopes the event name to `hux-infinite-scroll:{scrollerId}:load-more`. Without it, the event is `hux-infinite-scroll:load-more`.
+- `sentinelRef: string` (default: `'infiniteScrollSentinel'`)
+  Reads the sentinel element from `this.$refs[sentinelRef]`.
+- `containerRoot: boolean` (default: `false`)
+  When `true`, the observer root is set to `this.$el` (the scrollable container). Use this when `huxInfiniteScroll` is placed on the scrollable element itself. Defaults to the viewport.
+- `threshold: number` (default: `0.1`)
+  Passed to the internal `IntersectionObserver`.
+- `rootMargin: string` (default: `'0px'`)
+  Passed to the internal `IntersectionObserver`.
+- `disabled: boolean` (default: `false`)
+  Starts the component in a disabled state without observing the sentinel.
+
+## Quick Start
+
+### Minimal (viewport scroll)
+
+```html
+<div
+  x-data="{ items: [] }"
+  x-on:hux-infinite-scroll:load-more="
+    fetch('/api/items?page=' + (++page))
+      .then(r => r.json())
+      .then(data => { items.push(...data); $event.detail.done(data.length > 0) })
+      .catch($event.detail.error)
+  "
+>
+  <ul>
+    <template x-for="item in items" x-bind:key="item.id">
+      <li x-text="item.title"></li>
+    </template>
+  </ul>
+
+  <div x-data="huxInfiniteScroll()">
+    <div x-ref="infiniteScrollSentinel" class="h-px" aria-hidden="true"></div>
+    <div x-show="isLoading" aria-live="polite">Loading&hellip;</div>
+  </div>
+</div>
+```
+
+### Container scroll
+
+Use `containerRoot: true` when `huxInfiniteScroll` is on the scrollable container itself:
+
+```html
+<div
+  x-data="{ items: [], page: 0 }"
+  x-on:hux-infinite-scroll:list:load-more="loadMore($event.detail)"
+>
+  <div
+    x-data="huxInfiniteScroll({ scrollerId: 'list', containerRoot: true })"
+    class="max-h-96 overflow-y-auto"
+  >
+    <template x-for="item in items" x-bind:key="item.id">
+      <div x-text="item.title"></div>
+    </template>
+
+    <div x-ref="infiniteScrollSentinel" class="h-px" aria-hidden="true"></div>
+    <div x-show="isLoading" aria-live="polite">Loading&hellip;</div>
+    <div x-show="isDisabled">All items loaded.</div>
+  </div>
+</div>
+```
+
+## Common Usage Patterns
+
+### Handle Errors
+
+Call `detail.error()` on failure to clear `isLoading` without disabling the observer. The user can scroll again to retry.
+
+```js
+async function loadMore(detail) {
+  try {
+    const res = await fetch('/api/items?page=' + (++page))
+    const data = await res.json()
+    items.push(...data)
+    detail.done(data.length > 0)
+  } catch {
+    detail.error()
+  }
+}
+```
+
+### Disable and Re-enable Programmatically
+
+```html
+<button type="button" x-on:click="$refs.scroller.__x.$data.enableScroll()">
+  Load more
+</button>
+
+<div
+  x-ref="scroller"
+  x-data="huxInfiniteScroll({ scrollerId: 'list', disabled: true })"
+>
+  ...
+</div>
+```
+
+Or call `disableScroll()` / `enableScroll()` directly inside the same component scope.
+
+### Tune Observer Sensitivity
+
+Pre-load content before the sentinel fully enters the viewport:
+
+```js
+huxInfiniteScroll({
+  rootMargin: '0px 0px 200px 0px',
+  threshold: 0,
+})
+```
+
+### Subscribe Globally
+
+Use `.window` to listen for the event on the `window` object from any element:
+
+```html
+<div x-on:hux-infinite-scroll:feed:load-more.window="loadMore($event.detail)">
+  ...
+</div>
+```
+
+## Behavior Contract
+
+- On initialization, the component looks up the sentinel from `$refs[sentinelRef]` inside `$nextTick`.
+- If `containerRoot` is `true`, the observer uses `this.$el` as the `root`; otherwise the root is the viewport (`null`).
+- The observer fires immediately with the sentinel's initial intersection state. If the sentinel is already visible, a `load-more` event fires on initialization — this is the expected mechanism for the first page load.
+- `isLoading` is set to `true` before dispatching the event and reset by `detail.done()` or `detail.error()`. Intersection callbacks are ignored while `isLoading` is `true`.
+- `detail.done(false)` calls `disableScroll()`, which unobserves the sentinel and sets `isDisabled` to `true`.
+- `detail.done(true)` or `detail.done()` (default) clears `isLoading` only.
+- `enableScroll()` re-observes the sentinel only when currently disabled.
+- On teardown, the observer is fully disconnected.
+
+## Error Handling
+
+- If `sentinelRef` does not resolve to an `x-ref`, the component logs `[huxInfiniteScroll] Missing x-ref target for sentinelRef: ${this.sentinelTemplateRefName}` and exits initialization without throwing.
+- If the consumer does not call `detail.done()` or `detail.error()`, `isLoading` stays `true` indefinitely and no further events are fired. Always resolve or reject the callback.
+
+## Accessibility Notes
+
+- Add `aria-live="polite"` to the loading indicator so assistive technology announces when loading begins.
+- Keep the sentinel element visually hidden with `h-px` or `sr-only` and mark it `aria-hidden="true"` to avoid it being picked up by screen readers as list content.
+- Infinite scroll removes natural pagination landmarks. Consider supplementing with a visible "Load more" button for users who prefer explicit control or have reduced-motion preferences.
+- Avoid placing interactive elements immediately after the sentinel — they may receive focus before content loads.
+
+## Notes
+
+- Event payload: `{ scrollerId: string | null, done: (hasMore?: boolean) => void, error: () => void }`.
+- `hux-infinite-scroll:load-more` fires when no `scrollerId` is set; `hux-infinite-scroll:{scrollerId}:load-more` fires when one is configured.
+- The component itself holds no items array. It is intentionally agnostic to how data is fetched or rendered.
+
+</div>

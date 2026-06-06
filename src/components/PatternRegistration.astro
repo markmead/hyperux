@@ -1643,6 +1643,115 @@
   })
 </script>
 
+<script is:inline data-hux-copy="huxInfiniteScrollRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxInfiniteScroll', (initialConfig = {}) => ({
+      scrollerId: initialConfig.scrollerId ?? null,
+      threshold: initialConfig.threshold ?? 0.1,
+      rootMargin: initialConfig.rootMargin ?? '0px',
+      sentinelTemplateRefName: initialConfig.sentinelRef ?? 'infiniteScrollSentinel',
+      containerRoot: initialConfig.containerRoot ?? false,
+      isLoading: false,
+      isDisabled: initialConfig.disabled ?? false,
+
+      _observer: null,
+      _sentinelElement: null,
+
+      init() {
+        this.$nextTick(() => {
+          const sentinelElement = this.$refs[this.sentinelTemplateRefName] ?? null
+
+          if (!sentinelElement) {
+            console.error(
+              `[huxInfiniteScroll] Missing x-ref target for sentinelRef: ${this.sentinelTemplateRefName}`,
+            )
+
+            return
+          }
+
+          this._sentinelElement = sentinelElement
+
+          const observerRoot = this.containerRoot ? this.$el : null
+
+          this._observer = new IntersectionObserver(
+            (entries) => this._handleIntersection(entries),
+            {
+              root: observerRoot,
+              threshold: this.threshold,
+              rootMargin: this.rootMargin,
+            },
+          )
+
+          if (!this.isDisabled) {
+            this._observer.observe(sentinelElement)
+          }
+        })
+      },
+
+      _handleIntersection(entries) {
+        const entry = entries[0]
+
+        if (!entry?.isIntersecting || this.isLoading || this.isDisabled) {
+          return
+        }
+
+        this._dispatchLoadMoreEvent()
+      },
+
+      _dispatchLoadMoreEvent() {
+        this.isLoading = true
+
+        const detail = {
+          scrollerId: this.scrollerId,
+          done: (hasMore = true) => {
+            this.isLoading = false
+
+            if (!hasMore) {
+              this.disableScroll()
+            }
+          },
+          error: () => {
+            this.isLoading = false
+          },
+        }
+
+        const eventName = this.scrollerId
+          ? `hux-infinite-scroll:${this.scrollerId}:load-more`
+          : 'hux-infinite-scroll:load-more'
+
+        this.$dispatch(eventName, detail)
+      },
+
+      disableScroll() {
+        this.isDisabled = true
+
+        if (this._observer && this._sentinelElement) {
+          this._observer.unobserve(this._sentinelElement)
+        }
+      },
+
+      enableScroll() {
+        if (!this.isDisabled) {
+          return
+        }
+
+        this.isDisabled = false
+
+        if (this._observer && this._sentinelElement) {
+          this._observer.observe(this._sentinelElement)
+        }
+      },
+
+      destroy() {
+        if (this._observer) {
+          this._observer.disconnect()
+          this._observer = null
+        }
+      },
+    }))
+  })
+</script>
+
 <script is:inline data-hux-copy="huxTabPanelRegistration">
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxTabPanel', (initialConfig = {}) => ({
