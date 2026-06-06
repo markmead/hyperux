@@ -1647,43 +1647,43 @@
   document.addEventListener('alpine:init', () => {
     Alpine.data('huxInfiniteScroll', (initialConfig = {}) => ({
       scrollerId: initialConfig.scrollerId ?? null,
-      threshold: initialConfig.threshold ?? 0.1,
+      intersectionThreshold: initialConfig.intersectionThreshold ?? 0.1,
       rootMargin: initialConfig.rootMargin ?? '0px',
-      sentinelTemplateRefName: initialConfig.sentinelRef ?? 'infiniteScrollSentinel',
-      containerRoot: initialConfig.containerRoot ?? false,
+      loaderTemplateRefName: initialConfig.loaderRef ?? 'infiniteScrollLoader',
+      useContainerRoot: initialConfig.useContainerRoot ?? false,
       isLoading: false,
-      isDisabled: initialConfig.disabled ?? false,
+      isDisabled: initialConfig.startsDisabled ?? false,
 
-      _observer: null,
-      _sentinelElement: null,
+      _scrollObserver: null,
+      _loaderElement: null,
 
       init() {
         this.$nextTick(() => {
-          const sentinelElement = this.$refs[this.sentinelTemplateRefName] ?? null
+          const loaderElement = this.$refs[this.loaderTemplateRefName] ?? null
 
-          if (!sentinelElement) {
+          if (!loaderElement) {
             console.error(
-              `[huxInfiniteScroll] Missing x-ref target for sentinelRef: ${this.sentinelTemplateRefName}`,
+              `[huxInfiniteScroll] Missing x-ref target for loaderRef: ${this.loaderTemplateRefName}`,
             )
 
             return
           }
 
-          this._sentinelElement = sentinelElement
+          this._loaderElement = loaderElement
 
-          const observerRoot = this.containerRoot ? this.$el : null
+          const observerRoot = this.useContainerRoot ? this.$el : null
 
-          this._observer = new IntersectionObserver(
+          this._scrollObserver = new IntersectionObserver(
             (entries) => this._handleIntersection(entries),
             {
               root: observerRoot,
-              threshold: this.threshold,
+              threshold: this.intersectionThreshold,
               rootMargin: this.rootMargin,
             },
           )
 
           if (!this.isDisabled) {
-            this._observer.observe(sentinelElement)
+            this._scrollObserver.observe(loaderElement)
           }
         })
       },
@@ -1703,14 +1703,14 @@
 
         const detail = {
           scrollerId: this.scrollerId,
-          done: (hasMore = true) => {
+          markComplete: (hasMore = true) => {
             this.isLoading = false
 
             if (!hasMore) {
               this.disableScroll()
             }
           },
-          error: () => {
+          markFailed: () => {
             this.isLoading = false
           },
         }
@@ -1725,8 +1725,8 @@
       disableScroll() {
         this.isDisabled = true
 
-        if (this._observer && this._sentinelElement) {
-          this._observer.unobserve(this._sentinelElement)
+        if (this._scrollObserver && this._loaderElement) {
+          this._scrollObserver.unobserve(this._loaderElement)
         }
       },
 
@@ -1737,15 +1737,15 @@
 
         this.isDisabled = false
 
-        if (this._observer && this._sentinelElement) {
-          this._observer.observe(this._sentinelElement)
+        if (this._scrollObserver && this._loaderElement) {
+          this._scrollObserver.observe(this._loaderElement)
         }
       },
 
       destroy() {
-        if (this._observer) {
-          this._observer.disconnect()
-          this._observer = null
+        if (this._scrollObserver) {
+          this._scrollObserver.disconnect()
+          this._scrollObserver = null
         }
       },
     }))

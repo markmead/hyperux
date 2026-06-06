@@ -8,10 +8,9 @@
   <div class="space-y-4">
     <div class="prose">
       <p>
-        Scroll to the bottom of the list to load more posts. The component fires a
-        <code>load-more</code> event; the consumer fetches data and calls
-        <code>detail.done(hasMore)</code> when the response arrives. Passing <code>false</code> stops
-        the observer once all items are loaded.
+        Load content automatically as users scroll — no buttons or pagination needed. This demo
+        fetches posts from a public API in batches, shows a loading state while each page arrives,
+        and stops once all posts have been loaded.
       </p>
     </div>
 
@@ -19,7 +18,7 @@
 
     <pre
       class="overflow-x-auto rounded-md bg-gray-800 p-4 text-sm text-gray-100"
-    >{`huxInfiniteScroll({ scrollerId: 'posts', containerRoot: true })`}</pre>
+    >{`huxInfiniteScroll({ scrollerId: 'posts', useContainerRoot: true })`}</pre>
 
     <div
       x-data="{
@@ -28,15 +27,15 @@
         loadMore(detail) {
           fetch('https://jsonplaceholder.typicode.com/posts?_page=' + (++this.page) + '&_limit=10')
             .then((res) => res.json())
-            .then((data) => { this.posts.push(...data); detail.done(data.length > 0) })
-            .catch(() => detail.error())
+            .then((data) => { this.posts.push(...data); detail.markComplete(data.length > 0) })
+            .catch(() => detail.markFailed())
         }
       }"
       x-on:hux-infinite-scroll:posts:load-more.window="loadMore($event.detail)"
     >
       <div
         data-hux-copy="huxInfiniteScrollDemo"
-        x-data="huxInfiniteScroll({ scrollerId: 'posts', containerRoot: true })"
+        x-data="huxInfiniteScroll({ scrollerId: 'posts', useContainerRoot: true })"
         class="max-h-96 divide-y divide-gray-100 overflow-y-auto rounded-md border border-gray-200"
       >
         <template x-for="post in posts" x-bind:key="post.id">
@@ -46,7 +45,7 @@
           </div>
         </template>
 
-        <div x-ref="infiniteScrollSentinel" class="h-px" aria-hidden="true"></div>
+        <div x-ref="infiniteScrollLoader" class="h-px" aria-hidden="true"></div>
 
         <div
           x-show="isLoading"
