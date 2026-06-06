@@ -34,6 +34,7 @@ Registered components:
 - `huxResizable` — drag-to-resize container with breakpoint tracking
 - `huxScrollSpy` — TOC + scroll position tracking via IntersectionObserver
 - `huxStepper` — multi-step stepper (foundation for a wizard pattern)
+- `huxInfiniteScroll` — IntersectionObserver sentinel watcher that fires `load-more` events; data-fetching is handled by the consumer
 - `huxTabs` — tabs with roving tabindex, optional hash sync, and decoupled panels
 - `huxTabPanel` — companion to `huxTabs` for panels in a separate DOM scope
 
@@ -63,6 +64,7 @@ Action-driven events use hyphen-case and are optionally scoped with a component 
 - `hux-dropdown:{triggerId}:{action}` and `hux-dropdown:{action}`
 - `hux-command-palette:{paletteId}:{action}`
 - `hux-inline-editor:{editorId}:commit` / `hux-inline-editor:{editorId}:revert`
+- `hux-infinite-scroll:{scrollerId}:load-more` and `hux-infinite-scroll:load-more`
 
 ## Pattern Documentation Rules
 
@@ -81,6 +83,10 @@ Action-driven events use hyphen-case and are optionally scoped with a component 
 11. Error Handling
 12. Accessibility Notes
 13. Notes
+
+### Component Naming Conventions
+
+All config options, public properties, public methods, internal properties, and callbacks must use at least two descriptive words — single-word names are not acceptable. Look to existing components for patterns: `startsOpen` not `open`, `useHash` not `hash`, `intersectionThreshold` not `threshold`, `markStepComplete` not `complete`, `enterEditMode` not `edit`.
 
 ### Snippet Conventions
 
