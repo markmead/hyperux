@@ -25,7 +25,7 @@
         posts: [],
         page: 0,
         loadMore(detail) {
-          fetch('https://jsonplaceholder.typicode.com/posts?_page=' + (++this.page) + '&_limit=10')
+          fetch(`https://jsonplaceholder.typicode.com/posts?_page=${++this.page}&_limit=10`)
             .then((res) => res.json())
             .then((data) => { this.posts.push(...data); detail.markComplete(data.length > 0) })
             .catch(() => detail.markFailed())

@@ -72,7 +72,7 @@ The `load-more` event `detail` object includes:
 <div
   x-data="{ items: [] }"
   x-on:hux-infinite-scroll:load-more="
-    fetch('/api/items?page=' + (++page))
+    fetch(`/api/items?page=${++page}`)
       .then(r => r.json())
       .then(data => { items.push(...data); $event.detail.markComplete(data.length > 0) })
       .catch(() => $event.detail.markFailed())
@@ -124,7 +124,7 @@ Call `detail.markFailed()` on failure to clear `isLoading` without disabling the
 ```js
 async function loadMore(detail) {
   try {
-    const res = await fetch('/api/items?page=' + (++page))
+    const res = await fetch(`/api/items?page=${++page}`)
     const data = await res.json()
     items.push(...data)
     detail.markComplete(data.length > 0)
