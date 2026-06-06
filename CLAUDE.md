@@ -84,6 +84,10 @@ Action-driven events use hyphen-case and are optionally scoped with a component 
 12. Accessibility Notes
 13. Notes
 
+### Component Naming Conventions
+
+All config options, public properties, public methods, internal properties, and callbacks must use at least two descriptive words — single-word names are not acceptable. Look to existing components for patterns: `startsOpen` not `open`, `useHash` not `hash`, `intersectionThreshold` not `threshold`, `markStepComplete` not `complete`, `enterEditMode` not `edit`.
+
 ### Snippet Conventions
 
 - Use explicit Alpine attribute syntax: `x-on:click` not `@click`, `x-bind:class` not `:class`
