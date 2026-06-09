@@ -444,6 +444,12 @@
       },
 
       async copyToClipboard() {
+        if (!navigator.clipboard) {
+          console.error('[huxCopy] Clipboard API unavailable — requires a secure context')
+
+          return
+        }
+
         try {
           const contentToCopy = this.resolveCopyContent()
 
