@@ -1054,6 +1054,7 @@
 
       init() {
         if (this.maxWidth !== null && this.maxWidth < this.minWidth) {
+          console.warn('[huxResizable] maxWidth cannot be less than minWidth, clamping to minWidth')
           this.maxWidth = this.minWidth
         }
 
