@@ -761,8 +761,7 @@
             (focusableElement) =>
               focusableElement.tabIndex >= 0 &&
               !focusableElement.hasAttribute('disabled') &&
-              focusableElement.getAttribute('aria-hidden') !== 'true' &&
-              focusableElement.getClientRects().length > 0,
+              focusableElement.getAttribute('aria-hidden') !== 'true',
           )
       },
 
