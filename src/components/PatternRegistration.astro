@@ -239,8 +239,7 @@
       },
 
       getLabelForValue(selectedValue) {
-        const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
-        const matchedOptionItem = normalizedOptionItems.find(
+        const matchedOptionItem = this.optionItems.find(
           (optionItem) => optionItem.value === selectedValue,
         )
 
