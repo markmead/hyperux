@@ -256,10 +256,15 @@
       paletteId: initialConfig.paletteId ?? null,
       shortcutKey: (initialConfig.shortcutKey ?? 'k').toLowerCase(),
       shortcutHint: '',
+      _paletteItemMap: null,
 
       init() {
         this.paletteItems = this.paletteItems.filter(
           (paletteItem) => paletteItem?.label && (paletteItem?.href || paletteItem?.action),
+        )
+
+        this._paletteItemMap = new Map(
+          this.paletteItems.map((paletteItem) => [paletteItem.label, paletteItem]),
         )
 
         const uppercaseShortcutKey = this.shortcutKey.toUpperCase()
@@ -295,7 +300,7 @@
       },
 
       findPaletteItem(itemLabel) {
-        return this.paletteItems.find((paletteItem) => paletteItem.label === itemLabel) ?? null
+        return this._paletteItemMap?.get(itemLabel) ?? null
       },
 
       resolveActionEventName(rawEventName) {
