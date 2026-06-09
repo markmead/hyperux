@@ -1567,6 +1567,7 @@
       tabItems: [],
       useHash: initialConfig.useHash ?? false,
       tabsId: initialConfig.id ?? null,
+      _tabElements: null,
 
       init() {
         this.tabItems = (initialConfig.tabItems ?? []).filter(
@@ -1593,11 +1594,15 @@
           this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
         }
 
-        if (this.tabsId) {
-          // Defer initial event so all huxTabPanel instances in the current render
-          // have had a chance to register their window listeners in init().
-          this.$nextTick(() => this._dispatchChangeEvent())
-        }
+        this.$nextTick(() => {
+          this._tabElements = [...this.$el.querySelectorAll('[role="tab"]')]
+
+          if (this.tabsId) {
+            // Defer initial event so all huxTabPanel instances in the current render
+            // have had a chance to register their window listeners in init().
+            this._dispatchChangeEvent()
+          }
+        })
       },
 
       get activeTabIndex() {
@@ -1641,15 +1646,11 @@
       },
 
       focusTab(tabId) {
-        this.$nextTick(() => {
-          const tabIndex = this.findTabIndex(tabId)
+        const tabIndex = this.findTabIndex(tabId)
 
-          if (tabIndex === -1) return
+        if (tabIndex === -1) return
 
-          const tabElements = this.$el.querySelectorAll('[role="tab"]')
-
-          tabElements[tabIndex]?.focus()
-        })
+        this._tabElements?.[tabIndex]?.focus()
       },
 
       focusNextTab() {
