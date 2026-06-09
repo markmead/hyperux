@@ -1125,6 +1125,8 @@
           return
         }
 
+        this._onDragEnd()
+
         pointerEvent.preventDefault()
 
         if (pointerEvent.type === 'mousedown') {
