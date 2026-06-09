@@ -1261,6 +1261,7 @@
       intersectionObserver: null,
       observedHeadingElements: [],
       scrollContainerScrollHandler: null,
+      _scrollRafPending: false,
       templateRefName: initialConfig.templateRef ?? 'tocContent',
       headingSelector: initialConfig.headingSelector ?? 'h2, h3, h4, h5, h6',
 
@@ -1370,17 +1371,27 @@
       },
 
       handleScrollContainerPosition() {
-        if (!this.scrollContainerElement || this.headingItems.length === 0) {
+        if (this._scrollRafPending) {
           return
         }
 
-        const reachedBottomOfContainer =
-          this.scrollContainerElement.scrollTop + this.scrollContainerElement.clientHeight >=
-          this.scrollContainerElement.scrollHeight - 2
+        this._scrollRafPending = true
 
-        if (reachedBottomOfContainer) {
-          this.activeHeadingId = this.headingItems[this.headingItems.length - 1].id
-        }
+        requestAnimationFrame(() => {
+          this._scrollRafPending = false
+
+          if (!this.scrollContainerElement || this.headingItems.length === 0) {
+            return
+          }
+
+          const reachedBottomOfContainer =
+            this.scrollContainerElement.scrollTop + this.scrollContainerElement.clientHeight >=
+            this.scrollContainerElement.scrollHeight - 2
+
+          if (reachedBottomOfContainer) {
+            this.activeHeadingId = this.headingItems[this.headingItems.length - 1].id
+          }
+        })
       },
 
       destroy() {
