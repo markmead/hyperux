@@ -1282,11 +1282,13 @@
 
         this.scrollContainerElement = scrollContainerElement
 
-        const headingElements = scrollContainerElement.querySelectorAll(this.headingSelector)
+        const headingElements = Array.from(
+          scrollContainerElement.querySelectorAll(this.headingSelector),
+        )
 
-        this.observedHeadingElements = Array.from(headingElements)
+        this.observedHeadingElements = headingElements
 
-        this.headingItems = Array.from(headingElements).map((headingElement, headingIndex) => {
+        this.headingItems = headingElements.map((headingElement, headingIndex) => {
           const headingId = this.ensureHeadingElementId(headingElement, headingIndex)
 
           return {
