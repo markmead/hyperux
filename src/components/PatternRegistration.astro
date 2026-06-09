@@ -840,8 +840,16 @@
       menuItemIds: [],
       triggerRefName: initialConfig.triggerRef ?? 'dropdownTrigger',
 
-      normalizeMenuItems(rawMenuItems, itemDepth = 0) {
+      normalizeMenuItems(rawMenuItems, itemDepth = 0, maxDepth = 5) {
         if (!Array.isArray(rawMenuItems)) {
+          return []
+        }
+
+        if (itemDepth > maxDepth) {
+          console.error(
+            `[huxDropdown] normalizeMenuItems exceeded maxDepth of ${maxDepth} — check for circular children references`,
+          )
+
           return []
         }
 
@@ -869,7 +877,11 @@
                 ]
               : []
 
-          const normalizedChildren = this.normalizeMenuItems(rawMenuItem.children, itemDepth + 1)
+          const normalizedChildren = this.normalizeMenuItems(
+            rawMenuItem.children,
+            itemDepth + 1,
+            maxDepth,
+          )
 
           return [...normalizedItem, ...normalizedChildren]
         })
