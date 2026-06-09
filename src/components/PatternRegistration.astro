@@ -1655,11 +1655,13 @@
       rootMargin: initialConfig.rootMargin ?? '0px',
       loaderTemplateRefName: initialConfig.loaderRef ?? 'infiniteScrollLoader',
       useContainerRoot: initialConfig.useContainerRoot ?? false,
+      loadTimeout: initialConfig.loadTimeout ?? 5000,
       isLoading: false,
       isDisabled: initialConfig.startsDisabled ?? false,
 
       _scrollObserver: null,
       _loaderElement: null,
+      _loadTimeoutId: null,
 
       init() {
         this.$nextTick(() => {
@@ -1705,9 +1707,30 @@
       _dispatchLoadMoreEvent() {
         this.isLoading = true
 
+        if (this.loadTimeout > 0) {
+          this._loadTimeoutId = setTimeout(() => {
+            if (this.isLoading) {
+              this.isLoading = false
+              console.warn(
+                '[huxInfiniteScroll] Load timed out — markComplete or markFailed was not called',
+              )
+            }
+
+            this._loadTimeoutId = null
+          }, this.loadTimeout)
+        }
+
+        const clearLoadTimeout = () => {
+          if (this._loadTimeoutId !== null) {
+            clearTimeout(this._loadTimeoutId)
+            this._loadTimeoutId = null
+          }
+        }
+
         const detail = {
           scrollerId: this.scrollerId,
           markComplete: (hasMore = true) => {
+            clearLoadTimeout()
             this.isLoading = false
 
             if (!hasMore) {
@@ -1715,6 +1738,7 @@
             }
           },
           markFailed: () => {
+            clearLoadTimeout()
             this.isLoading = false
           },
         }
@@ -1747,6 +1771,11 @@
       },
 
       destroy() {
+        if (this._loadTimeoutId !== null) {
+          clearTimeout(this._loadTimeoutId)
+          this._loadTimeoutId = null
+        }
+
         if (this._scrollObserver) {
           this._scrollObserver.disconnect()
           this._scrollObserver = null
