@@ -16,23 +16,33 @@
       focusedIndex: -1,
       comboboxInputId: null,
       listboxId: null,
-      optionItems: initialConfig.optionItems ?? [],
+      optionItems: [],
       inputTemplateRefName: initialConfig.inputTemplateRef ?? 'comboboxInput',
       listboxTemplateRefName: initialConfig.listboxTemplateRef ?? 'comboboxListbox',
 
       init() {
+        const rawOptionItems = Array.isArray(initialConfig.optionItems)
+          ? initialConfig.optionItems
+          : []
+
+        this.optionItems = rawOptionItems.filter(
+          (optionItem) =>
+            optionItem &&
+            typeof optionItem.label === 'string' &&
+            typeof optionItem.value === 'string',
+        )
+
         this.configureTemplateRefs()
       },
 
       get filteredOptionItems() {
-        const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
         const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
 
         if (this.hideOptionItemsWhenSearchQueryEmpty && normalizedSearchQuery === '') {
           return []
         }
 
-        return normalizedOptionItems
+        return this.optionItems
           .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
           .filter(({ optionItem }) =>
             optionItem.label.toLowerCase().includes(normalizedSearchQuery),
