@@ -16,23 +16,33 @@
       focusedIndex: -1,
       comboboxInputId: null,
       listboxId: null,
-      optionItems: initialConfig.optionItems ?? [],
+      optionItems: [],
       inputTemplateRefName: initialConfig.inputTemplateRef ?? 'comboboxInput',
       listboxTemplateRefName: initialConfig.listboxTemplateRef ?? 'comboboxListbox',
 
       init() {
+        const rawOptionItems = Array.isArray(initialConfig.optionItems)
+          ? initialConfig.optionItems
+          : []
+
+        this.optionItems = rawOptionItems.filter(
+          (optionItem) =>
+            optionItem &&
+            typeof optionItem.label === 'string' &&
+            typeof optionItem.value === 'string',
+        )
+
         this.configureTemplateRefs()
       },
 
       get filteredOptionItems() {
-        const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
         const normalizedSearchQuery = this.searchQuery.trim().toLowerCase()
 
         if (this.hideOptionItemsWhenSearchQueryEmpty && normalizedSearchQuery === '') {
           return []
         }
 
-        return normalizedOptionItems
+        return this.optionItems
           .map((optionItem, sourceIndex) => ({ optionItem, sourceIndex }))
           .filter(({ optionItem }) =>
             optionItem.label.toLowerCase().includes(normalizedSearchQuery),
@@ -229,8 +239,7 @@
       },
 
       getLabelForValue(selectedValue) {
-        const normalizedOptionItems = Array.isArray(this.optionItems) ? this.optionItems : []
-        const matchedOptionItem = normalizedOptionItems.find(
+        const matchedOptionItem = this.optionItems.find(
           (optionItem) => optionItem.value === selectedValue,
         )
 
@@ -247,10 +256,15 @@
       paletteId: initialConfig.paletteId ?? null,
       shortcutKey: (initialConfig.shortcutKey ?? 'k').toLowerCase(),
       shortcutHint: '',
+      _paletteItemMap: null,
 
       init() {
         this.paletteItems = this.paletteItems.filter(
           (paletteItem) => paletteItem?.label && (paletteItem?.href || paletteItem?.action),
+        )
+
+        this._paletteItemMap = new Map(
+          this.paletteItems.map((paletteItem) => [paletteItem.label, paletteItem]),
         )
 
         const uppercaseShortcutKey = this.shortcutKey.toUpperCase()
@@ -286,7 +300,7 @@
       },
 
       findPaletteItem(itemLabel) {
-        return this.paletteItems.find((paletteItem) => paletteItem.label === itemLabel) ?? null
+        return this._paletteItemMap?.get(itemLabel) ?? null
       },
 
       resolveActionEventName(rawEventName) {
@@ -435,6 +449,12 @@
       },
 
       async copyToClipboard() {
+        if (!navigator.clipboard) {
+          console.error('[huxCopy] Clipboard API unavailable — requires a secure context')
+
+          return
+        }
+
         try {
           const contentToCopy = this.resolveCopyContent()
 
@@ -599,6 +619,10 @@
 
       handleInputKeydown(event) {
         if (event.key === 'Enter') {
+          if (event.target instanceof HTMLTextAreaElement) {
+            return
+          }
+
           event.preventDefault()
           this.commitChanges()
 
@@ -748,8 +772,7 @@
             (focusableElement) =>
               focusableElement.tabIndex >= 0 &&
               !focusableElement.hasAttribute('disabled') &&
-              focusableElement.getAttribute('aria-hidden') !== 'true' &&
-              focusableElement.getClientRects().length > 0,
+              focusableElement.getAttribute('aria-hidden') !== 'true',
           )
       },
 
@@ -815,9 +838,18 @@
       menuId: null,
       triggerButtonId: null,
       menuItemIds: [],
+      triggerRefName: initialConfig.triggerRef ?? 'dropdownTrigger',
 
-      normalizeMenuItems(rawMenuItems, itemDepth = 0) {
+      normalizeMenuItems(rawMenuItems, itemDepth = 0, maxDepth = 5) {
         if (!Array.isArray(rawMenuItems)) {
+          return []
+        }
+
+        if (itemDepth > maxDepth) {
+          console.error(
+            `[huxDropdown] normalizeMenuItems exceeded maxDepth of ${maxDepth} — check for circular children references`,
+          )
+
           return []
         }
 
@@ -845,7 +877,11 @@
                 ]
               : []
 
-          const normalizedChildren = this.normalizeMenuItems(rawMenuItem.children, itemDepth + 1)
+          const normalizedChildren = this.normalizeMenuItems(
+            rawMenuItem.children,
+            itemDepth + 1,
+            maxDepth,
+          )
 
           return [...normalizedItem, ...normalizedChildren]
         })
@@ -875,7 +911,7 @@
         this.focusedIndex = -1
 
         if (restoreFocus) {
-          this.$nextTick(() => this.$refs.dropdownTrigger?.focus())
+          this.$nextTick(() => this.$refs[this.triggerRefName]?.focus())
         }
       },
 
@@ -1018,6 +1054,7 @@
 
       init() {
         if (this.maxWidth !== null && this.maxWidth < this.minWidth) {
+          console.warn('[huxResizable] maxWidth cannot be less than minWidth, clamping to minWidth')
           this.maxWidth = this.minWidth
         }
 
@@ -1110,6 +1147,8 @@
         if (pointerEvent.type === 'mousedown' && pointerEvent.button !== 0) {
           return
         }
+
+        this._onDragEnd()
 
         pointerEvent.preventDefault()
 
@@ -1246,6 +1285,7 @@
       intersectionObserver: null,
       observedHeadingElements: [],
       scrollContainerScrollHandler: null,
+      _scrollRafPending: false,
       templateRefName: initialConfig.templateRef ?? 'tocContent',
       headingSelector: initialConfig.headingSelector ?? 'h2, h3, h4, h5, h6',
 
@@ -1260,11 +1300,13 @@
 
         this.scrollContainerElement = scrollContainerElement
 
-        const headingElements = scrollContainerElement.querySelectorAll(this.headingSelector)
+        const headingElements = Array.from(
+          scrollContainerElement.querySelectorAll(this.headingSelector),
+        )
 
-        this.observedHeadingElements = Array.from(headingElements)
+        this.observedHeadingElements = headingElements
 
-        this.headingItems = Array.from(headingElements).map((headingElement, headingIndex) => {
+        this.headingItems = headingElements.map((headingElement, headingIndex) => {
           const headingId = this.ensureHeadingElementId(headingElement, headingIndex)
 
           return {
@@ -1355,17 +1397,27 @@
       },
 
       handleScrollContainerPosition() {
-        if (!this.scrollContainerElement || this.headingItems.length === 0) {
+        if (this._scrollRafPending) {
           return
         }
 
-        const reachedBottomOfContainer =
-          this.scrollContainerElement.scrollTop + this.scrollContainerElement.clientHeight >=
-          this.scrollContainerElement.scrollHeight - 2
+        this._scrollRafPending = true
 
-        if (reachedBottomOfContainer) {
-          this.activeHeadingId = this.headingItems[this.headingItems.length - 1].id
-        }
+        requestAnimationFrame(() => {
+          this._scrollRafPending = false
+
+          if (!this.scrollContainerElement || this.headingItems.length === 0) {
+            return
+          }
+
+          const reachedBottomOfContainer =
+            this.scrollContainerElement.scrollTop + this.scrollContainerElement.clientHeight >=
+            this.scrollContainerElement.scrollHeight - 2
+
+          if (reachedBottomOfContainer) {
+            this.activeHeadingId = this.headingItems[this.headingItems.length - 1].id
+          }
+        })
       },
 
       destroy() {
@@ -1515,6 +1567,7 @@
       tabItems: [],
       useHash: initialConfig.useHash ?? false,
       tabsId: initialConfig.id ?? null,
+      _tabElements: null,
 
       init() {
         this.tabItems = (initialConfig.tabItems ?? []).filter(
@@ -1541,11 +1594,15 @@
           this.activeTabId = this.tabItems.length > 0 ? this.tabItems[0].id : null
         }
 
-        if (this.tabsId) {
-          // Defer initial event so all huxTabPanel instances in the current render
-          // have had a chance to register their window listeners in init().
-          this.$nextTick(() => this._dispatchChangeEvent())
-        }
+        this.$nextTick(() => {
+          this._tabElements = [...this.$el.querySelectorAll('[role="tab"]')]
+
+          if (this.tabsId) {
+            // Defer initial event so all huxTabPanel instances in the current render
+            // have had a chance to register their window listeners in init().
+            this._dispatchChangeEvent()
+          }
+        })
       },
 
       get activeTabIndex() {
@@ -1589,15 +1646,11 @@
       },
 
       focusTab(tabId) {
-        this.$nextTick(() => {
-          const tabIndex = this.findTabIndex(tabId)
+        const tabIndex = this.findTabIndex(tabId)
 
-          if (tabIndex === -1) return
+        if (tabIndex === -1) return
 
-          const tabElements = this.$el.querySelectorAll('[role="tab"]')
-
-          tabElements[tabIndex]?.focus()
-        })
+        this._tabElements?.[tabIndex]?.focus()
       },
 
       focusNextTab() {
@@ -1651,11 +1704,13 @@
       rootMargin: initialConfig.rootMargin ?? '0px',
       loaderTemplateRefName: initialConfig.loaderRef ?? 'infiniteScrollLoader',
       useContainerRoot: initialConfig.useContainerRoot ?? false,
+      loadTimeout: initialConfig.loadTimeout ?? 5000,
       isLoading: false,
       isDisabled: initialConfig.startsDisabled ?? false,
 
       _scrollObserver: null,
       _loaderElement: null,
+      _loadTimeoutId: null,
 
       init() {
         this.$nextTick(() => {
@@ -1701,9 +1756,30 @@
       _dispatchLoadMoreEvent() {
         this.isLoading = true
 
+        if (this.loadTimeout > 0) {
+          this._loadTimeoutId = setTimeout(() => {
+            if (this.isLoading) {
+              this.isLoading = false
+              console.warn(
+                '[huxInfiniteScroll] Load timed out — markComplete or markFailed was not called',
+              )
+            }
+
+            this._loadTimeoutId = null
+          }, this.loadTimeout)
+        }
+
+        const clearLoadTimeout = () => {
+          if (this._loadTimeoutId !== null) {
+            clearTimeout(this._loadTimeoutId)
+            this._loadTimeoutId = null
+          }
+        }
+
         const detail = {
           scrollerId: this.scrollerId,
           markComplete: (hasMore = true) => {
+            clearLoadTimeout()
             this.isLoading = false
 
             if (!hasMore) {
@@ -1711,6 +1787,7 @@
             }
           },
           markFailed: () => {
+            clearLoadTimeout()
             this.isLoading = false
           },
         }
@@ -1743,6 +1820,11 @@
       },
 
       destroy() {
+        if (this._loadTimeoutId !== null) {
+          clearTimeout(this._loadTimeoutId)
+          this._loadTimeoutId = null
+        }
+
         if (this._scrollObserver) {
           this._scrollObserver.disconnect()
           this._scrollObserver = null
@@ -1757,7 +1839,7 @@
     Alpine.data('huxTabPanel', (initialConfig = {}) => ({
       tabsId: initialConfig.tabsId ?? null,
       tabId: initialConfig.tabId ?? null,
-      isActive: false,
+      isActive: initialConfig.startsActive ?? false,
       _changeHandler: null,
 
       init() {
