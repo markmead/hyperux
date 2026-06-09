@@ -63,6 +63,8 @@ The `load-more` event `detail` object includes:
   Passed to the internal `IntersectionObserver`.
 - `startsDisabled: boolean` (default: `false`)
   Starts the component in a disabled state without observing the loader element.
+- `loadTimeout: number` (default: `5000`)
+  Milliseconds before `isLoading` is auto-reset if neither `markComplete` nor `markFailed` has been called. Set to `0` to disable the timeout.
 
 ## Quick Start
 
@@ -186,7 +188,7 @@ Use `.window` to listen for the event on the `window` object from any element:
 ## Error Handling
 
 - If `loaderRef` does not resolve to an `x-ref`, the component logs `[huxInfiniteScroll] Missing x-ref target for loaderRef: ${this.loaderTemplateRefName}` and exits initialization without throwing.
-- If the consumer does not call `detail.markComplete()` or `detail.markFailed()`, `isLoading` stays `true` indefinitely and no further events are fired. Always resolve or reject the callback.
+- If the consumer does not call `detail.markComplete()` or `detail.markFailed()` within `loadTimeout` milliseconds, `isLoading` is auto-reset to `false` and the component logs `[huxInfiniteScroll] Load timed out — markComplete or markFailed was not called`. Set `loadTimeout: 0` to disable the timeout and manage `isLoading` manually.
 
 ## Accessibility Notes
 

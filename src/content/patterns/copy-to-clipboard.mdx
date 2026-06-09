@@ -118,6 +118,7 @@ huxCopy({
 
 ## Error Handling
 
+- If `navigator.clipboard` is unavailable (insecure context), the component logs `[huxCopy] Clipboard API unavailable — requires a secure context` and exits without writing. Clipboard writes require HTTPS or `localhost`.
 - If both `sourceNames` and `valueSourceNames` are empty, the component logs:
   `[huxCopy] No sourceNames or valueSourceNames configured`
 - If a configured source is missing, the component logs a source-specific lookup error.

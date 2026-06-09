@@ -67,6 +67,8 @@ Returns an Alpine data object for a decoupled tab panel with:
 
 - `tabsId: string` (required; matches the `id` passed to `huxTabs`)
 - `tabId: string` (required; the tab id this panel belongs to)
+- `startsActive: boolean` (default: `false`)
+  Sets the initial `isActive` state before the first `hux-tabs:{tabsId}:change` event fires. Use this on the panel that corresponds to the initial active tab to avoid a brief hidden-panel flash on first render.
 
 ## Quick Start
 

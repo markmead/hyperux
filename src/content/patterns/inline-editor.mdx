@@ -148,7 +148,7 @@ _Internal helper methods are private implementation details and are not part of 
 - `enterEditMode()` copies `inputValue` into `draftValue`, sets `isEditing = true`, focuses the configured input ref, and selects all text.
 - `registerInput()` stores the active input/textarea element, focuses it, and selects all text.
 - `handleInputFocus()` selects all text in the focused input/textarea.
-- `handleInputKeydown()` commits on `Enter` and reverts on `Escape`.
+- `handleInputKeydown()` commits on `Enter` (for `<input>` elements only — `<textarea>` elements allow normal newline insertion) and reverts on `Escape`.
 - `trapFocus()` cycles `Tab` and `Shift+Tab` inside the active focus-trap root while editing.
 - `commitChanges()` sets `inputValue = draftValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable element in DOM order), and dispatches commit event(s).
 - `revertChanges()` resets `draftValue = inputValue`, exits edit mode, restores focus (previous active element, configured return-focus ref, or first visible focusable element in DOM order), and dispatches revert event(s).

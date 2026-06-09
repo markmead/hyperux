@@ -54,6 +54,8 @@ _Internal helper methods are private implementation details and are not part of 
 
 - `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, children?: Array<{ label: string, href?: string, action?: string, target?: string }> }>` (default: `[]`)
 - `triggerId: string` (optional, scopes generated ids and action event names)
+- `triggerRef: string` (default: `'dropdownTrigger'`)
+  `x-ref` name used to restore focus to the trigger button when `closeMenu(true)` is called.
 
 _Use hyphen-case for action names. Non-hyphen-case names will be ignored._
 
