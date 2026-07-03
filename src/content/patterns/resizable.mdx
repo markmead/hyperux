@@ -10,7 +10,7 @@ terms:
   - iframe-preview
   - responsive-testing
 pubDate: 2026-04-20
-modDate: 2026-06-09
+modDate: 2026-07-03
 ---
 
 import Demo from '../../components/demos/Resizable.astro'
@@ -69,7 +69,12 @@ _Internal helper methods are private implementation details and are not part of 
 
     <button
       type="button"
+      role="slider"
       aria-label="Drag to resize"
+      aria-orientation="horizontal"
+      x-bind:aria-valuenow="currentWidth"
+      x-bind:aria-valuemin="minWidth"
+      x-bind:aria-valuemax="maxWidth"
       x-on:mousedown="startDrag($event)"
       x-on:touchstart.prevent="startDrag($event)"
       x-on:keydown.right.prevent="nudgeWidth(8)"
@@ -141,9 +146,11 @@ When `iframeSrc` is `null` (the default), the iframe renders without a `src` att
 ## Accessibility Notes
 
 - Keep the drag handle as `button type="button"` with an explicit `aria-label`.
+- Give the drag handle `role="slider"` with `aria-orientation="horizontal"` and bind `aria-valuenow`/`aria-valuemin`/`aria-valuemax` to `currentWidth`/`minWidth`/`maxWidth` so assistive technology can announce the current size and range.
 - Support keyboard resizing (`ArrowLeft`/`ArrowRight`) and breakpoint jumps (`ArrowUp`/`ArrowDown`, `Home`, `End`).
 - Expose current breakpoint changes with `aria-live="polite"` status text.
 - Ensure the active resize affordance has visible focus styles.
+- Size the drag handle's hit area to at least 44×44 CSS px even if the visible bar is thinner — keep the wider hit area inside the container bounds so it isn't clipped by `overflow-hidden`.
 
 ## Notes
 

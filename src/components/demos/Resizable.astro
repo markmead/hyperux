@@ -65,8 +65,14 @@
 
         <button
           type="button"
+          role="slider"
           aria-label="Drag to resize"
-          class="absolute top-0 right-0 flex h-full w-3 cursor-col-resize items-center justify-center bg-gray-200 transition-colors hover:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:bg-gray-400"
+          aria-orientation="horizontal"
+          x-bind:aria-valuenow="currentWidth"
+          x-bind:aria-valuemin="minWidth"
+          x-bind:aria-valuemax="maxWidth"
+          x-bind:aria-valuetext="`${currentWidth}px, ${activeBreakpoint} breakpoint`"
+          class="group absolute top-0 right-0 flex h-full w-11 cursor-col-resize items-center justify-end focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
           x-on:mousedown="startDrag($event)"
           x-on:touchstart.prevent="startDrag($event)"
           x-on:keydown.right.prevent="nudgeWidth(8)"
@@ -76,7 +82,13 @@
           x-on:keydown.up.prevent="jumpToBreakpoint('next')"
           x-on:keydown.down.prevent="jumpToBreakpoint('prev')"
           x-on:keydown.home.prevent="jumpToBreakpoint('first')"
-          x-on:keydown.end.prevent="jumpToBreakpoint('last')"></button>
+          x-on:keydown.end.prevent="jumpToBreakpoint('last')"
+        >
+          <span
+            aria-hidden="true"
+            class="h-full w-3 bg-gray-200 transition-colors group-hover:bg-gray-300 group-active:bg-gray-400"
+          ></span>
+        </button>
       </div>
 
       <p class="text-xs text-gray-500">
