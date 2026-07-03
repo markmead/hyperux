@@ -64,6 +64,8 @@
               x-ref="inlineEditorInput"
               x-model="draftValue"
               type="text"
+              autocomplete="name"
+              aria-describedby="profile-display-name-inline-editor-help"
               x-init="registerInput($el)"
               class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               x-on:focus="handleInputFocus($event)"
@@ -85,6 +87,10 @@
             >
               Cancel
             </button>
+
+            <p id="profile-display-name-inline-editor-help" class="mt-1 w-full text-xs text-gray-500">
+              Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+            </p>
           </div>
         </div>
 
@@ -121,6 +127,7 @@
               x-ref="inlineEditorInput"
               x-model="draftValue"
               type="text"
+              aria-describedby="profile-headline-inline-editor-help"
               x-init="registerInput($el)"
               class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               x-on:focus="handleInputFocus($event)"
@@ -142,6 +149,10 @@
             >
               Cancel
             </button>
+
+            <p id="profile-headline-inline-editor-help" class="mt-1 w-full text-xs text-gray-500">
+              Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+            </p>
           </div>
         </div>
 
@@ -178,6 +189,7 @@
               x-ref="inlineEditorInput"
               x-model="draftValue"
               type="text"
+              aria-describedby="profile-location-inline-editor-help"
               x-init="registerInput($el)"
               class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               x-on:focus="handleInputFocus($event)"
@@ -199,6 +211,10 @@
             >
               Cancel
             </button>
+
+            <p id="profile-location-inline-editor-help" class="mt-1 w-full text-xs text-gray-500">
+              Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+            </p>
           </div>
         </div>
 
@@ -235,6 +251,8 @@
               x-ref="inlineEditorInput"
               x-model="draftValue"
               type="url"
+              autocomplete="url"
+              aria-describedby="profile-website-inline-editor-help"
               x-init="registerInput($el)"
               class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               x-on:focus="handleInputFocus($event)"
@@ -256,6 +274,10 @@
             >
               Cancel
             </button>
+
+            <p id="profile-website-inline-editor-help" class="mt-1 w-full text-xs text-gray-500">
+              Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+            </p>
           </div>
         </div>
 
@@ -292,6 +314,8 @@
               x-ref="inlineEditorInput"
               x-model="draftValue"
               type="text"
+              autocomplete="username"
+              aria-describedby="profile-username-inline-editor-help"
               x-init="registerInput($el)"
               class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               x-on:focus="handleInputFocus($event)"
@@ -313,6 +337,10 @@
             >
               Cancel
             </button>
+
+            <p id="profile-username-inline-editor-help" class="mt-1 w-full text-xs text-gray-500">
+              Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+            </p>
           </div>
         </div>
 
@@ -349,6 +377,7 @@
               x-ref="inlineEditorInput"
               x-model="draftValue"
               type="text"
+              aria-describedby="profile-pronouns-inline-editor-help"
               x-init="registerInput($el)"
               class="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               x-on:focus="handleInputFocus($event)"
@@ -370,6 +399,10 @@
             >
               Cancel
             </button>
+
+            <p id="profile-pronouns-inline-editor-help" class="mt-1 w-full text-xs text-gray-500">
+              Press Enter to save, Escape to cancel, and Tab to cycle within editor controls.
+            </p>
           </div>
         </div>
       </div>
