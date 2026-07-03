@@ -10,7 +10,7 @@ terms:
   - load-more
   - virtual-list
 pubDate: 2026-06-06
-modDate: 2026-06-09
+modDate: 2026-07-03
 ---
 
 import Demo from '../../components/demos/InfiniteScroll.astro'
@@ -72,7 +72,7 @@ The `load-more` event `detail` object includes:
 
 ```html
 <div
-  x-data="{ items: [] }"
+  x-data="{ items: [], page: 0 }"
   x-on:hux-infinite-scroll:load-more="
     fetch(`/api/items?page=${++page}`)
       .then(r => r.json())
