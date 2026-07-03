@@ -10,7 +10,7 @@ terms:
   - roving-tabindex
   - hash-routing
 pubDate: 2026-04-20
-modDate: 2026-06-09
+modDate: 2026-07-03
 ---
 
 import Demo from '../../components/demos/Tabs.astro'
@@ -175,7 +175,7 @@ Use `id` on `huxTabs` and `huxTabPanel` on each panel to place tablist and panel
   role="tabpanel"
   aria-labelledby="tab-general"
   tabindex="0"
-  x-data="huxTabPanel({ tabsId: 'settings', tabId: 'general' })"
+  x-data="huxTabPanel({ tabsId: 'settings', tabId: 'general', startsActive: true })"
   x-show="isActive"
   x-cloak
 >
