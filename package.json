@@ -16,31 +16,31 @@
   "dependencies": {
     "@astrojs/alpinejs": "^0.5.0",
     "@astrojs/check": "^0.9.9",
-    "@astrojs/cloudflare": "^13.5.4",
+    "@astrojs/cloudflare": "^13.7.0",
     "@astrojs/mdx": "^5.0.6",
-    "@astrojs/rss": "^4.0.18",
-    "@astrojs/sitemap": "^3.7.2",
-    "@lucide/astro": "^1.16.0",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@lucide/astro": "^1.23.0",
     "@types/alpinejs": "^3.13.11",
     "alpinejs": "^3.15.12",
-    "astro": "^6.3.7",
-    "wrangler": "^4.93.1"
+    "astro": "^6.4.8",
+    "wrangler": "^4.106.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/forms": "^0.5.11",
-    "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "^4.3.0",
-    "@types/node": "^25.9.1",
-    "eslint": "^10.4.0",
+    "@tailwindcss/typography": "^0.5.20",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/node": "^25.9.4",
+    "eslint": "^10.6.0",
     "eslint-plugin-astro": "^1.7.0",
-    "globals": "^17.6.0",
-    "prettier": "^3.8.3",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.4",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.4",
     "rehype-external-links": "^3.0.0",
-    "tailwindcss": "^4.3.0",
+    "tailwindcss": "^4.3.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.4"
+    "typescript-eslint": "^8.62.1"
   }
 }
