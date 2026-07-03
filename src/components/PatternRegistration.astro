@@ -1449,9 +1449,7 @@
 
       init() {
         const stepItems = Array.isArray(initialConfig.stepItems) ? initialConfig.stepItems : []
-        this.stepItems = stepItems.filter(
-          (stepItem) => stepItem?.label && stepItem?.id,
-        )
+        this.stepItems = stepItems.filter((stepItem) => stepItem?.label && stepItem?.id)
 
         const validStepIds = this.stepItems.map((stepItem) => stepItem.id)
 

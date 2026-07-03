@@ -14,3 +14,7 @@ pnpm-lock.yaml
 
 # wrangler
 wrangler.jsonc
+
+# agents
+.agents/
+.claude/

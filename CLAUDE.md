@@ -25,6 +25,7 @@ There are no tests.
 All Alpine.js component logic lives in `src/components/PatternRegistration.astro` as `is:inline` scripts. Each script registers one component via `Alpine.data()` on the `alpine:init` event. This file is the **source of truth** for all component behavior, options, and defaults — always verify documentation against it.
 
 Registered components:
+
 - `huxCombobox` — filterable listbox, single/multi-select
 - `huxCommandPalette` — composes `huxDialog` + `huxCombobox`, global keyboard shortcut
 - `huxCopy` — clipboard copy via `data-hux-copy` attribute targets
@@ -47,10 +48,12 @@ Routing: `src/pages/patterns/[...slug].astro` uses `pattern.data.slug` (not the 
 ### The `data-hux-copy` System
 
 Elements with `data-hux-copy="<name>"` are both:
+
 1. **Sources** for `huxCopy` — referenced by name in `sourceNames` (copies `outerHTML`) or `valueSourceNames` (copies `.value` / `.textContent`)
 2. **Registration markers** — each Alpine registration script has `data-hux-copy="hux*Registration"` so users can copy the component JS alongside the demo HTML
 
 Demo buttons always combine the demo element name and the registration name:
+
 ```html
 x-data="huxCopy({ sourceNames: ['huxTabsDemo', 'huxTabsRegistration'] })"
 ```
@@ -58,6 +61,7 @@ x-data="huxCopy({ sourceNames: ['huxTabsDemo', 'huxTabsRegistration'] })"
 ### Event Naming
 
 Action-driven events use hyphen-case and are optionally scoped with a component id:
+
 - `hux-dialog:{id}:open` / `hux-dialog:{id}:close`
 - `hux-tabs:{id}:change`
 - `hux-stepper:{id}:change`
@@ -105,6 +109,7 @@ Document only what is implemented. Verify all options, defaults, method names, a
 Format: `<Feature|Bugfix|Update|Epic> - Description` (sentence case description)
 
 Examples:
+
 - `Feature - Add new card variants`
 - `Bugfix - Fix mobile menu focus trap`
 - `Update - Refresh accordion documentation`
