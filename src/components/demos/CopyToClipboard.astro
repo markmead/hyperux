@@ -81,7 +81,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
           type="button"
           x-data="huxCopy({ valueSourceNames: ['inputExample'] })"
           aria-label="Copy input value"
-          class="absolute top-1 right-1 grid size-8 place-content-center rounded text-gray-700 transition-colors hover:bg-gray-100"
+          class="absolute top-1 right-1 grid size-8 place-content-center rounded text-gray-700 transition-colors before:absolute before:-inset-1.5 before:content-[''] hover:bg-gray-100"
           x-bind:class="{ 'bg-gray-100': hasCopied }"
           x-on:click="copyToClipboard()"
         >
