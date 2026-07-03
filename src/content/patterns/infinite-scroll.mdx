@@ -139,14 +139,9 @@ async function loadMore(detail) {
 ### Disable and Re-enable Programmatically
 
 ```html
-<button type="button" x-on:click="$refs.scroller.__x.$data.enableScroll()">
-  Load more
-</button>
+<button type="button" x-on:click="$refs.scroller.__x.$data.enableScroll()">Load more</button>
 
-<div
-  x-ref="scroller"
-  x-data="huxInfiniteScroll({ scrollerId: 'list', startsDisabled: true })"
->
+<div x-ref="scroller" x-data="huxInfiniteScroll({ scrollerId: 'list', startsDisabled: true })">
   ...
 </div>
 ```
@@ -169,9 +164,7 @@ huxInfiniteScroll({
 Use `.window` to listen for the event on the `window` object from any element:
 
 ```html
-<div x-on:hux-infinite-scroll:feed:load-more.window="loadMore($event.detail)">
-  ...
-</div>
+<div x-on:hux-infinite-scroll:feed:load-more.window="loadMore($event.detail)">...</div>
 ```
 
 ## Behavior Contract

@@ -1,41 +1,18 @@
 import { defineConfig, fontProviders } from 'astro/config'
 
+import alpinejs from '@astrojs/alpinejs'
+import cloudflare from '@astrojs/cloudflare'
 import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
-
-import rehypeExternalLinks from 'rehype-external-links'
 import tailwindcss from '@tailwindcss/vite'
-
-import cloudflare from '@astrojs/cloudflare'
-
-import alpinejs from '@astrojs/alpinejs'
 
 export default defineConfig({
   site: 'https://js.hyperui.dev',
 
-  integrations: [
-    mdx({
-      optimize: true,
-    }),
-    sitemap(),
-    alpinejs(),
-  ],
+  integrations: [mdx(), sitemap(), alpinejs()],
 
   vite: {
     plugins: [tailwindcss()],
-  },
-
-  markdown: {
-    rehypePlugins: [
-      [
-        rehypeExternalLinks,
-        {
-          rel: ['noreferrer'],
-          target: '_blank',
-        },
-      ],
-    ],
-    // syntaxHighlight: false,
   },
 
   fonts: [
