@@ -27,24 +27,23 @@
       <div class="col-span-1 rounded-md bg-gray-50 p-4">
         <h3 class="font-semibold">Table of Contents</h3>
 
-        <nav aria-label="Scroll Spy sections" class="mt-2 space-y-2">
-          <template x-for="headingItem in headingItems" x-bind:key="headingItem.id">
-            <span
-              class="block"
-              x-bind:style="{ paddingLeft: `${(headingItem.level - 2) * 0.75}rem` }"
-            >
-              <button
-                type="button"
-                x-text="headingItem.text"
-                x-bind:aria-current="activeHeadingId === headingItem.id ? 'location' : null"
-                x-bind:class="{
-                  'border-l-4 border-blue-700 bg-blue-100 pl-3 font-semibold text-blue-900': activeHeadingId === headingItem.id,
-                  'border-l-4 border-transparent hover:bg-gray-100': activeHeadingId !== headingItem.id
-                }"
-                class="w-full rounded px-4 py-2 text-left transition-colors"
-                x-on:click="scrollToHeadingItem(headingItem.id)"></button>
-            </span>
-          </template>
+        <nav aria-label="Scroll Spy sections">
+          <ul class="mt-2 space-y-2">
+            <template x-for="headingItem in headingItems" x-bind:key="headingItem.id">
+              <li x-bind:style="{ paddingLeft: `${(headingItem.level - 2) * 0.75}rem` }">
+                <button
+                  type="button"
+                  x-text="headingItem.text"
+                  x-bind:aria-current="activeHeadingId === headingItem.id ? 'location' : null"
+                  x-bind:class="{
+                    'border-l-4 border-blue-700 bg-blue-100 pl-3 font-semibold text-blue-900': activeHeadingId === headingItem.id,
+                    'border-l-4 border-transparent hover:bg-gray-100': activeHeadingId !== headingItem.id
+                  }"
+                  class="w-full rounded px-4 py-2 text-left transition-colors"
+                  x-on:click="scrollToHeadingItem(headingItem.id)"></button>
+              </li>
+            </template>
+          </ul>
         </nav>
       </div>
 
