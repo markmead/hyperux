@@ -840,7 +840,7 @@
       menuItemIds: [],
       triggerRefName: initialConfig.triggerRef ?? 'dropdownTrigger',
 
-      normalizeMenuItems(rawMenuItems, itemDepth = 0, maxDepth = 5) {
+      normalizeMenuItems(rawMenuItems, itemDepth = 0, maxDepth = 5, parentLabel = null) {
         if (!Array.isArray(rawMenuItems)) {
           return []
         }
@@ -873,6 +873,7 @@
                     action: hasAction ? rawMenuItem.action : undefined,
                     target: rawMenuItem.target,
                     itemDepth,
+                    parentLabel,
                   },
                 ]
               : []
@@ -881,6 +882,7 @@
             rawMenuItem.children,
             itemDepth + 1,
             maxDepth,
+            normalizedLabel,
           )
 
           return [...normalizedItem, ...normalizedChildren]

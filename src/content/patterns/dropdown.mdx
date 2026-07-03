@@ -34,7 +34,7 @@ Returns an Alpine data object with:
 
 - `isOpen: boolean`
 - `focusedIndex: number`
-- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, itemDepth: number }>`
+- `menuItems: Array<{ label: string, href?: string, action?: string, target?: string, itemDepth: number, parentLabel: string | null }>`
 - `menuId: string | null`
 - `triggerButtonId: string | null`
 - `menuItemIds: string[]`
@@ -103,6 +103,7 @@ _Use hyphen-case for action names. Non-hyphen-case names will be ignored._
         type="button"
         role="menuitem"
         x-bind:id="menuItemIds[menuIndex]"
+        x-bind:aria-label="menuItem.itemDepth > 0 ? `${menuItem.parentLabel}, ${menuItem.label}` : null"
         x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
         x-on:click="selectItem(menuItem)"
         x-text="menuItem.label"
@@ -190,7 +191,7 @@ if (menuItem?.target === '_blank') {
 ## Behavior Contract
 
 - `menuItems` are normalized recursively; actionable entries with a label and either `href` or `action` are kept.
-- Nested entries are flattened into `menuItems` in depth-first order with `itemDepth` preserved for rendering.
+- Nested entries are flattened into `menuItems` in depth-first order with `itemDepth` preserved for rendering and `parentLabel` set to the immediate parent's label (`null` for top-level entries).
 - Generated ids are based on `triggerId` when provided; otherwise a random uuid suffix is used.
 - `closeMenu(true)` restores focus to the trigger button on next tick.
 - `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
@@ -212,6 +213,7 @@ if (menuItem?.target === '_blank') {
 - Keep menu container `role="menu"` and items `role="menuitem"`.
 - Use keyboard bindings for Up/Down/Home/End and Escape to maintain expected menu behavior.
 - Keep action items as real `button type="button"` elements; use anchors for navigation items.
+- Since nested entries render as a single flat list with only visual indentation to show depth, set `aria-label` on child items (depth > 0) combining `parentLabel` and `label` (for example `"API, huxDropdown(config)"`) so screen reader users get the parent/child relationship that sighted users see from indentation.
 
 ## Notes
 
