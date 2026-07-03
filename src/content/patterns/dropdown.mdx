@@ -194,6 +194,7 @@ if (menuItem?.target === '_blank') {
 - Nested entries are flattened into `menuItems` in depth-first order with `itemDepth` preserved for rendering and `parentLabel` set to the immediate parent's label (`null` for top-level entries).
 - Generated ids are based on `triggerId` when provided; otherwise a random uuid suffix is used.
 - `closeMenu(true)` restores focus to the trigger button on next tick.
+- `toggleMenu()` focuses the first menu item when it opens the menu; `openMenu()` alone does not move focus, so callers driving focus explicitly (for example Up/Down keydown handlers) can call `openMenu()` directly.
 - `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
 - `findMenuItem()` returns the matched item when found; otherwise `null`.
 - `selectItem()` dispatches named events for `action` entries using hyphen-case event names and closes the menu.
@@ -212,8 +213,11 @@ if (menuItem?.target === '_blank') {
 - Keep trigger button wired with `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.
 - Keep menu container `role="menu"` and items `role="menuitem"`.
 - Use keyboard bindings for Up/Down/Home/End and Escape to maintain expected menu behavior.
+- `toggleMenu()` moves focus to the first menu item when it opens the menu, so at least one item is always keyboard-reachable regardless of whether the menu was opened by mouse click or by Enter/Space on the trigger.
 - Keep action items as real `button type="button"` elements; use anchors for navigation items.
 - Since nested entries render as a single flat list with only visual indentation to show depth, set `aria-label` on child items (depth > 0) combining `parentLabel` and `label` (for example `"API, huxDropdown(config)"`) so screen reader users get the parent/child relationship that sighted users see from indentation.
+- `role="menu"` / `role="menuitem"` model an application-style action menu, per the WAI-ARIA Authoring Practices. If a given menu is mostly page-navigation links rather than actions, consider a plain disclosure pattern (`aria-expanded` button + a list of links with no `menu`/`menuitem` roles) instead — assistive technology sets different interaction expectations for `menu` widgets (for example, arrow-key-only traversal) than for navigation link lists.
+- The demo's `border-gray-300`/`border-gray-200` trigger and menu borders fall under the 3:1 non-text contrast target on their own; this is a minor, site-wide design-system convention rather than a dropdown-specific gap, since the trigger's label, icon, and hover state provide redundant affordance that the border isn't solely responsible for. Treat a darker border as a nice-to-have, not a blocker.
 
 ## Notes
 

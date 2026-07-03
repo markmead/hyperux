@@ -93,6 +93,7 @@ document.addEventListener('alpine:init', () => {
       }
 
       this.openMenu()
+      this.focusFirstItem()
     },
 
     focusItem(itemIndex) {

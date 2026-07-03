@@ -108,7 +108,6 @@
                 role="menuitem"
                 class="flex items-center justify-between gap-3 py-2 pr-4 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-inset"
                 x-on:click="selectItem(menuItem)"
-                x-on:mouseenter="focusedIndex = menuIndex"
                 x-on:focus="focusedIndex = menuIndex"
               >
                 <span x-text="menuItem.label"></span>
@@ -137,7 +136,6 @@
                 role="menuitem"
                 class="flex w-full items-center justify-between gap-3 py-2 pr-4 text-left text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-inset"
                 x-on:click="selectItem(menuItem)"
-                x-on:mouseenter="focusedIndex = menuIndex"
                 x-on:focus="focusedIndex = menuIndex"
               >
                 <span x-text="menuItem.label"></span>
