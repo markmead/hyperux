@@ -1,0 +1,299 @@
+<div class="prose-demo not-prose relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-6">
+    <p class="text-gray-700">
+      Three-step checkout wizard with guarded forward navigation and per-step validation. Each step
+      must pass its validator before advancing; going back never requires validation.
+    </p>
+
+    <div
+      x-data="{
+        wizardCompleted: false,
+        completedData: null,
+        init() {
+          this.$el.addEventListener('hux-wizard:checkout:submit', (e) => {
+            this.wizardCompleted = true
+            this.completedData = e.detail.wizardData
+          })
+        }
+      }"
+    >
+      <div
+        data-hux-copy="huxWizardDemo"
+        x-data="huxWizard({
+          wizardId: 'checkout',
+          wizardData: {
+            fullName: '',
+            emailAddress: '',
+            streetAddress: ''
+          },
+          stepItems: [
+            { label: 'Contact', id: 'contact' },
+            { label: 'Shipping', id: 'shipping' },
+            { label: 'Review', id: 'review' }
+          ],
+          stepValidators: {
+            contact: (data) => {
+              const errors = []
+              if (!data.fullName.trim()) errors.push('Full name is required')
+              if (!data.emailAddress.trim()) errors.push('Email address is required')
+              else if (!data.emailAddress.includes('@')) errors.push('A valid email address is required')
+              return errors.length ? errors : true
+            },
+            shipping: (data) => {
+              const errors = []
+              if (!data.streetAddress.trim()) errors.push('Street address is required')
+              return errors.length ? errors : true
+            },
+          }
+        })"
+        x-show="!wizardCompleted"
+        class="space-y-6"
+      >
+        <ol class="grid gap-3 sm:grid-cols-3" aria-label="Checkout steps">
+          <template x-for="(stepItem, stepIndex) in stepItems" x-bind:key="stepItem.id">
+            <li>
+              <button
+                type="button"
+                x-bind:id="`step-${stepItem.id}`"
+                x-bind:aria-controls="`step-panel-${stepItem.id}`"
+                x-bind:aria-current="isStepCurrent(stepItem.id) ? 'step' : null"
+                x-bind:aria-label="`Step ${stepIndex + 1} of ${stepItems.length}: ${stepItem.label}`"
+                x-bind:aria-describedby="`step-status-${stepItem.id}`"
+                x-bind:disabled="!isStepComplete(stepItem.id) && !isStepCurrent(stepItem.id)"
+                class="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+                x-bind:class="isStepCurrent(stepItem.id)
+                  ? 'border-blue-600 bg-blue-50 text-blue-800'
+                  : isStepComplete(stepItem.id)
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                    : 'border-gray-300 bg-white text-gray-400 cursor-not-allowed'"
+                x-on:click="goToStep(stepItem.id)"
+              >
+                <span
+                  class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold"
+                  x-bind:class="isStepCurrent(stepItem.id)
+                    ? 'border-blue-600 bg-blue-600 text-white'
+                    : isStepComplete(stepItem.id)
+                      ? 'border-emerald-600 bg-emerald-600 text-white'
+                      : 'border-gray-300 bg-white text-gray-400'"
+                  x-text="stepIndex + 1"
+                ></span>
+
+                <span x-text="stepItem.label"></span>
+
+                <span
+                  class="ml-auto rounded px-2 py-0.5 text-xs font-semibold"
+                  x-bind:class="isStepCurrent(stepItem.id)
+                    ? 'bg-blue-100 text-blue-800'
+                    : isStepComplete(stepItem.id)
+                      ? 'bg-emerald-100 text-emerald-800'
+                      : 'bg-gray-100 text-gray-500'"
+                  x-bind:id="`step-status-${stepItem.id}`"
+                  x-text="isStepCurrent(stepItem.id) ? 'Current' : isStepComplete(stepItem.id) ? 'Completed' : 'Not completed'"
+                ></span>
+              </button>
+            </li>
+          </template>
+        </ol>
+
+        <section
+          id="step-panel-contact"
+          role="region"
+          aria-labelledby="step-contact"
+          aria-live="polite"
+          class="rounded-lg border border-gray-200 bg-white p-4"
+          x-cloak
+          x-show="isStepCurrent('contact')"
+        >
+          <h3 class="text-sm font-semibold text-gray-900">Contact details</h3>
+
+          <div class="mt-4 space-y-4">
+            <div>
+              <label for="wizard-full-name" class="block text-sm font-medium text-gray-700">
+                Full name
+              </label>
+              <input
+                id="wizard-full-name"
+                type="text"
+                autocomplete="name"
+                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                x-model="wizardData.fullName"
+                x-on:input="clearStepError()"
+              />
+            </div>
+
+            <div>
+              <label for="wizard-email-address" class="block text-sm font-medium text-gray-700">
+                Email address
+              </label>
+              <input
+                id="wizard-email-address"
+                type="email"
+                autocomplete="email"
+                class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                x-model="wizardData.emailAddress"
+                x-on:input="clearStepError()"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="step-panel-shipping"
+          role="region"
+          aria-labelledby="step-shipping"
+          aria-live="polite"
+          class="rounded-lg border border-gray-200 bg-white p-4"
+          x-cloak
+          x-show="isStepCurrent('shipping')"
+        >
+          <h3 class="text-sm font-semibold text-gray-900">Shipping information</h3>
+
+          <div class="mt-4">
+            <label for="wizard-street-address" class="block text-sm font-medium text-gray-700">
+              Street address
+            </label>
+            <input
+              id="wizard-street-address"
+              type="text"
+              autocomplete="street-address"
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              x-model="wizardData.streetAddress"
+              x-on:input="clearStepError()"
+            />
+          </div>
+        </section>
+
+        <section
+          id="step-panel-review"
+          role="region"
+          aria-labelledby="step-review"
+          aria-live="polite"
+          class="rounded-lg border border-gray-200 bg-white p-4"
+          x-cloak
+          x-show="isStepCurrent('review')"
+        >
+          <h3 class="text-sm font-semibold text-gray-900">Review your order</h3>
+
+          <dl class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between gap-4">
+              <dt class="font-medium text-gray-600">Name</dt>
+              <dd class="text-gray-900" x-text="wizardData.fullName"></dd>
+            </div>
+            <div class="flex justify-between gap-4">
+              <dt class="font-medium text-gray-600">Email</dt>
+              <dd class="text-gray-900" x-text="wizardData.emailAddress"></dd>
+            </div>
+            <div class="flex justify-between gap-4">
+              <dt class="font-medium text-gray-600">Address</dt>
+              <dd class="text-gray-900" x-text="wizardData.streetAddress"></dd>
+            </div>
+          </dl>
+        </section>
+
+        <ul
+          role="alert"
+          aria-live="assertive"
+          class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          x-cloak
+          x-show="activeStepErrors.length"
+        >
+          <template x-for="errorMessage in activeStepErrors">
+            <li x-text="errorMessage"></li>
+          </template>
+        </ul>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            type="button"
+            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            x-bind:disabled="isFirstStep"
+            x-on:click="goToPreviousStep()"
+          >
+            Previous step
+          </button>
+
+          <button
+            type="button"
+            class="rounded-md border border-gray-900 bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
+            x-cloak
+            x-show="!isLastStep"
+            x-bind:disabled="isValidating"
+            x-on:click="advanceStep()"
+          >
+            <span x-text="isValidating ? 'Validating...' : 'Next step'">Next step</span>
+          </button>
+
+          <button
+            type="button"
+            class="rounded-md border border-gray-900 bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
+            x-cloak
+            x-show="isLastStep"
+            x-bind:disabled="isValidating"
+            x-on:click="submitWizard()"
+          >
+            <span x-text="isValidating ? 'Submitting...' : 'Submit order'">Submit order</span>
+          </button>
+        </div>
+      </div>
+
+      <div
+        x-cloak
+        x-show="wizardCompleted"
+        class="rounded-lg border border-emerald-200 bg-emerald-50 p-6"
+      >
+        <h3 class="font-semibold text-emerald-900">Order submitted</h3>
+        <p class="mt-1 text-sm text-emerald-700">
+          The <code>hux-wizard:checkout:submit</code> event fired with the wizard data below.
+        </p>
+
+        <dl class="mt-4 space-y-2 text-sm">
+          <div class="flex gap-2">
+            <dt class="font-medium text-emerald-800">Name:</dt>
+            <dd class="text-emerald-700" x-text="completedData?.fullName"></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="font-medium text-emerald-800">Email:</dt>
+            <dd class="text-emerald-700" x-text="completedData?.emailAddress"></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="font-medium text-emerald-800">Address:</dt>
+            <dd class="text-emerald-700" x-text="completedData?.streetAddress"></dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxWizardDemo', 'huxWizardRegistration', 'huxStepperRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>

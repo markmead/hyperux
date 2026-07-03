@@ -1437,8 +1437,8 @@
 </script>
 
 <script is:inline data-hux-copy="huxStepperRegistration">
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('huxStepper', (initialConfig = {}) => ({
+  function huxStepperData(initialConfig = {}) {
+    return {
       stepItems: [],
       completedStepIds: [],
       activeStepId: initialConfig.activeStep ?? null,
@@ -1556,7 +1556,11 @@
       isStepCurrent(stepId) {
         return this.activeStepId === stepId
       },
-    }))
+    }
+  }
+
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxStepper', huxStepperData)
   })
 </script>
 
@@ -1831,6 +1835,207 @@
         }
       },
     }))
+  })
+</script>
+
+<script is:inline data-hux-copy="huxWizardRegistration">
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('huxWizard', (initialConfig = {}) => {
+      const stepperBase = huxStepperData({
+        stepItems: initialConfig.stepItems,
+        activeStep: initialConfig.activeStep,
+      })
+
+      const wizardLayer = {
+        wizardId: initialConfig.wizardId ?? null,
+        wizardData: initialConfig.wizardData ?? {},
+        stepErrors: {},
+        isValidating: false,
+        _stepValidators: {},
+
+        get activeStepErrors() {
+          return this.activeStepId !== null ? (this.stepErrors[this.activeStepId] ?? []) : []
+        },
+
+        _dispatchChangeEvent() {
+          if (!this.wizardId || this.activeStepId === null) {
+            return
+          }
+
+          window.dispatchEvent(
+            new CustomEvent(`hux-wizard:${this.wizardId}:change`, {
+              detail: {
+                wizardId: this.wizardId,
+                stepId: this.activeStepId,
+                stepIndex: this.activeStepIndex,
+                totalSteps: this.stepItems.length,
+              },
+            }),
+          )
+        },
+
+        async _runStepValidator(stepId) {
+          const validator = this._stepValidators[stepId]
+
+          if (typeof validator !== 'function') {
+            return []
+          }
+
+          const validatorResult = await validator(this.wizardData)
+
+          if (validatorResult === true) {
+            return []
+          }
+
+          if (Array.isArray(validatorResult)) {
+            return validatorResult.filter((error) => typeof error === 'string' && error)
+          }
+
+          return typeof validatorResult === 'string' && validatorResult
+            ? [validatorResult]
+            : ['Validation failed']
+        },
+
+        async _validateCurrentStep() {
+          if (!this.activeStepId) {
+            return true
+          }
+
+          this.isValidating = true
+
+          try {
+            const validationErrors = await this._runStepValidator(this.activeStepId)
+
+            if (validationErrors.length === 0) {
+              this.stepErrors[this.activeStepId] = null
+
+              return true
+            }
+
+            this.stepErrors[this.activeStepId] = validationErrors
+
+            const failedEventName = this.wizardId
+              ? `hux-wizard:${this.wizardId}:validation-failed`
+              : 'hux-wizard:validation-failed'
+
+            this.$dispatch(failedEventName, {
+              wizardId: this.wizardId,
+              stepId: this.activeStepId,
+              stepIndex: this.activeStepIndex,
+              errorMessages: validationErrors,
+            })
+
+            return false
+          } catch (validationError) {
+            console.error('[huxWizard] Validator threw an unexpected error', validationError)
+
+            this.stepErrors[this.activeStepId] = ['An unexpected error occurred']
+
+            return false
+          } finally {
+            this.isValidating = false
+          }
+        },
+
+        goToStep(stepId) {
+          const targetIndex = this.findStepIndex(stepId)
+
+          if (targetIndex === -1 || targetIndex === this.activeStepIndex) {
+            return
+          }
+
+          if (targetIndex > this.activeStepIndex) {
+            return
+          }
+
+          this.activeStepId = stepId
+
+          if (this.wizardId) {
+            this._dispatchChangeEvent()
+          }
+        },
+
+        async advanceStep() {
+          if (this.isLastStep || this.isValidating) {
+            return
+          }
+
+          const stepIsValid = await this._validateCurrentStep()
+
+          if (!stepIsValid) {
+            return
+          }
+
+          const nextStepId = this.stepItems[this.activeStepIndex + 1].id
+
+          this.activeStepId = nextStepId
+
+          if (this.wizardId) {
+            this._dispatchChangeEvent()
+          }
+        },
+
+        async submitWizard() {
+          if (this.isValidating) {
+            return
+          }
+
+          const stepIsValid = await this._validateCurrentStep()
+
+          if (!stepIsValid) {
+            return
+          }
+
+          const submitEventName = this.wizardId
+            ? `hux-wizard:${this.wizardId}:submit`
+            : 'hux-wizard:submit'
+
+          this.$dispatch(submitEventName, {
+            wizardId: this.wizardId,
+            wizardData: this.wizardData,
+          })
+        },
+
+        clearStepError(stepId = null) {
+          const targetStepId = stepId ?? this.activeStepId
+
+          if (targetStepId && targetStepId in this.stepErrors) {
+            this.stepErrors[targetStepId] = null
+          }
+        },
+
+        init() {
+          this._stepValidators =
+            initialConfig.stepValidators !== null &&
+            typeof initialConfig.stepValidators === 'object' &&
+            !Array.isArray(initialConfig.stepValidators)
+              ? initialConfig.stepValidators
+              : {}
+
+          this.stepErrors = Object.fromEntries(
+            this.stepItems.map((stepItem) => [stepItem.id, null]),
+          )
+
+          if (this.wizardId && this.activeStepId !== null) {
+            this.$nextTick(() => this._dispatchChangeEvent())
+          }
+        },
+      }
+
+      const stepperInit = stepperBase.init
+      const wizardInit = wizardLayer.init
+
+      const composed = {}
+      Object.defineProperties(composed, Object.getOwnPropertyDescriptors(stepperBase))
+      Object.defineProperties(composed, Object.getOwnPropertyDescriptors(wizardLayer))
+
+      composed.init = function () {
+        stepperInit.call(this)
+        wizardInit.call(this)
+      }
+
+      return composed
+    })
   })
 </script>
 

@@ -1,0 +1,267 @@
+---
+slug: wizard
+title: Wizard
+description: Build accessible multi-step form flows with huxWizard for Alpine.js, including per-step validation guards, error state, guarded forward navigation, and a submit event with aggregated form data.
+terms:
+  - wizard
+  - multi-step-form
+  - form-validation
+  - stepper
+  - alpinejs
+  - checkout
+  - accessibility
+pubDate: 2026-06-30
+modDate: 2026-07-03
+---
+
+import Demo from '../../components/demos/Wizard.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+<Demo />
+
+# Alpine.js {frontmatter.title}
+
+`huxWizard` manages multi-step form flows with guarded forward navigation. Each step can declare a synchronous or asynchronous validator that must pass before the user can advance. Going backward never requires validation. Use it anywhere a linear, validated progression is needed — checkout flows, onboarding, multi-page forms.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## Runtime Constraints
+
+No special browser or runtime constraints beyond Alpine.js initialization. Async validators require a browsing context that supports `Promise`.
+
+## API
+
+### `huxWizard(config)`
+
+Returns an Alpine data object with:
+
+- `activeStepId: string | null`
+- `stepItems: Array<{ label: string, id: string }>`
+- `wizardId: string | null`
+- `wizardData: object`
+- `stepErrors: Record<string, string[] | null>`
+- `isValidating: boolean`
+- `activeStepIndex: number`
+- `isFirstStep: boolean`
+- `isLastStep: boolean`
+- `activeStepErrors: string[]`
+- `goToStep(stepId: string): void`
+- `goToPreviousStep(): void`
+- `advanceStep(): Promise<void>`
+- `submitWizard(): Promise<void>`
+- `clearStepError(stepId?: string): void`
+- `isStepComplete(stepId: string): boolean`
+- `isStepCurrent(stepId: string): boolean`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `stepItems: Array<{ label: string, id: string }>` (default: `[]`)
+- `activeStep: string` (optional initial active step id)
+- `wizardId: string` (optional; enables `hux-wizard:{wizardId}:change` and `hux-wizard:{wizardId}:submit` events)
+- `wizardData: object` (optional initial form data shape; default `{}`)
+- `stepValidators: Record<string, (wizardData: object) => true | string | string[] | Promise<true | string | string[]>>` (optional; return `true` to pass, a string or array of strings to fail with error messages)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxWizard({
+    wizardId: 'checkout',
+    wizardData: { fullName: '', emailAddress: '' },
+    stepItems: [
+      { label: 'Contact', id: 'contact' },
+      { label: 'Shipping', id: 'shipping' },
+      { label: 'Review', id: 'review' }
+    ],
+    stepValidators: {
+      contact: (data) => {
+        if (!data.fullName.trim()) return 'Full name is required'
+        if (!data.emailAddress.includes('@')) return 'A valid email address is required'
+        return true
+      }
+    }
+  })"
+>
+  <ol aria-label="Checkout steps">
+    <template x-for="(stepItem, stepIndex) in stepItems" x-bind:key="stepItem.id">
+      <li>
+        <button
+          type="button"
+          x-bind:id="`step-${stepItem.id}`"
+          x-bind:aria-controls="`step-panel-${stepItem.id}`"
+          x-bind:aria-current="isStepCurrent(stepItem.id) ? 'step' : null"
+          x-bind:aria-label="`Step ${stepIndex + 1} of ${stepItems.length}: ${stepItem.label}`"
+          x-bind:aria-describedby="`step-status-${stepItem.id}`"
+          x-bind:disabled="!isStepComplete(stepItem.id) && !isStepCurrent(stepItem.id)"
+          x-on:click="goToStep(stepItem.id)"
+          x-text="stepItem.label"
+        ></button>
+        <span
+          x-bind:id="`step-status-${stepItem.id}`"
+          x-text="isStepCurrent(stepItem.id) ? 'Current' : isStepComplete(stepItem.id) ? 'Completed' : 'Not completed'"
+        ></span>
+      </li>
+    </template>
+  </ol>
+
+  <section
+    id="step-panel-contact"
+    role="region"
+    aria-labelledby="step-contact"
+    aria-live="polite"
+    x-show="isStepCurrent('contact')"
+    x-cloak
+  >
+    <label for="full-name">Full name</label>
+    <input id="full-name" type="text" x-model="wizardData.fullName" x-on:input="clearStepError()" />
+  </section>
+
+  <ul role="alert" aria-live="assertive" x-show="activeStepErrors.length" x-cloak>
+    <template x-for="errorMessage in activeStepErrors">
+      <li x-text="errorMessage"></li>
+    </template>
+  </ul>
+
+  <button type="button" x-bind:disabled="isFirstStep" x-on:click="goToPreviousStep()">
+    Previous step
+  </button>
+
+  <button type="button" x-show="!isLastStep" x-cloak x-bind:disabled="isValidating" x-on:click="advanceStep()">
+    <span x-text="isValidating ? 'Validating...' : 'Next step'">Next step</span>
+  </button>
+
+  <button type="button" x-show="isLastStep" x-cloak x-bind:disabled="isValidating" x-on:click="submitWizard()">
+    <span x-text="isValidating ? 'Submitting...' : 'Submit'">Submit</span>
+  </button>
+</div>
+```
+
+## Common Usage Patterns
+
+### Async Validator
+
+Validators can be asynchronous — `isValidating` is set to `true` while the validator runs, which you can bind to `disabled` on the advance button.
+
+```js
+huxWizard({
+  wizardId: 'signup',
+  wizardData: { emailAddress: '' },
+  stepItems: [{ label: 'Email', id: 'email' }],
+  stepValidators: {
+    email: async (data) => {
+      const response = await fetch(`/api/check-email?email=${encodeURIComponent(data.emailAddress)}`)
+      const { available } = await response.json()
+      return available ? true : ['This email address is already registered']
+    }
+  }
+})
+```
+
+### Clear Errors on Input
+
+Call `clearStepError()` on `x-on:input` to remove all error messages as soon as the user starts correcting a field.
+
+```html
+<input type="text" x-model="wizardData.fullName" x-on:input="clearStepError()" />
+```
+
+Pass a step id to clear the error for a specific step instead of the active one.
+
+```html
+<input type="text" x-model="wizardData.fullName" x-on:input="clearStepError('contact')" />
+```
+
+### Handle the Submit Event
+
+Listen for `hux-wizard:{wizardId}:submit` on any ancestor element. The `wizardData` snapshot is included in the event detail.
+
+```html
+<div
+  x-data="{ orderSubmitted: false }"
+  x-on:hux-wizard:checkout:submit="orderSubmitted = true; submitOrder($event.detail.wizardData)"
+>
+  <div x-data="huxWizard({ wizardId: 'checkout', ... })">
+    ...
+  </div>
+</div>
+```
+
+From plain JavaScript:
+
+```js
+window.addEventListener('hux-wizard:checkout:submit', (event) => {
+  const { wizardId, wizardData } = event.detail
+  submitOrder(wizardData)
+})
+```
+
+### Subscribe to Step Changes
+
+Use `wizardId` to receive `change` events whenever the active step updates, including on initialization.
+
+```js
+window.addEventListener('hux-wizard:checkout:change', (event) => {
+  const { stepId, stepIndex, totalSteps } = event.detail
+  console.log(`Step ${stepIndex + 1} of ${totalSteps}: ${stepId}`)
+})
+```
+
+### React to Validation Failures
+
+```html
+<div
+  x-on:hux-wizard:checkout:validation-failed="showAnalyticsEvent($event.detail)"
+>
+  <div x-data="huxWizard({ wizardId: 'checkout', ... })">...</div>
+</div>
+```
+
+## Behavior Contract
+
+- Invalid `stepItems` entries (missing `label` or `id`) are filtered during initialization.
+- If `activeStep` is missing or invalid, the active step falls back to the first valid step id.
+- `goToStep()` only navigates to steps with a lower index than the current step. Attempting to skip forward is a no-op.
+- `goToPreviousStep()` never runs a validator — going back is always allowed.
+- `advanceStep()` runs the current step's validator before advancing. If validation fails, the step does not change.
+- `submitWizard()` runs the current step's validator before dispatching the submit event. If validation fails, no event is dispatched.
+- `isValidating` is `true` for the full duration of an async validator. Use it to disable navigation buttons during validation.
+- `activeStepErrors` reflects the array of error messages for the current step, or an empty array if the step has no errors.
+- `clearStepError()` with no argument clears all errors for the active step. Passing a step id clears that specific step's errors.
+- `isStepComplete()` returns `true` for all steps with an index lower than the active step.
+- When `wizardId` is set, `hux-wizard:{wizardId}:change` fires on initialization (deferred via `$nextTick`) and on every successful step change.
+- When `wizardId` is set, `hux-wizard:{wizardId}:validation-failed` fires when a validator returns a failure.
+- `hux-wizard:{wizardId}:submit` and `hux-wizard:{wizardId}:validation-failed` are dispatched from the wizard element and bubble up the DOM. Listen on any ancestor element or on `window`.
+
+## Error Handling
+
+- If a validator throws an unexpected error, `stepErrors` for the current step is set to `['An unexpected error occurred']` and the error is logged to `console.error`.
+- If `stepValidators` is not a plain object, it is treated as an empty map — all steps pass without validation.
+- Steps with no entry in `stepValidators` always pass and advance immediately.
+- Invalid `stepItems` entries are ignored without throwing.
+- `goToStep()` with an unknown step id is a no-op.
+- Empty `stepItems` initializes with `activeStepId = null`, `isFirstStep = true`, and `isLastStep = true`.
+
+## Accessibility Notes
+
+- Use semantic step navigation with `<ol>` and clear step labels.
+- Use `aria-current="step"` on the active step trigger.
+- Expose explicit step state text (for example, `Current`, `Completed`, `Not completed`) via `aria-describedby` so state is not communicated by color alone.
+- Associate each step trigger with its panel using `aria-controls`, and label each panel using `aria-labelledby`.
+- Disable step triggers that are not yet reachable so keyboard users cannot navigate to future steps they have not unlocked.
+- Keep step triggers as `button type="button"` with visible text labels.
+- Wrap step panel content in `<section role="region" aria-live="polite">` so assistive technology announces content changes.
+- Use `role="alert"` and `aria-live="assertive"` on the error list element so all validation errors are announced immediately.
+
+## Notes
+
+- `change` event payload: `{ wizardId: string, stepId: string, stepIndex: number, totalSteps: number }`.
+- `validation-failed` event payload: `{ wizardId: string, stepId: string, stepIndex: number, errorMessages: string[] }`.
+- `submit` event payload: `{ wizardId: string, wizardData: object }`.
+- `wizardData` is a shared object across all steps. Initialize it with the complete shape your validators and panels need, and bind individual fields with `x-model="wizardData.fieldName"`.
+- `huxWizard` builds on `huxStepper` internally — always include both registrations when copying. Use `huxStepper` alone when you need step navigation without validation gating.
+
+</div>
