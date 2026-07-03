@@ -49,6 +49,7 @@ Returns an Alpine data object with:
 - `activeStepErrors: string[]`
 - `goToStep(stepId: string): void`
 - `goToPreviousStep(): void`
+- `goToNextStep(): Promise<void>` (alias for `advanceStep()`)
 - `advanceStep(): Promise<void>`
 - `submitWizard(): Promise<void>`
 - `clearStepError(stepId?: string): void`
@@ -78,9 +79,9 @@ _Internal helper methods are private implementation details and are not part of 
       { label: 'Review', id: 'review' }
     ],
     stepValidators: {
-      contact: (data) => {
-        if (!data.fullName.trim()) return 'Full name is required'
-        if (!data.emailAddress.includes('@')) return 'A valid email address is required'
+      contact: (formData) => {
+        if (!formData.fullName.trim()) return 'Full name is required'
+        if (!formData.emailAddress.includes('@')) return 'A valid email address is required'
         return true
       }
     }
@@ -130,11 +131,23 @@ _Internal helper methods are private implementation details and are not part of 
     Previous step
   </button>
 
-  <button type="button" x-show="!isLastStep" x-cloak x-bind:disabled="isValidating" x-on:click="advanceStep()">
+  <button
+    type="button"
+    x-show="!isLastStep"
+    x-cloak
+    x-bind:disabled="isValidating"
+    x-on:click="advanceStep()"
+  >
     <span x-text="isValidating ? 'Validating...' : 'Next step'">Next step</span>
   </button>
 
-  <button type="button" x-show="isLastStep" x-cloak x-bind:disabled="isValidating" x-on:click="submitWizard()">
+  <button
+    type="button"
+    x-show="isLastStep"
+    x-cloak
+    x-bind:disabled="isValidating"
+    x-on:click="submitWizard()"
+  >
     <span x-text="isValidating ? 'Submitting...' : 'Submit'">Submit</span>
   </button>
 </div>
@@ -152,12 +165,14 @@ huxWizard({
   wizardData: { emailAddress: '' },
   stepItems: [{ label: 'Email', id: 'email' }],
   stepValidators: {
-    email: async (data) => {
-      const response = await fetch(`/api/check-email?email=${encodeURIComponent(data.emailAddress)}`)
-      const { available } = await response.json()
-      return available ? true : ['This email address is already registered']
-    }
-  }
+    email: async (formData) => {
+      const checkResponse = await fetch(
+        `/api/check-email?email=${encodeURIComponent(formData.emailAddress)}`,
+      )
+      const { available: emailIsAvailable } = await checkResponse.json()
+      return emailIsAvailable ? true : ['This email address is already registered']
+    },
+  },
 })
 ```
 
@@ -184,9 +199,7 @@ Listen for `hux-wizard:{wizardId}:submit` on any ancestor element. The `wizardDa
   x-data="{ orderSubmitted: false }"
   x-on:hux-wizard:checkout:submit="orderSubmitted = true; submitOrder($event.detail.wizardData)"
 >
-  <div x-data="huxWizard({ wizardId: 'checkout', ... })">
-    ...
-  </div>
+  <div x-data="huxWizard({ wizardId: 'checkout', ... })">...</div>
 </div>
 ```
 
@@ -213,9 +226,7 @@ window.addEventListener('hux-wizard:checkout:change', (event) => {
 ### React to Validation Failures
 
 ```html
-<div
-  x-on:hux-wizard:checkout:validation-failed="showAnalyticsEvent($event.detail)"
->
+<div x-on:hux-wizard:checkout:validation-failed="showAnalyticsEvent($event.detail)">
   <div x-data="huxWizard({ wizardId: 'checkout', ... })">...</div>
 </div>
 ```
@@ -225,9 +236,10 @@ window.addEventListener('hux-wizard:checkout:change', (event) => {
 - Invalid `stepItems` entries (missing `label` or `id`) are filtered during initialization.
 - If `activeStep` is missing or invalid, the active step falls back to the first valid step id.
 - `goToStep()` only navigates to steps with a lower index than the current step. Attempting to skip forward is a no-op.
-- `goToPreviousStep()` never runs a validator — going back is always allowed.
-- `advanceStep()` runs the current step's validator before advancing. If validation fails, the step does not change.
-- `submitWizard()` runs the current step's validator before dispatching the submit event. If validation fails, no event is dispatched.
+- `goToPreviousStep()` never runs a validator — going back is always allowed, including while a validator triggered by `advanceStep()`/`submitWizard()` is still pending.
+- `goToNextStep()` is an alias for `advanceStep()` — it also runs the current step's validator before advancing.
+- `advanceStep()` runs the current step's validator before advancing. If validation fails, the step does not change. If the active step changes (for example via `goToStep()`/`goToPreviousStep()`) while the validator is still pending, the stale result is discarded and no navigation occurs.
+- `submitWizard()` runs the current step's validator before dispatching the submit event. If validation fails, no event is dispatched. If the active step changes while the validator is still pending, the stale result is discarded and no event is dispatched.
 - `isValidating` is `true` for the full duration of an async validator. Use it to disable navigation buttons during validation.
 - `activeStepErrors` reflects the array of error messages for the current step, or an empty array if the step has no errors.
 - `clearStepError()` with no argument clears all errors for the active step. Passing a step id clears that specific step's errors.
@@ -263,5 +275,6 @@ window.addEventListener('hux-wizard:checkout:change', (event) => {
 - `submit` event payload: `{ wizardId: string, wizardData: object }`.
 - `wizardData` is a shared object across all steps. Initialize it with the complete shape your validators and panels need, and bind individual fields with `x-model="wizardData.fieldName"`.
 - `huxWizard` builds on `huxStepper` internally — always include both registrations when copying. Use `huxStepper` alone when you need step navigation without validation gating.
+- `huxWizard` does not expose `huxStepper`'s `stepperId`, `stepsAreViewable`, `completedStepIds`, or `markStepComplete()` — step completion is always derived from step index, not from a separately tracked "visited" set.
 
 </div>

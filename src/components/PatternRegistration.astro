@@ -1447,9 +1447,7 @@
 
       init() {
         const stepItems = Array.isArray(initialConfig.stepItems) ? initialConfig.stepItems : []
-        this.stepItems = stepItems.filter(
-          (stepItem) => stepItem?.label && stepItem?.id,
-        )
+        this.stepItems = stepItems.filter((stepItem) => stepItem?.label && stepItem?.id)
 
         const validStepIds = this.stepItems.map((stepItem) => stepItem.id)
 
@@ -1457,9 +1455,7 @@
           this.activeStepId = this.stepItems.length > 0 ? this.stepItems[0].id : null
         }
 
-        if (this.stepperId) {
-          this.$nextTick(() => this._dispatchChangeEvent())
-        }
+        this.$nextTick(() => this._dispatchChangeEvent())
       },
 
       get activeStepIndex() {
@@ -1489,7 +1485,7 @@
       },
 
       _dispatchChangeEvent() {
-        if (this.activeStepId === null) {
+        if (!this.stepperId || this.activeStepId === null) {
           return
         }
 
@@ -1514,9 +1510,7 @@
 
         this.activeStepId = stepId
 
-        if (this.stepperId) {
-          this._dispatchChangeEvent()
-        }
+        this._dispatchChangeEvent()
       },
 
       goToPreviousStep() {
@@ -1846,6 +1840,8 @@
         activeStep: initialConfig.activeStep,
       })
 
+      const stepperGoToStep = stepperBase.goToStep
+
       const wizardLayer = {
         wizardId: initialConfig.wizardId ?? null,
         wizardData: initialConfig.wizardData ?? {},
@@ -1857,13 +1853,19 @@
           return this.activeStepId !== null ? (this.stepErrors[this.activeStepId] ?? []) : []
         },
 
+        _resolveWizardEventName(eventSuffix) {
+          return this.wizardId
+            ? `hux-wizard:${this.wizardId}:${eventSuffix}`
+            : `hux-wizard:${eventSuffix}`
+        },
+
         _dispatchChangeEvent() {
           if (!this.wizardId || this.activeStepId === null) {
             return
           }
 
           window.dispatchEvent(
-            new CustomEvent(`hux-wizard:${this.wizardId}:change`, {
+            new CustomEvent(this._resolveWizardEventName('change'), {
               detail: {
                 wizardId: this.wizardId,
                 stepId: this.activeStepId,
@@ -1875,20 +1877,22 @@
         },
 
         async _runStepValidator(stepId) {
-          const validator = this._stepValidators[stepId]
+          const stepValidator = this._stepValidators[stepId]
 
-          if (typeof validator !== 'function') {
+          if (typeof stepValidator !== 'function') {
             return []
           }
 
-          const validatorResult = await validator(this.wizardData)
+          const validatorResult = await stepValidator(this.wizardData)
 
           if (validatorResult === true) {
             return []
           }
 
           if (Array.isArray(validatorResult)) {
-            return validatorResult.filter((error) => typeof error === 'string' && error)
+            return validatorResult.filter(
+              (errorMessage) => typeof errorMessage === 'string' && errorMessage,
+            )
           }
 
           return typeof validatorResult === 'string' && validatorResult
@@ -1897,31 +1901,29 @@
         },
 
         async _validateCurrentStep() {
-          if (!this.activeStepId) {
+          const stepBeingValidated = this.activeStepId
+
+          if (!stepBeingValidated) {
             return true
           }
 
           this.isValidating = true
 
           try {
-            const validationErrors = await this._runStepValidator(this.activeStepId)
+            const validationErrors = await this._runStepValidator(stepBeingValidated)
 
             if (validationErrors.length === 0) {
-              this.stepErrors[this.activeStepId] = null
+              this.stepErrors[stepBeingValidated] = null
 
               return true
             }
 
-            this.stepErrors[this.activeStepId] = validationErrors
+            this.stepErrors[stepBeingValidated] = validationErrors
 
-            const failedEventName = this.wizardId
-              ? `hux-wizard:${this.wizardId}:validation-failed`
-              : 'hux-wizard:validation-failed'
-
-            this.$dispatch(failedEventName, {
+            this.$dispatch(this._resolveWizardEventName('validation-failed'), {
               wizardId: this.wizardId,
-              stepId: this.activeStepId,
-              stepIndex: this.activeStepIndex,
+              stepId: stepBeingValidated,
+              stepIndex: this.findStepIndex(stepBeingValidated),
               errorMessages: validationErrors,
             })
 
@@ -1929,7 +1931,7 @@
           } catch (validationError) {
             console.error('[huxWizard] Validator threw an unexpected error', validationError)
 
-            this.stepErrors[this.activeStepId] = ['An unexpected error occurred']
+            this.stepErrors[stepBeingValidated] = ['An unexpected error occurred']
 
             return false
           } finally {
@@ -1940,19 +1942,15 @@
         goToStep(stepId) {
           const targetIndex = this.findStepIndex(stepId)
 
-          if (targetIndex === -1 || targetIndex === this.activeStepIndex) {
+          if (targetIndex === -1 || targetIndex > this.activeStepIndex) {
             return
           }
 
-          if (targetIndex > this.activeStepIndex) {
-            return
-          }
+          stepperGoToStep.call(this, stepId)
+        },
 
-          this.activeStepId = stepId
-
-          if (this.wizardId) {
-            this._dispatchChangeEvent()
-          }
+        goToNextStep() {
+          return this.advanceStep()
         },
 
         async advanceStep() {
@@ -1960,9 +1958,10 @@
             return
           }
 
+          const stepBeingAdvanced = this.activeStepId
           const stepIsValid = await this._validateCurrentStep()
 
-          if (!stepIsValid) {
+          if (!stepIsValid || this.activeStepId !== stepBeingAdvanced) {
             return
           }
 
@@ -1970,9 +1969,7 @@
 
           this.activeStepId = nextStepId
 
-          if (this.wizardId) {
-            this._dispatchChangeEvent()
-          }
+          this._dispatchChangeEvent()
         },
 
         async submitWizard() {
@@ -1980,17 +1977,14 @@
             return
           }
 
+          const stepBeingSubmitted = this.activeStepId
           const stepIsValid = await this._validateCurrentStep()
 
-          if (!stepIsValid) {
+          if (!stepIsValid || this.activeStepId !== stepBeingSubmitted) {
             return
           }
 
-          const submitEventName = this.wizardId
-            ? `hux-wizard:${this.wizardId}:submit`
-            : 'hux-wizard:submit'
-
-          this.$dispatch(submitEventName, {
+          this.$dispatch(this._resolveWizardEventName('submit'), {
             wizardId: this.wizardId,
             wizardData: this.wizardData,
           })
@@ -2016,25 +2010,30 @@
             this.stepItems.map((stepItem) => [stepItem.id, null]),
           )
 
-          if (this.wizardId && this.activeStepId !== null) {
-            this.$nextTick(() => this._dispatchChangeEvent())
-          }
+          this.$nextTick(() => this._dispatchChangeEvent())
         },
       }
 
       const stepperInit = stepperBase.init
       const wizardInit = wizardLayer.init
 
-      const composed = {}
-      Object.defineProperties(composed, Object.getOwnPropertyDescriptors(stepperBase))
-      Object.defineProperties(composed, Object.getOwnPropertyDescriptors(wizardLayer))
+      const stepperDescriptors = Object.getOwnPropertyDescriptors(stepperBase)
 
-      composed.init = function () {
+      delete stepperDescriptors.stepperId
+      delete stepperDescriptors.stepsAreViewable
+      delete stepperDescriptors.completedStepIds
+      delete stepperDescriptors.markStepComplete
+
+      const composedWizard = {}
+      Object.defineProperties(composedWizard, stepperDescriptors)
+      Object.defineProperties(composedWizard, Object.getOwnPropertyDescriptors(wizardLayer))
+
+      composedWizard.init = function () {
         stepperInit.call(this)
         wizardInit.call(this)
       }
 
-      return composed
+      return composedWizard
     })
   })
 </script>

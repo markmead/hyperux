@@ -16,9 +16,9 @@
         wizardCompleted: false,
         completedData: null,
         init() {
-          this.$el.addEventListener('hux-wizard:checkout:submit', (e) => {
+          this.$el.addEventListener('hux-wizard:checkout:submit', (submitEvent) => {
             this.wizardCompleted = true
-            this.completedData = e.detail.wizardData
+            this.completedData = submitEvent.detail.wizardData
           })
         }
       }"
@@ -38,17 +38,18 @@
             { label: 'Review', id: 'review' }
           ],
           stepValidators: {
-            contact: (data) => {
-              const errors = []
-              if (!data.fullName.trim()) errors.push('Full name is required')
-              if (!data.emailAddress.trim()) errors.push('Email address is required')
-              else if (!data.emailAddress.includes('@')) errors.push('A valid email address is required')
-              return errors.length ? errors : true
+            contact: (formData) => {
+              const errorMessages = []
+              if (!formData.fullName.trim()) errorMessages.push('Full name is required')
+              if (!formData.emailAddress.trim()) errorMessages.push('Email address is required')
+              else if (!formData.emailAddress.includes('@'))
+                errorMessages.push('A valid email address is required')
+              return errorMessages.length ? errorMessages : true
             },
-            shipping: (data) => {
-              const errors = []
-              if (!data.streetAddress.trim()) errors.push('Street address is required')
-              return errors.length ? errors : true
+            shipping: (formData) => {
+              const errorMessages = []
+              if (!formData.streetAddress.trim()) errorMessages.push('Street address is required')
+              return errorMessages.length ? errorMessages : true
             },
           }
         })"
@@ -81,8 +82,7 @@
                     : isStepComplete(stepItem.id)
                       ? 'border-emerald-600 bg-emerald-600 text-white'
                       : 'border-gray-300 bg-white text-gray-400'"
-                  x-text="stepIndex + 1"
-                ></span>
+                  x-text="stepIndex + 1"></span>
 
                 <span x-text="stepItem.label"></span>
 
