@@ -2,6 +2,7 @@ document.addEventListener('alpine:init', () => {
   Alpine.data('huxDropdown', (initialConfig = {}) => ({
     isOpen: false,
     focusedIndex: -1,
+    hoveredIndex: -1,
     menuItems: [],
     triggerId: null,
     menuId: null,
@@ -79,6 +80,7 @@ document.addEventListener('alpine:init', () => {
     closeMenu(restoreFocus = false) {
       this.isOpen = false
       this.focusedIndex = -1
+      this.hoveredIndex = -1
 
       if (restoreFocus) {
         this.$nextTick(() => this.$refs[this.triggerRefName]?.focus())
@@ -93,6 +95,7 @@ document.addEventListener('alpine:init', () => {
       }
 
       this.openMenu()
+      this.focusFirstItem()
     },
 
     focusItem(itemIndex) {
