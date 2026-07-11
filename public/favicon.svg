@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="28" fill="#000000" />
+  <text
+    x="100"
+    y="146"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-family="ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif"
+    font-weight="800"
+    font-size="108"
+    letter-spacing="-2"
+  >UX</text>
+</svg>
