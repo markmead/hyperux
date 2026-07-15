@@ -59,6 +59,8 @@
           x-ref="comboboxListbox"
           x-bind:id="listboxId"
           role="listbox"
+          aria-label="Fruit options"
+          x-bind:aria-multiselectable="acceptMultiple ? 'true' : null"
           class="absolute z-10 mt-2 max-h-48 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-sm"
         >
           <template x-if="filteredOptionItems.length === 0">
@@ -71,6 +73,7 @@
           >
             <button
               type="button"
+              tabindex="-1"
               x-bind:id="optionItemId(sourceIndex)"
               x-bind:aria-selected="isOptionSelected(optionItem).toString()"
               x-bind:class="{
