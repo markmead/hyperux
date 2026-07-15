@@ -37,12 +37,15 @@
         >
           <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Display name</p>
 
+          <p class="sr-only" aria-live="polite" x-text="!isEditing ? inputValue : ''"></p>
+
           <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
             <p class="text-base font-semibold text-gray-900" x-text="inputValue"></p>
 
             <button
               type="button"
               x-ref="displayNameTrigger"
+              aria-label="Edit display name"
               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
               x-on:click="enterEditMode()"
             >
@@ -103,12 +106,15 @@
         >
           <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Headline</p>
 
+          <p class="sr-only" aria-live="polite" x-text="!isEditing ? inputValue : ''"></p>
+
           <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
             <p class="text-sm text-gray-900" x-text="inputValue"></p>
 
             <button
               type="button"
               x-ref="headlineTrigger"
+              aria-label="Edit headline"
               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
               x-on:click="enterEditMode()"
             >
@@ -165,12 +171,15 @@
         >
           <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Location</p>
 
+          <p class="sr-only" aria-live="polite" x-text="!isEditing ? inputValue : ''"></p>
+
           <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
             <p class="text-sm text-gray-900" x-text="inputValue"></p>
 
             <button
               type="button"
               x-ref="locationTrigger"
+              aria-label="Edit location"
               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
               x-on:click="enterEditMode()"
             >
@@ -227,12 +236,15 @@
         >
           <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Website</p>
 
+          <p class="sr-only" aria-live="polite" x-text="!isEditing ? inputValue : ''"></p>
+
           <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
             <p class="text-sm text-gray-900" x-text="inputValue"></p>
 
             <button
               type="button"
               x-ref="websiteTrigger"
+              aria-label="Edit website"
               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
               x-on:click="enterEditMode()"
             >
@@ -290,12 +302,15 @@
         >
           <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Username</p>
 
+          <p class="sr-only" aria-live="polite" x-text="!isEditing ? inputValue : ''"></p>
+
           <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
             <p class="text-sm text-gray-900" x-text="inputValue"></p>
 
             <button
               type="button"
               x-ref="usernameTrigger"
+              aria-label="Edit username"
               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
               x-on:click="enterEditMode()"
             >
@@ -353,12 +368,15 @@
         >
           <p class="text-xs font-semibold tracking-wide text-gray-500 uppercase">Pronouns</p>
 
+          <p class="sr-only" aria-live="polite" x-text="!isEditing ? inputValue : ''"></p>
+
           <div x-cloak x-show="!isEditing" class="mt-2 flex flex-wrap items-center gap-3">
             <p class="text-sm text-gray-900" x-text="inputValue"></p>
 
             <button
               type="button"
               x-ref="pronounsTrigger"
+              aria-label="Edit pronouns"
               class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium hover:bg-gray-100"
               x-on:click="enterEditMode()"
             >
