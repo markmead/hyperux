@@ -82,7 +82,7 @@
               aria-modal="true"
               class="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-4 shadow-xl"
             >
-              <h3 x-bind:id="dialogTitleId || null" class="sr-only">Command palette</h3>
+              <h2 x-bind:id="dialogTitleId || null" class="sr-only">Command palette</h2>
 
               <div
                 x-data="{
@@ -139,6 +139,13 @@
                 <label x-bind:for="comboboxInputId" class="sr-only">
                   Search links and actions
                 </label>
+
+                <p
+                  class="sr-only"
+                  aria-live="polite"
+                  x-text="isOpen && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') ? `${filteredOptionItems.length} ${filteredOptionItems.length === 1 ? 'result' : 'results'} available` : ''"
+                >
+                </p>
 
                 <div class="relative">
                   <input

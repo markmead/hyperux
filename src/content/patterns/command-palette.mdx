@@ -10,7 +10,7 @@ terms:
   - dialog
   - combobox
 pubDate: 2026-04-20
-modDate: 2026-06-09
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/CommandPalette.astro'
@@ -118,6 +118,8 @@ huxCommandPalette({
 - Keep the palette input as `role="combobox"` with proper `aria-expanded`, `aria-controls`, and `aria-activedescendant` wiring.
 - Provide a clear accessible name for the search input (visible label or sr-only label).
 - Keep result rows as `button type="button"` elements so keyboard users can trigger selection reliably.
+- Add a visually hidden `aria-live="polite"` region that reports the number of matching results as the query changes, so screen reader users know how many options are available.
+- Use an `h2` (visually hidden is fine) as the dialog title so the composed dialog has a heading in the outline.
 
 ## Notes
 
