@@ -66,11 +66,17 @@
         </template>
       </ol>
 
+      <p
+        class="sr-only"
+        aria-live="polite"
+        x-text="stepItems.length ? `Step ${activeStepIndex + 1} of ${stepItems.length}: ${stepItems[activeStepIndex]?.label ?? ''}` : ''"
+      >
+      </p>
+
       <section
         id="step-panel-contact"
         role="region"
         aria-labelledby="step-contact"
-        aria-live="polite"
         class="rounded-lg border border-gray-200 bg-white p-4"
         x-show="activeStepId === 'contact'"
         x-cloak
@@ -83,7 +89,6 @@
         id="step-panel-shipping"
         role="region"
         aria-labelledby="step-shipping"
-        aria-live="polite"
         class="rounded-lg border border-gray-200 bg-white p-4"
         x-show="activeStepId === 'shipping'"
         x-cloak
@@ -96,7 +101,6 @@
         id="step-panel-payment"
         role="region"
         aria-labelledby="step-payment"
-        aria-live="polite"
         class="rounded-lg border border-gray-200 bg-white p-4"
         x-show="activeStepId === 'payment'"
         x-cloak
