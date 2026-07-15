@@ -10,7 +10,7 @@ terms:
   - heading-navigation
   - documentation-navigation
 pubDate: 2026-04-20
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/ScrollSpy.astro'
@@ -77,7 +77,13 @@ _Internal helper methods are private implementation details and are not part of 
     </ul>
   </nav>
 
-  <div x-ref="tocContent" class="max-h-96 overflow-y-auto md:col-span-2">
+  <div
+    x-ref="tocContent"
+    tabindex="0"
+    role="region"
+    aria-label="Documentation content"
+    class="max-h-96 overflow-y-auto md:col-span-2"
+  >
     <h2 id="overview">Overview</h2>
     <p>...</p>
     <h3 id="details">Details</h3>
@@ -116,7 +122,12 @@ huxScrollSpy({
     </ul>
   </nav>
 
-  <article x-ref="articleContent" class="max-h-96 overflow-y-auto">
+  <article
+    x-ref="articleContent"
+    tabindex="0"
+    aria-label="Article content"
+    class="max-h-96 overflow-y-auto"
+  >
     <h2>Introduction</h2>
     <h3>Requirements</h3>
     <h2>Implementation</h2>
@@ -156,6 +167,7 @@ huxScrollSpy({
 - Set `aria-current="location"` on the active TOC control to indicate it represents the current section — this applies whether the control is a `button` (as in the default demo) or an `a` link to a heading anchor.
 - Keep the active item visually distinct with strong contrast and a non-color-only state change.
 - Preserve a meaningful heading hierarchy in the scroll container so indentation and section order remain understandable.
+- Make the scroll container keyboard operable: give it `tabindex="0"` and an accessible name (for example `role="region"` with `aria-label`) so keyboard-only users can focus the panel and scroll it with arrow keys, not only jump via the TOC.
 
 ## Notes
 
