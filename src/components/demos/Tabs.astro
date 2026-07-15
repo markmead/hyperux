@@ -102,7 +102,11 @@
         ]
       })"
     >
-      <div role="tablist" aria-label="Account settings" class="flex gap-1 border-b border-gray-200">
+      <div
+        role="tablist"
+        aria-label="Account settings (decoupled panels)"
+        class="flex gap-1 border-b border-gray-200"
+      >
         <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
           <button
             x-bind:id="`decoupled-tab-${tabItem.id}`"

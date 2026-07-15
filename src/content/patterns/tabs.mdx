@@ -10,7 +10,7 @@ terms:
   - roving-tabindex
   - hash-routing
 pubDate: 2026-04-20
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/Tabs.astro'
@@ -220,6 +220,8 @@ Use `id` on `huxTabs` and `huxTabPanel` on each panel to place tablist and panel
 - Keep roving tabindex (`0` for active tab, `-1` for inactive tabs) so keyboard focus order is predictable.
 - Wire arrow keys plus Home/End for expected tab keyboard behavior.
 - Keep tab controls as `button type="button"` and ensure visible active-state contrast.
+- Give each `tablist` a distinct `aria-label` when more than one tab group appears on a page, so screen reader users can tell them apart.
+- These helpers use automatic activation (arrow keys move focus and select together), which is appropriate because switching panels here only toggles `x-show`. If a panel does expensive work on activation, switch to manual activation — move focus on arrow keys and call `selectTab()` on Enter or Space.
 
 ## Notes
 
