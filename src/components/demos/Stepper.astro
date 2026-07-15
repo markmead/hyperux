@@ -31,7 +31,7 @@
               type="button"
               x-bind:id="`step-${stepItem.id}`"
               x-bind:aria-controls="`step-panel-${stepItem.id}`"
-              class="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+              class="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm font-medium transition-colors"
               x-bind:class="isStepCurrent(stepItem.id)
                 ? 'border-blue-600 bg-blue-50 text-blue-800'
                 : isStepComplete(stepItem.id)
