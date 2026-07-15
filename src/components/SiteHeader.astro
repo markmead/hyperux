@@ -171,7 +171,7 @@ const paletteItemsJson = JSON.stringify(paletteItems)
                       aria-autocomplete="list"
                       aria-haspopup="listbox"
                       autocomplete="off"
-                      class="w-full rounded-md border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      class="w-full rounded-md border border-gray-300 px-4 py-3"
                       x-on:input="onInputChange()"
                       x-on:keydown.down.prevent="if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
                       x-on:keydown.up.prevent="focusPreviousOptionItem()"
