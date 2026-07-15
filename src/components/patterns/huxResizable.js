@@ -60,6 +60,36 @@ document.addEventListener('alpine:init', () => {
       })
     },
 
+    get resolvedMaxWidth() {
+      const candidateWidths = []
+
+      if (this.maxWidth !== null && this.maxWidth > 0) {
+        candidateWidths.push(this.maxWidth)
+      }
+
+      if (this.stopAtLastBreakpoint && this.breakpointItems.length > 0) {
+        const lastBreakpointWidth = this.breakpointItems[this.breakpointItems.length - 1].minWidth
+
+        if (lastBreakpointWidth > 0) {
+          candidateWidths.push(lastBreakpointWidth)
+        }
+      }
+
+      if (this.preventOverflow) {
+        const parentWidth = this.$refs.resizableContainer?.parentElement?.offsetWidth ?? null
+
+        if (parentWidth !== null && parentWidth > 0) {
+          candidateWidths.push(parentWidth)
+        }
+      }
+
+      if (candidateWidths.length === 0) {
+        return null
+      }
+
+      return Math.max(Math.min(...candidateWidths), this.minWidth)
+    },
+
     _updateBreakpoint() {
       if (this.breakpointItems.length === 0) {
         this.activeBreakpoint = null

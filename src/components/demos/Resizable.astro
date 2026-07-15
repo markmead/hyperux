@@ -43,6 +43,7 @@
           <button
             type="button"
             x-on:click="jumpToLabel(breakpointItem.label)"
+            x-bind:aria-pressed="(activeBreakpoint === breakpointItem.label).toString()"
             class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-wide uppercase transition-colors"
             x-bind:class="activeBreakpoint === breakpointItem.label
                   ? 'border-blue-500 bg-blue-500 text-white'
@@ -70,7 +71,7 @@
           aria-orientation="horizontal"
           x-bind:aria-valuenow="currentWidth"
           x-bind:aria-valuemin="minWidth"
-          x-bind:aria-valuemax="maxWidth"
+          x-bind:aria-valuemax="resolvedMaxWidth"
           x-bind:aria-valuetext="`${currentWidth}px, ${activeBreakpoint} breakpoint`"
           class="group absolute top-0 right-0 flex h-full w-11 cursor-col-resize items-center justify-end focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-inset"
           x-on:mousedown="startDrag($event)"
