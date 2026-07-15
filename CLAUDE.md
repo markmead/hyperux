@@ -98,6 +98,7 @@ All config options, public properties, public methods, internal properties, and 
 - Add `type="button"` to non-submit buttons
 - Use `aria-live="polite"` for status text (e.g. copy feedback)
 - Add `aria-label` to icon-only controls
+- Do not add focus-ring utilities to demo markup. Keyboard focus styling is applied site-wide by a single `:focus-visible` rule in `src/styles/global.css`. Because that global CSS is not part of a copied snippet, copied elements fall back to the browser's default focus outline until the consumer adds their own global focus style.
 - Update `modDate` whenever content meaningfully changes
 
 ### Accuracy
