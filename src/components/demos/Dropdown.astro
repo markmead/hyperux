@@ -92,6 +92,7 @@
         x-on:keydown.home.prevent="focusFirstItem()"
         x-on:keydown.end.prevent="focusLastItem()"
         x-on:keydown.tab="closeMenu()"
+        x-on:keydown="if (!$event.ctrlKey && !$event.metaKey && !$event.altKey && $event.key.length === 1 && $event.key !== ' ') focusByTypeahead($event.key)"
       >
         <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
           <div role="none">
