@@ -2,7 +2,7 @@
 
 **Behavior-first Alpine.js patterns you can copy, adapt, and ship.**
 
-Most component libraries hand you markup *and* an opinion about how it should
+Most component libraries hand you markup _and_ an opinion about how it should
 look. HyperUX only hands you the behavior — keyboard handling, focus
 management, ARIA state, event contracts — as a single `Alpine.data()`
 registration. Bring your own markup, your own classes, your own design
@@ -36,19 +36,19 @@ it however you like.
 
 ## Patterns
 
-| Pattern                    | What it does                                                     |
-| --------------------------- | ------------------------------------------------------------------ |
-| `huxCombobox`               | Filterable listbox, single or multi-select                       |
-| `huxCommandPalette`         | Command-palette dialog, composes `huxDialog` + `huxCombobox`     |
-| `huxCopy`                   | Clipboard copy via `data-hux-copy` attribute targets              |
-| `huxDialog`                 | Modal/dialog with optional persistence and seamless modes         |
-| `huxInlineEditor`           | Click-to-edit with commit/revert and focus management             |
-| `huxDropdown`                | Accessible dropdown menu with roving-tabindex keyboard navigation |
-| `huxResizable`               | Drag-to-resize container with breakpoint tracking                 |
-| `huxScrollSpy`               | TOC + scroll position tracking via `IntersectionObserver`         |
-| `huxStepper`                 | Multi-step stepper (foundation for a wizard pattern)               |
-| `huxInfiniteScroll`          | Sentinel watcher that fires `load-more`; fetching is up to you    |
-| `huxTabs` / `huxTabPanel`   | Tabs with roving tabindex, optional hash sync, decoupled panels   |
+| Pattern                   | What it does                                                      |
+| ------------------------- | ----------------------------------------------------------------- |
+| `huxCombobox`             | Filterable listbox, single or multi-select                        |
+| `huxCommandPalette`       | Command-palette dialog, composes `huxDialog` + `huxCombobox`      |
+| `huxCopy`                 | Clipboard copy via `data-hux-copy` attribute targets              |
+| `huxDialog`               | Modal/dialog with optional persistence and seamless modes         |
+| `huxInlineEditor`         | Click-to-edit with commit/revert and focus management             |
+| `huxDropdown`             | Accessible dropdown menu with roving-tabindex keyboard navigation |
+| `huxResizable`            | Drag-to-resize container with breakpoint tracking                 |
+| `huxScrollSpy`            | TOC + scroll position tracking via `IntersectionObserver`         |
+| `huxStepper`              | Multi-step stepper (foundation for a wizard pattern)              |
+| `huxInfiniteScroll`       | Sentinel watcher that fires `load-more`; fetching is up to you    |
+| `huxTabs` / `huxTabPanel` | Tabs with roving tabindex, optional hash sync, decoupled panels   |
 
 Full API, options, defaults, and behavior contracts for each pattern are
 documented at [js.hyperui.dev](https://js.hyperui.dev).
