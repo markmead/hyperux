@@ -222,7 +222,6 @@ Use `id` on `huxTabs` and `huxTabPanel` on each panel to place tablist and panel
 - Keep tab controls as `button type="button"` and ensure visible active-state contrast.
 - Give each `tablist` a distinct `aria-label` when more than one tab group appears on a page, so screen reader users can tell them apart.
 - These helpers use automatic activation (arrow keys move focus and select together), which is appropriate because switching panels here only toggles `x-show`. If a panel does expensive work on activation, switch to manual activation — move focus on arrow keys and call `selectTab()` on Enter or Space.
-- The demo relies on a global `:focus-visible` rule for its keyboard focus outline rather than per-tab focus utilities. When you copy this pattern, add an equivalent global focus style (or your own `focus-visible:` classes), otherwise the tabs fall back to the browser default outline.
 
 ## Notes
 

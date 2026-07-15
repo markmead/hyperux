@@ -177,7 +177,6 @@ window.addEventListener('hux-stepper:checkout:change', (event) => {
 - Expose explicit step state text (for example, `Current`, `Completed`, `Not completed`) so users are not relying on color alone.
 - Keep each trigger associated with its panel using `aria-controls`, and connect panel labels with `aria-labelledby`.
 - Keep controls as `button type="button"` and provide visible text labels.
-- The demo relies on a global `:focus-visible` rule for its keyboard focus outline rather than per-step focus utilities. When you copy this pattern, add an equivalent global focus style (or your own `focus-visible:` classes), otherwise the step buttons fall back to the browser default outline.
 - Announce step changes with a single always-present visually hidden `aria-live="polite"` region (for example `Step 2 of 3: Shipping`). Prefer this over putting `aria-live` on the panels themselves, because panels toggled with `x-show` only change visibility — a live region must already be in the DOM and have its text change to announce reliably.
 
 ## Notes

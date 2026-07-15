@@ -151,7 +151,7 @@ When `iframeSrc` is `null` (the default), the iframe renders without a `src` att
 - Give the drag handle `role="slider"` with `aria-orientation="horizontal"` and bind `aria-valuenow`/`aria-valuemin`/`aria-valuemax` to `currentWidth`/`minWidth`/`resolvedMaxWidth`. Bind `aria-valuemax` to `resolvedMaxWidth` rather than the raw `maxWidth` option — a slider requires `aria-valuemax`, and `maxWidth` defaults to `null`, so `resolvedMaxWidth` derives the effective cap (from `maxWidth`, the last breakpoint, or the parent width).
 - Support keyboard resizing (`ArrowLeft`/`ArrowRight`) and breakpoint jumps (`ArrowUp`/`ArrowDown`, `Home`, `End`).
 - Expose current breakpoint changes with `aria-live="polite"` status text.
-- Ensure the active resize affordance has visible focus styles. The demo applies these through a global `:focus-visible` rule (plus a `focus-within` ring on the container) rather than utilities on the handle; when you copy this pattern, provide an equivalent global focus style so the handle shows a focus indicator.
+- Ensure the active resize affordance has visible focus styles.
 - Size the drag handle's hit area to at least 44×44 CSS px even if the visible bar is thinner — keep the wider hit area inside the container bounds so it isn't clipped by `overflow-hidden`.
 
 ## Notes

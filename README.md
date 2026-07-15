@@ -53,6 +53,15 @@ it however you like.
 Full API, options, defaults, and behavior contracts for each pattern are
 documented at [js.hyperui.dev](https://js.hyperui.dev).
 
+## Focus styling
+
+HyperUX ships behavior, not looks — and that includes keyboard focus. The demo
+markup deliberately omits focus-ring utility classes; the site applies a single
+global `:focus-visible` outline in `src/styles/global.css`. Because that global
+rule is not part of a copied snippet, copied elements fall back to the browser's
+default focus outline until you add your own — a global `:focus-visible` rule or
+your framework's `focus-visible:` utilities. This applies to every pattern.
+
 ## Development
 
 ```bash
