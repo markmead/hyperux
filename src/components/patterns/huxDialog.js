@@ -5,6 +5,7 @@ document.addEventListener('alpine:init', () => {
     isPersistent: initialConfig.isPersistent ?? false,
     isSeamless: initialConfig.isSeamless ?? false,
     dialogTitleId: null,
+    dialogDescriptionId: null,
 
     get closeOnBackdrop() {
       return !this.isPersistent
@@ -20,6 +21,7 @@ document.addEventListener('alpine:init', () => {
 
     init() {
       this.dialogTitleId = this.dialogId ? `${this.dialogId}-title` : null
+      this.dialogDescriptionId = this.dialogId ? `${this.dialogId}-description` : null
     },
 
     openDialog() {
