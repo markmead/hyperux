@@ -10,7 +10,7 @@ terms:
   - load-more
   - virtual-list
 pubDate: 2026-06-06
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/InfiniteScroll.astro'
@@ -104,6 +104,9 @@ Use `useContainerRoot: true` when `huxInfiniteScroll` is on the scrollable conta
 >
   <div
     x-data="huxInfiniteScroll({ scrollerId: 'list', useContainerRoot: true })"
+    tabindex="0"
+    role="region"
+    aria-label="Items feed"
     class="max-h-96 overflow-y-auto"
   >
     <template x-for="item in items" x-bind:key="item.id">
@@ -111,8 +114,14 @@ Use `useContainerRoot: true` when `huxInfiniteScroll` is on the scrollable conta
     </template>
 
     <div x-ref="infiniteScrollLoader" class="h-px" aria-hidden="true"></div>
-    <div x-show="isLoading" aria-live="polite">Loading&hellip;</div>
+    <div x-show="isLoading">Loading&hellip;</div>
     <div x-show="isDisabled">All items loaded.</div>
+
+    <p
+      class="sr-only"
+      aria-live="polite"
+      x-text="isLoading ? 'Loading more items' : isDisabled ? 'All items loaded' : ''"
+    ></p>
   </div>
 </div>
 ```
@@ -185,9 +194,11 @@ Use `.window` to listen for the event on the `window` object from any element:
 
 ## Accessibility Notes
 
-- Add `aria-live="polite"` to the loading indicator so assistive technology announces when loading begins.
+- Announce loading, completion, and failure with a single always-present visually hidden `aria-live="polite"` region rather than putting `aria-live` on `x-show`-toggled indicators, which only change visibility and may not announce reliably.
 - Keep the loader element visually hidden with `h-px` or `sr-only` and mark it `aria-hidden="true"` to avoid it being picked up by screen readers as list content.
+- When the observer root is the scroll container (`useContainerRoot`), give that container `tabindex="0"` and an accessible name so keyboard-only users can focus it and scroll with arrow keys — otherwise, with no focusable list items, they cannot reach the loader to trigger the next page.
 - Infinite scroll removes natural pagination landmarks. Consider supplementing with a visible "Load more" button for users who prefer explicit control or have reduced-motion preferences.
+- Surface fetch failures (for example, a `loadError` flag set in `markFailed()`) in both the live region and a visible message so users know a load failed.
 - Avoid placing interactive elements immediately after the loader element — they may receive focus before content loads.
 
 ## Notes
