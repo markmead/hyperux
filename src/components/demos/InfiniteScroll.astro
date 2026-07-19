@@ -23,11 +23,13 @@
       x-data="{
         posts: [],
         page: 0,
+        loadError: false,
         loadMore(detail) {
+          this.loadError = false
           fetch(`https://jsonplaceholder.typicode.com/posts?_page=${++this.page}&_limit=10`)
             .then((res) => res.json())
             .then((data) => { this.posts.push(...data); detail.markComplete(data.length > 0) })
-            .catch(() => detail.markFailed())
+            .catch(() => { this.loadError = true; detail.markFailed() })
         }
       }"
       x-on:hux-infinite-scroll:posts:load-more.window="loadMore($event.detail)"
@@ -35,6 +37,9 @@
       <div
         data-hux-copy="huxInfiniteScrollDemo"
         x-data="huxInfiniteScroll({ scrollerId: 'posts', useContainerRoot: true })"
+        tabindex="0"
+        role="region"
+        aria-label="Posts feed"
         class="max-h-96 divide-y divide-gray-100 overflow-y-auto rounded-md border border-gray-200"
       >
         <template x-for="post in posts" x-bind:key="post.id">
@@ -46,18 +51,24 @@
 
         <div x-ref="infiniteScrollLoader" class="h-px" aria-hidden="true"></div>
 
-        <div
-          x-show="isLoading"
-          x-cloak
-          class="px-4 py-3 text-center text-sm text-gray-500"
-          aria-live="polite"
-        >
+        <div x-show="isLoading" x-cloak class="px-4 py-3 text-center text-sm text-gray-500">
           Loading more posts&hellip;
         </div>
 
         <div x-show="isDisabled" x-cloak class="px-4 py-3 text-center text-sm text-gray-500">
           All posts loaded.
         </div>
+
+        <div x-show="loadError" x-cloak class="px-4 py-3 text-center text-sm text-red-600">
+          Couldn't load more posts.
+        </div>
+
+        <p
+          class="sr-only"
+          aria-live="polite"
+          x-text="loadError ? 'Failed to load more posts' : isLoading ? 'Loading more posts' : isDisabled ? 'All posts loaded' : ''"
+        >
+        </p>
       </div>
     </div>
 

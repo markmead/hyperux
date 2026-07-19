@@ -82,7 +82,7 @@
               aria-modal="true"
               class="relative w-full max-w-xl space-y-4 rounded-lg bg-white p-4 shadow-xl"
             >
-              <h3 x-bind:id="dialogTitleId || null" class="sr-only">Command palette</h3>
+              <h2 x-bind:id="dialogTitleId || null" class="sr-only">Command palette</h2>
 
               <div
                 x-data="{
@@ -140,6 +140,13 @@
                   Search links and actions
                 </label>
 
+                <p
+                  class="sr-only"
+                  aria-live="polite"
+                  x-text="isOpen && !(shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') ? `${filteredOptionItems.length} ${filteredOptionItems.length === 1 ? 'result' : 'results'} available` : ''"
+                >
+                </p>
+
                 <div class="relative">
                   <input
                     x-ref="commandPaletteInput"
@@ -154,7 +161,7 @@
                     aria-autocomplete="list"
                     aria-haspopup="listbox"
                     autocomplete="off"
-                    class="w-full rounded-md border border-gray-300 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    class="w-full rounded-md border border-gray-300 px-4 py-3"
                     x-on:input="onInputChange()"
                     x-on:keydown.down.prevent="if (shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') return; if (!isOpen) { openList(); focusedIndex = filteredOptionItems.length > 0 ? 0 : -1; return } focusNextOptionItem()"
                     x-on:keydown.up.prevent="if (shouldHideOptionItemsOnEmptyQuery() && searchQuery.trim() === '') return; focusPreviousOptionItem()"

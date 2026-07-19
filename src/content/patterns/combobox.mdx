@@ -10,7 +10,7 @@ terms:
   - keyboard-navigation
   - multiselect
 pubDate: 2026-04-20
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/Combobox.astro'
@@ -91,11 +91,20 @@ _Internal helper methods are private implementation details and are not part of 
     x-on:keydown.escape.stop.prevent="closeList()"
   />
 
-  <div x-ref="comboboxListbox" x-bind:id="listboxId" role="listbox" x-cloak x-show="isOpen">
+  <div
+    x-ref="comboboxListbox"
+    x-bind:id="listboxId"
+    role="listbox"
+    aria-label="Fruit options"
+    x-bind:aria-multiselectable="acceptMultiple ? 'true' : null"
+    x-cloak
+    x-show="isOpen"
+  >
     <template x-for="({ optionItem, sourceIndex }) in filteredOptionItems" x-bind:key="sourceIndex">
       <button
         type="button"
         role="option"
+        tabindex="-1"
         x-bind:id="optionItemId(sourceIndex)"
         x-on:click="toggleOptionItem(optionItem)"
         x-text="optionItem.label"
@@ -149,6 +158,8 @@ huxCombobox({
 ## Accessibility Notes
 
 - Keep the input wired with `role="combobox"`, `aria-autocomplete="list"`, and `aria-controls` pointing at the listbox id.
+- Give the listbox an accessible name (`aria-label`) and, in multi-select mode, set `aria-multiselectable="true"` so assistive technology announces that more than one option can be chosen.
+- Keep option elements out of the tab sequence with `tabindex="-1"` — the `aria-activedescendant` pattern keeps real focus on the input while arrow keys move the active option.
 - Keep options keyboard reachable via arrow keys and Enter bindings (`focusNextOptionItem()`, `focusPreviousOptionItem()`, `selectFocusedOptionItem()`).
 - Ensure option row active/selected states use visible contrast and not color alone.
 - Keep remove/clear controls as `button` elements with `type="button"` and clear labels (`aria-label`).

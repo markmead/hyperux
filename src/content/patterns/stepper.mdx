@@ -10,7 +10,7 @@ terms:
   - progress-navigation
   - accessibility
 pubDate: 2026-05-21
-modDate: 2026-05-23
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/Stepper.astro'
@@ -91,11 +91,16 @@ _Internal helper methods are private implementation details and are not part of 
     </template>
   </ol>
 
+  <p
+    class="sr-only"
+    aria-live="polite"
+    x-text="stepItems.length ? `Step ${activeStepIndex + 1} of ${stepItems.length}: ${stepItems[activeStepIndex]?.label ?? ''}` : ''"
+  ></p>
+
   <section
     id="step-panel-contact"
     role="region"
     aria-labelledby="step-contact"
-    aria-live="polite"
     x-show="activeStepId === 'contact'"
     x-cloak
   >
@@ -172,7 +177,7 @@ window.addEventListener('hux-stepper:checkout:change', (event) => {
 - Expose explicit step state text (for example, `Current`, `Completed`, `Not completed`) so users are not relying on color alone.
 - Keep each trigger associated with its panel using `aria-controls`, and connect panel labels with `aria-labelledby`.
 - Keep controls as `button type="button"` and provide visible text labels.
-- Keep active panel content announced with `aria-live="polite"` when the content swap is meaningful for assistive technology users.
+- Announce step changes with a single always-present visually hidden `aria-live="polite"` region (for example `Step 2 of 3: Shipping`). Prefer this over putting `aria-live` on the panels themselves, because panels toggled with `x-show` only change visibility — a live region must already be in the DOM and have its text change to announce reliably.
 
 ## Notes
 

@@ -10,7 +10,7 @@ terms:
   - focus-trap
   - ux-pattern
 pubDate: 2026-05-21
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/InlineEditor.astro'
@@ -75,7 +75,7 @@ _Internal helper methods are private implementation details and are not part of 
 <div x-data="huxInlineEditor({ inputValue: 'Ada Lovelace' })">
   <div x-show="!isEditing" x-cloak x-transition.opacity>
     <span x-text="inputValue"></span>
-    <button type="button" x-on:click="enterEditMode()">Edit</button>
+    <button type="button" aria-label="Edit profile name" x-on:click="enterEditMode()">Edit</button>
   </div>
 
   <div
@@ -163,9 +163,11 @@ _Internal helper methods are private implementation details and are not part of 
 ## Accessibility Notes
 
 - Use a real `button` (`type="button"`) to enter edit mode.
+- When several inline editors share a page, give each trigger a distinguishing accessible name (for example `aria-label="Edit display name"`) so screen reader users can tell the identical "Edit" buttons apart.
 - Keep editable controls within the focus-trap container to preserve keyboard containment while active.
+- The editor traps `Tab` within its controls while active, so always communicate the exit keys (Enter to save, Escape to cancel) near the field — otherwise keyboard users cannot move on.
 - Keep visible labels for the editable field, or use an explicit `<label>` for screen readers.
-- If you surface status updates, use an `aria-live="polite"` region.
+- Confirm committed values with an always-present `aria-live="polite"` region (one that is not toggled by `x-show`) so the save is reliably announced.
 
 ## Notes
 

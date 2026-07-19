@@ -10,7 +10,7 @@ terms:
   - menu-button
   - action-dispatch
 pubDate: 2026-04-20
-modDate: 2026-07-11
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/Dropdown.astro'
@@ -46,6 +46,7 @@ Returns an Alpine data object with:
 - `focusLastItem(): void`
 - `focusNextItem(): void`
 - `focusPreviousItem(): void`
+- `focusByTypeahead(typedCharacter: string): void`
 - `findMenuItem(itemLabel: string): object | null`
 - `selectItem(menuItem): void`
 
@@ -98,6 +99,9 @@ _Use hyphen-case for action names. Non-hyphen-case names will be ignored._
     role="menu"
     x-bind:id="menuId"
     x-bind:aria-labelledby="triggerButtonId"
+    x-on:keydown.down.prevent="focusNextItem()"
+    x-on:keydown.up.prevent="focusPreviousItem()"
+    x-on:keydown="if (!$event.ctrlKey && !$event.metaKey && !$event.altKey && $event.key.length === 1 && $event.key !== ' ') focusByTypeahead($event.key)"
   >
     <template x-for="(menuItem, menuIndex) in menuItems" x-bind:key="menuIndex">
       <button
@@ -197,6 +201,7 @@ if (menuItem?.target === '_blank') {
 - `toggleMenu()` opening the menu (via click or native Enter/Space activation of the trigger button) moves focus to the first menu item, matching `Down Arrow` behavior.
 - `closeMenu(true)` restores focus to the trigger button on next tick; `closeMenu()` also resets `hoveredIndex`.
 - `focusNextItem()` and `focusPreviousItem()` wrap around menu boundaries.
+- `focusByTypeahead()` accumulates typed characters within a 500ms window and focuses the next item whose label starts with the buffer, cycling on repeated single-character presses.
 - `hoveredIndex` tracks pointer-hover highlighting separately from `focusedIndex`; hovering never changes the roving `tabindex` or the item used by `focusNextItem()`/`focusPreviousItem()`.
 - `findMenuItem()` returns the matched item when found; otherwise `null`.
 - `selectItem()` dispatches named events for `action` entries using hyphen-case event names and closes the menu.
@@ -215,6 +220,7 @@ if (menuItem?.target === '_blank') {
 - Keep trigger button wired with `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.
 - Keep menu container `role="menu"` and items `role="menuitem"`.
 - Use keyboard bindings for Up/Down/Home/End and Escape to maintain expected menu behavior.
+- Wire a plain `keydown` handler to `focusByTypeahead($event.key)` (guarding against modifier keys and space) so users can jump to an item by typing its first characters, matching native menu behavior.
 - Keep action items as real `button type="button"` elements; use anchors for navigation items.
 - Since nested entries render as a single flat list with only visual indentation to show depth, set `aria-label` on child items (depth > 0) combining `label` and `parentLabel` (for example `"huxDropdown(config), submenu of API"`) so screen reader users get the parent/child relationship that sighted users see from indentation.
 - Bind highlight styles to `focusedIndex || hoveredIndex` but keep `tabindex` bound to `focusedIndex` only — pointer hover must never move real focus or alter the roving-tabindex sequence used by keyboard navigation.

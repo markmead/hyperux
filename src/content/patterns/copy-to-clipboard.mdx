@@ -10,7 +10,7 @@ terms:
   - data-attributes
   - ux-pattern
 pubDate: 2026-04-20
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/CopyToClipboard.astro'
@@ -37,6 +37,7 @@ Clipboard writes usually require HTTPS and a user gesture (for example, a click)
 Returns an Alpine data object with:
 
 - `hasCopied: boolean`
+- `hasCopyFailed: boolean`
 - `copyToClipboard(): Promise<void>`
 
 _Internal helper methods are private implementation details and are not part of the supported API contract._
@@ -114,6 +115,7 @@ huxCopy({
 - Empty or missing chunks are filtered out.
 - If no chunks resolve, `copyToClipboard()` exits without writing.
 - On success, `hasCopied` flips to `true`, then resets after `timeoutDuration`.
+- `hasCopyFailed` resets to `false` at the start of each attempt and flips to `true` when the clipboard API is unavailable or the write throws.
 - Copy uses `navigator.clipboard.writeText(resolvedContent)`.
 
 ## Error Handling
@@ -127,6 +129,7 @@ huxCopy({
 ## Accessibility Notes
 
 - Expose status changes with `aria-live` text (for example: `Copied`, `Copy input value`).
+- Surface failures too: bind `hasCopyFailed` into the `aria-live` text (for example `Copy failed`) so blocked or insecure-context copies are announced, not just logged to the console.
 - Keep copy actions on explicit interactive controls (`button`) for keyboard and screen reader
   compatibility.
 - Preserve clear labels (`aria-label`) for icon-only copy buttons.

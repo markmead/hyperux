@@ -1,6 +1,7 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('huxCopy', (initialConfig = {}) => ({
     hasCopied: false,
+    hasCopyFailed: false,
     sourceNames: initialConfig.sourceNames ?? [],
     valueSourceNames: initialConfig.valueSourceNames ?? [],
     contentSeparator: initialConfig.contentSeparator ?? '\n\n',
@@ -79,8 +80,11 @@ document.addEventListener('alpine:init', () => {
     },
 
     async copyToClipboard() {
+      this.hasCopyFailed = false
+
       if (!navigator.clipboard) {
         console.error('[huxCopy] Clipboard API unavailable — requires a secure context')
+        this.hasCopyFailed = true
 
         return
       }
@@ -101,6 +105,7 @@ document.addEventListener('alpine:init', () => {
         }, this.timeoutDuration)
       } catch (copyError) {
         console.error('[huxCopy] Copy failed', copyError)
+        this.hasCopyFailed = true
       }
     },
   }))

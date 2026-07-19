@@ -9,6 +9,8 @@ document.addEventListener('alpine:init', () => {
     triggerButtonId: null,
     menuItemIds: [],
     triggerRefName: initialConfig.triggerRef ?? 'dropdownTrigger',
+    _typeaheadBuffer: '',
+    _typeaheadTimeoutId: null,
 
     normalizeMenuItems(rawMenuItems, itemDepth = 0, maxDepth = 5, parentLabel = null) {
       if (!Array.isArray(rawMenuItems)) {
@@ -142,6 +144,44 @@ document.addEventListener('alpine:init', () => {
       const prevIndex = this.focusedIndex > 0 ? this.focusedIndex - 1 : menuItemCount - 1
 
       this.focusItem(prevIndex)
+    },
+
+    focusByTypeahead(typedCharacter) {
+      if (typeof typedCharacter !== 'string' || typedCharacter.length !== 1) {
+        return
+      }
+
+      const menuItemCount = this.menuItems.length
+
+      if (menuItemCount === 0) {
+        return
+      }
+
+      if (this._typeaheadTimeoutId !== null) {
+        clearTimeout(this._typeaheadTimeoutId)
+      }
+
+      this._typeaheadBuffer += typedCharacter.toLowerCase()
+
+      this._typeaheadTimeoutId = setTimeout(() => {
+        this._typeaheadBuffer = ''
+        this._typeaheadTimeoutId = null
+      }, 500)
+
+      // A fresh single-character buffer starts searching after the current item so
+      // repeated presses cycle; a growing buffer re-checks the current item to refine.
+      const startOffset = this._typeaheadBuffer.length === 1 ? 1 : 0
+      const baseIndex = this.focusedIndex >= 0 ? this.focusedIndex : -1
+
+      for (let step = startOffset; step < menuItemCount + startOffset; step += 1) {
+        const candidateIndex = (baseIndex + step + menuItemCount) % menuItemCount
+
+        if (this.menuItems[candidateIndex].label.toLowerCase().startsWith(this._typeaheadBuffer)) {
+          this.focusItem(candidateIndex)
+
+          return
+        }
+      }
     },
 
     findMenuItem(itemLabel) {

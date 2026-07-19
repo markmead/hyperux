@@ -13,7 +13,7 @@ terms:
   - drawer
   - panel
 pubDate: 2026-04-20
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/Dialog.astro'
@@ -43,6 +43,7 @@ Returns an Alpine data object with:
 - `isPersistent: boolean`
 - `isSeamless: boolean`
 - `dialogTitleId: string | null`
+- `dialogDescriptionId: string | null`
 - `closeOnBackdrop: boolean`
 - `closeOnEscape: boolean`
 - `showBackdrop: boolean`
@@ -81,8 +82,10 @@ _Internal helper methods are private implementation details and are not part of 
         role="dialog"
         aria-modal="true"
         x-bind:aria-labelledby="dialogTitleId || null"
+        x-bind:aria-describedby="dialogDescriptionId || null"
       >
         <h2 x-bind:id="dialogTitleId || null">Settings</h2>
+        <p x-bind:id="dialogDescriptionId || null">Update your account preferences.</p>
         <button type="button" x-on:click="closeDialog()">Close</button>
       </div>
     </div>
@@ -167,7 +170,7 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 
 ## Behavior Contract
 
-- `init()` derives `dialogTitleId` from `dialogId` as `${dialogId}-title`, otherwise `null`.
+- `init()` derives `dialogTitleId` from `dialogId` as `${dialogId}-title`, and `dialogDescriptionId` as `${dialogId}-description`, otherwise both `null`.
 - `openDialog()` sets `isOpen = true` and dispatches open event(s).
 - `closeDialog()` sets `isOpen = false` and dispatches close event(s).
 - `toggleDialog()` flips open state by delegating to `openDialog()` and `closeDialog()`.
@@ -184,7 +187,9 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 
 - Keep modal container with `role="dialog"` and `aria-modal="true"`.
 - Provide a visible or screen-reader title and wire `aria-labelledby` to that element.
-- Keep close controls as labeled `button` elements with `type="button"`.
+- `dialogTitleId` and `dialogDescriptionId` are only derived when a `dialogId` is passed. **Set a `dialogId` (or add a static `aria-label`) so the dialog has an accessible name** — without one, `aria-labelledby` resolves to `null` and screen readers announce an unnamed dialog.
+- Associate descriptive body copy with the dialog by wiring `aria-describedby` to `dialogDescriptionId` so screen readers announce it alongside the title.
+- Keep close controls as labeled `button` elements with `type="button"`, and give icon-only close buttons enough padding to meet a comfortable touch-target size.
 - Use keyboard escape handling (`x-on:keydown.escape.stop`) and focus trapping (`x-trap`) so keyboard users remain inside the modal while open.
 
 ## Notes

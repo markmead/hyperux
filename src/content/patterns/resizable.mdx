@@ -10,7 +10,7 @@ terms:
   - iframe-preview
   - responsive-testing
 pubDate: 2026-04-20
-modDate: 2026-07-03
+modDate: 2026-07-15
 ---
 
 import Demo from '../../components/demos/Resizable.astro'
@@ -40,6 +40,7 @@ Returns an Alpine data object with:
 - `iframeSrc: string | null`
 - `breakpointItems: Array<{ label: string, minWidth: number }>`
 - `activeBreakpoint: string | null`
+- `resolvedMaxWidth: number | null`
 - `startDrag(pointerEvent): void`
 - `nudgeWidth(xDelta: number): void`
 - `jumpToLabel(breakpointLabel: string): void`
@@ -74,7 +75,7 @@ _Internal helper methods are private implementation details and are not part of 
       aria-orientation="horizontal"
       x-bind:aria-valuenow="currentWidth"
       x-bind:aria-valuemin="minWidth"
-      x-bind:aria-valuemax="maxWidth"
+      x-bind:aria-valuemax="resolvedMaxWidth"
       x-on:mousedown="startDrag($event)"
       x-on:touchstart.prevent="startDrag($event)"
       x-on:keydown.right.prevent="nudgeWidth(8)"
@@ -135,6 +136,7 @@ When `iframeSrc` is `null` (the default), the iframe renders without a `src` att
 - `currentWidth` initializes from `resizableContainer.offsetWidth` when available.
 - `nudgeWidth()`, `jumpToLabel()`, and `jumpToBreakpoint()` always apply clamp logic before updating width.
 - `jumpToBreakpoint()` no-ops when direction is invalid or no breakpoints exist.
+- `resolvedMaxWidth` returns the effective maximum width (the smallest of `maxWidth`, the last breakpoint when `stopAtLastBreakpoint` is set, and the parent width when `preventOverflow` is set), clamped to at least `minWidth`, or `null` when the width is unbounded.
 - `destroy()` removes pointer listeners and disconnects resize observer.
 
 ## Error Handling
@@ -146,7 +148,7 @@ When `iframeSrc` is `null` (the default), the iframe renders without a `src` att
 ## Accessibility Notes
 
 - Keep the drag handle as `button type="button"` with an explicit `aria-label`.
-- Give the drag handle `role="slider"` with `aria-orientation="horizontal"` and bind `aria-valuenow`/`aria-valuemin`/`aria-valuemax` to `currentWidth`/`minWidth`/`maxWidth` so assistive technology can announce the current size and range.
+- Give the drag handle `role="slider"` with `aria-orientation="horizontal"` and bind `aria-valuenow`/`aria-valuemin`/`aria-valuemax` to `currentWidth`/`minWidth`/`resolvedMaxWidth`. Bind `aria-valuemax` to `resolvedMaxWidth` rather than the raw `maxWidth` option — a slider requires `aria-valuemax`, and `maxWidth` defaults to `null`, so `resolvedMaxWidth` derives the effective cap (from `maxWidth`, the last breakpoint, or the parent width).
 - Support keyboard resizing (`ArrowLeft`/`ArrowRight`) and breakpoint jumps (`ArrowUp`/`ArrowDown`, `Home`, `End`).
 - Expose current breakpoint changes with `aria-live="polite"` status text.
 - Ensure the active resize affordance has visible focus styles.

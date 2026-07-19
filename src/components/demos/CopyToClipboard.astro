@@ -48,7 +48,10 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
         class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
         x-on:click="copyToClipboard()"
       >
-        <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy'">Copy</span>
+        <span
+          aria-live="polite"
+          x-text="hasCopyFailed ? 'Copy failed' : hasCopied ? 'Copied' : 'Copy'">Copy</span
+        >
 
         <Clipboard x-cloak x-show="!hasCopied" class="size-4" />
         <CopyCheck x-cloak x-show="hasCopied" class="size-4" />
@@ -74,7 +77,7 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
           data-hux-copy="inputExample"
           type="text"
           value="Hello there 👋"
-          class="h-10 rounded-md border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          class="h-10 rounded-md border-gray-300"
         />
 
         <button
@@ -88,7 +91,8 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
           <span
             aria-live="polite"
             class="sr-only"
-            x-text="hasCopied ? 'Copied input value' : 'Copy input value'">Copy input value</span
+            x-text="hasCopyFailed ? 'Copy failed' : hasCopied ? 'Copied input value' : 'Copy input value'"
+            >Copy input value</span
           >
 
           <Clipboard x-cloak x-show="!hasCopied" class="size-4" />
@@ -106,7 +110,10 @@ import { Clipboard, CopyCheck } from '@lucide/astro'
         class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
         x-on:click="copyToClipboard()"
       >
-        <span aria-live="polite" x-text="hasCopied ? 'Copied Alpine.js' : 'Copy Alpine.js'">
+        <span
+          aria-live="polite"
+          x-text="hasCopyFailed ? 'Copy failed' : hasCopied ? 'Copied Alpine.js' : 'Copy Alpine.js'"
+        >
           Copy Alpine.js
         </span>
       </button>
