@@ -141,6 +141,8 @@ document.addEventListener('alpine:init', () => {
       this.openList()
 
       this.focusedIndex = Math.min(this.focusedIndex + 1, totalItems - 1)
+
+      this.scrollFocusedOptionItemIntoView()
     },
 
     focusPreviousOptionItem() {
@@ -157,11 +159,25 @@ document.addEventListener('alpine:init', () => {
 
       if (this.focusedIndex <= 0) {
         this.focusedIndex = 0
-
-        return
+      } else {
+        this.focusedIndex -= 1
       }
 
-      this.focusedIndex -= 1
+      this.scrollFocusedOptionItemIntoView()
+    },
+
+    scrollFocusedOptionItemIntoView() {
+      this.$nextTick(() => {
+        const focusedOptionId = this.activeDescendantId
+
+        if (!focusedOptionId) {
+          return
+        }
+
+        const focusedOptionElement = document.getElementById(focusedOptionId)
+
+        focusedOptionElement?.scrollIntoView({ block: 'nearest' })
+      })
     },
 
     selectFocusedOptionItem() {

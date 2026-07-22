@@ -10,7 +10,7 @@ terms:
   - keyboard-navigation
   - multiselect
 pubDate: 2026-04-20
-modDate: 2026-07-15
+modDate: 2026-07-19
 ---
 
 import Demo from '../../components/demos/Combobox.astro'
@@ -149,6 +149,7 @@ huxCombobox({
 - In single-select mode, selecting an option sets `selectedValue`, mirrors label into `searchQuery`, and closes the list.
 - In multi-select mode, `toggleOptionItem()` mutates `selectedValues` and keeps or closes the list depending on `hideOptionItemsWhenSearchQueryEmpty`.
 - `activeDescendantId` is `null` unless the list is open and a focused option exists.
+- Arrow-key navigation scrolls the active option into view (`scrollIntoView({ block: 'nearest' })`) so it stays visible in a scrollable listbox.
 
 ## Error Handling
 
