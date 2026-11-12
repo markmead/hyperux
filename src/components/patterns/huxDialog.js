@@ -116,14 +116,32 @@ document.addEventListener('alpine:init', () => {
         return
       }
 
-      // `x-trap` returns focus itself. Only step in when focus was lost.
-      this.$nextTick(() => {
-        const activeElement = document.activeElement
+      // `x-trap` usually returns focus itself, but a leave transition keeps the
+      // focused element visible until it finishes, and focus then drops to the
+      // body. Watch for up to a second: restore focus once it is lost, and stop
+      // as soon as something else moves it.
+      const focusedAtClose = document.activeElement
+      const watchDeadline = performance.now() + 1000
 
-        if (!activeElement || activeElement === document.body) {
+      const watchFocus = () => {
+        const activeElement = document.activeElement
+        const isFocusLost =
+          !activeElement ||
+          activeElement === document.body ||
+          activeElement.checkVisibility?.() === false
+
+        if (isFocusLost) {
           openerElement.focus()
+
+          return
         }
-      })
+
+        if (activeElement === focusedAtClose && performance.now() < watchDeadline) {
+          requestAnimationFrame(watchFocus)
+        }
+      }
+
+      this.$nextTick(watchFocus)
     },
 
     handleBackdropClick() {

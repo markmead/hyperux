@@ -12,17 +12,18 @@ HyperUX is a documentation site for behavior-first Alpine.js UI patterns at [js.
 pnpm dev       # wrangler types + astro dev
 pnpm build     # wrangler types + astro build
 pnpm check     # astro type-check
+pnpm test      # builds, serves with astro preview, runs Playwright (src/tests)
 pnpm lint      # eslint
 pnpm format    # prettier (respects .prettierignore)
 ```
 
-There are no tests.
+Tests live in `src/tests`: `patterns.spec.ts` (behavior contracts through the live demos), `accessibility.spec.ts` (axe, WCAG 2.2 AA, on every page and open state) and `agents.spec.ts` (Markdown, llms.txt, registry JSON, agent skill). In environments with a preinstalled Chromium, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to its path.
 
 ## Architecture
 
 ### Alpine.js Pattern Registrations
 
-All Alpine.js component logic lives in `src/components/PatternRegistration.astro` as `is:inline` scripts. Each script registers one component via `Alpine.data()` on the `alpine:init` event. This file is the **source of truth** for all component behavior, options, and defaults — always verify documentation against it.
+All Alpine.js component logic lives in `src/components/patterns/<registration>.js`, one file per `Alpine.data()` registration on the `alpine:init` event. `src/components/PatternRegistration.astro` inlines each file as an `is:inline` script. These files are the **source of truth** for all component behavior, options, and defaults — always verify documentation against them. Alpine plugins (currently `@alpinejs/focus`) are bundled via `src/alpine-entrypoint.ts`.
 
 Registered components:
 
@@ -38,12 +39,26 @@ Registered components:
 - `huxInfiniteScroll` — IntersectionObserver sentinel watcher that fires `load-more` events; data-fetching is handled by the consumer
 - `huxTabs` — tabs with roving tabindex, optional hash sync, and decoupled panels
 - `huxTabPanel` — companion to `huxTabs` for panels in a separate DOM scope
+- `huxToast` — queued notifications with pausable auto-dismiss timers; shown via window events
+- `huxTreeView` — ARIA tree with roving tabindex, expand/collapse, typeahead and selection
 
 ### Content Collections
 
-Pattern documentation lives in `src/content/patterns/*.mdx`. The schema (`src/content.config.ts`) requires: `slug`, `title`, `description`, `terms`, `pubDate`, `modDate`.
+Pattern documentation lives in `src/content/patterns/*.mdx`. The schema (`src/content.config.ts`) requires: `slug`, `title`, `description`, `terms`, `registrations` (the `Alpine.data()` names the pattern ships), `pubDate`, `modDate`. Optional: `composes` (slugs of patterns whose registrations it needs) and `requires` (Alpine plugins the markup relies on).
 
 Routing: `src/pages/patterns/[...slug].astro` uses `pattern.data.slug` (not the filename) as the URL slug.
+
+### Agent Outputs
+
+Generated at build time from the content collection and registration files (`src/utils/markdown.ts`, `src/utils/registry.ts`):
+
+- `/{path}.md` — Markdown version of every page (`/index.md` for home); MDX is cleaned and the registration source appended
+- `/llms.txt` and `/llms-full.txt` — the llmstxt.org index and every pattern in one file
+- `/r/registry.json` and `/r/{slug}.json` — shadcn-compatible universal registry items; composed patterns bundle the registrations they need
+
+`skills/hyperux/SKILL.md` is the agent skill (`npx skills add markmead/hyperux`). Its pattern table must list every slug and registration; a test enforces this.
+
+When adding a pattern: add the registration file, import it in `PatternRegistration.astro`, add the demo and MDX (with `registrations`), add a row to the skill table, and add behavior tests.
 
 ### The `data-hux-copy` System
 
@@ -69,6 +84,8 @@ Action-driven events use hyphen-case and are optionally scoped with a component 
 - `hux-command-palette:{paletteId}:{action}`
 - `hux-inline-editor:{editorId}:commit` / `hux-inline-editor:{editorId}:revert`
 - `hux-infinite-scroll:{scrollerId}:load-more` and `hux-infinite-scroll:load-more`
+- `hux-tree-view:{treeId}:{select|expand|collapse}` and `hux-tree-view:{select|expand|collapse}`
+- `hux-toast:{toastId}:show` (listened for on `window`) and `hux-toast:{toastId}:{reveal|dismiss}` / `hux-toast:{reveal|dismiss}` (dispatched)
 
 ## Pattern Documentation Rules
 

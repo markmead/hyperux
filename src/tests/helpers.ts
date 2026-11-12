@@ -7,7 +7,10 @@ export async function openPattern(page: Page, slug: string): Promise<void> {
   await page.waitForFunction(() => {
     const alpine = (globalThis as unknown as { Alpine?: { version?: string } }).Alpine
 
-    return Boolean(alpine?.version) && document.querySelectorAll('[x-cloak]:not(template *)').length === 0
+    return (
+      Boolean(alpine?.version) &&
+      document.querySelectorAll('[x-cloak]:not(template *)').length === 0
+    )
   })
 }
 
@@ -15,4 +18,3 @@ export async function openPattern(page: Page, slug: string): Promise<void> {
 export function demoCard(page: Page, index = 0) {
   return page.locator('.prose-demo').nth(index)
 }
-

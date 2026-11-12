@@ -1,0 +1,169 @@
+---
+slug: toast
+title: Toast
+description: Show queued, auto-dismissing status notifications with huxToast for Alpine.js, with pausable timers, live-region announcements, and window events any script can raise.
+terms:
+  - toast
+  - notification
+  - snackbar
+  - alert
+  - alpinejs
+  - aria-live
+  - accessibility
+registrations:
+  - huxToast
+pubDate: 2026-11-12
+modDate: 2026-11-12
+---
+
+import Demo from '../../components/demos/Toast.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+<Demo />
+
+# Alpine.js {frontmatter.title}
+
+`huxToast` manages a queue of status notifications: how many are visible at once, when each one dismisses itself, and pausing those timers while people hover, focus or leave the page. Any script can raise a toast by dispatching a window event, so the toast region can live once in your layout.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxToast(config)`
+
+Returns an Alpine data object with:
+
+- `toastId: string | null`
+- `dismissDelay: number`
+- `maxVisibleToasts: number`
+- `toastItems: Array<{ id: string, message: string, title: string, toastType: 'info' | 'success' | 'warning' | 'error', dismissDelay: number }>`
+- `queuedToastItems: Array<ToastItem>`
+- `isPaused: boolean`
+- `showToast(toastConfig: { message: string, title?: string, toastType?: string, dismissDelay?: number }): string | null`
+- `dismissToast(itemId: string): void`
+- `clearAllToasts(): void`
+- `pauseToastTimers(pauseReason?: string): void`
+- `resumeToastTimers(pauseReason?: string): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `toastId: string` (optional, scopes event names)
+- `dismissDelay: number` (default: `5000`, milliseconds; `0` disables auto-dismiss)
+- `maxVisibleToasts: number` (default: `3`, minimum `1`)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxToast({ toastId: 'app' })"
+  role="region"
+  aria-label="Notifications"
+  x-on:mouseenter="pauseToastTimers('hover')"
+  x-on:mouseleave="resumeToastTimers('hover')"
+  x-on:focusin="pauseToastTimers('focus')"
+  x-on:focusout="if (!$el.contains($event.relatedTarget)) resumeToastTimers('focus')"
+>
+  <ol aria-live="polite" aria-relevant="additions">
+    <template x-for="toastItem in toastItems" x-bind:key="toastItem.id">
+      <li>
+        <div x-bind:role="toastItem.toastType === 'error' ? 'alert' : null">
+          <p x-show="toastItem.title" x-text="toastItem.title"></p>
+          <p x-text="toastItem.message"></p>
+        </div>
+        <button
+          type="button"
+          aria-label="Dismiss notification"
+          x-on:click="dismissToast(toastItem.id)"
+        >
+          ×
+        </button>
+      </li>
+    </template>
+  </ol>
+</div>
+
+<button
+  type="button"
+  x-data
+  x-on:click="$dispatch('hux-toast:app:show', { message: 'Saved.', toastType: 'success' })"
+>
+  Save
+</button>
+```
+
+## Common Usage Patterns
+
+### Raise a Toast from Any Script
+
+```js
+window.dispatchEvent(
+  new CustomEvent('hux-toast:app:show', {
+    detail: {
+      title: 'Upload failed',
+      message: 'The file is larger than 10 MB.',
+      toastType: 'error',
+    },
+  }),
+)
+```
+
+### Keep Important Toasts Until Dismissed
+
+Pass `dismissDelay: 0` for a toast that holds an action or an error people must read:
+
+```js
+$dispatch('hux-toast:app:show', {
+  message: 'Connection lost.',
+  toastType: 'error',
+  dismissDelay: 0,
+})
+```
+
+### React to Dismissal
+
+```html
+<div
+  x-data="huxToast({ toastId: 'app' })"
+  x-on:hux-toast:app:dismiss="console.log($event.detail.toastItem)"
+>
+  ...
+</div>
+```
+
+## Behavior Contract
+
+- `init()` listens on `window` for `hux-toast:{toastId}:show` (or `hux-toast:show` without a `toastId`) and passes `event.detail` to `showToast()`. It also pauses timers while `document.hidden` is true. `destroy()` removes the listeners and clears every timer.
+- `showToast()` trims the message, defaults `toastType` to `info` (allowed: `info`, `success`, `warning`, `error`) and `dismissDelay` to the component's `dismissDelay`. It returns the new toast's id.
+- When fewer than `maxVisibleToasts` are visible, the toast is added to `toastItems`; otherwise it waits in `queuedToastItems` (first in, first out).
+- A toast with `dismissDelay > 0` dismisses itself after that much unpaused time.
+- `pauseToastTimers(reason)` stops every timer and keeps the remaining time. `resumeToastTimers(reason)` restarts them only when no other reason is still active, so hover, focus and a hidden page each pause independently.
+- `dismissToast()` removes the toast, clears its timer, dispatches a dismiss event and reveals the next queued toast.
+- `clearAllToasts()` empties the queue, then dismisses every visible toast.
+
+## Error Handling
+
+- `showToast()` logs `[huxToast] showToast() needs a non-empty message` and returns `null` for a missing or blank message.
+- Unknown `toastType` values fall back to `info`; a non-number `dismissDelay` falls back to the default.
+- `dismissToast()` ignores unknown ids, so double clicks and timers racing a click are safe.
+
+## Accessibility Notes
+
+- Render the list inside a live region (`aria-live="polite"`) that is present on page load. Live regions added at the same time as their content are often not announced.
+- Give errors `role="alert"` so they are announced assertively; leave other toasts polite. Put the role on an element inside the `<li>`, not on the `<li>` itself, so the list keeps its list items.
+- Wrap the toasts in a labelled landmark (`role="region"` with `aria-label="Notifications"`) so screen reader users can find them again.
+- Wire `pauseToastTimers` and `resumeToastTimers` to hover and focus. WCAG 2.2.1 (Timing Adjustable) needs people to be able to stop content that disappears on a timer.
+- Give the dismiss button an `aria-label` and `type="button"`. Use `dismissDelay: 0` for toasts that contain actions, so keyboard users can reach them.
+- Respect `prefers-reduced-motion` for enter transitions.
+
+## Notes
+
+- Events emitted (via `$dispatch`, so they bubble to `window`), each with `{ toastId, toastItem }` in `event.detail`:
+  - `hux-toast:{toastId}:reveal` and `hux-toast:{toastId}:dismiss` when `toastId` is set
+  - `hux-toast:reveal` and `hux-toast:dismiss` always
+- Events listened for: `hux-toast:{toastId}:show`, or `hux-toast:show` when `toastId` is not set.
+
+</div>

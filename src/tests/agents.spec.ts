@@ -144,3 +144,41 @@ test.describe('Registry', () => {
     expect(item.meta.requires).toContain('@alpinejs/focus')
   })
 })
+
+test.describe('Agent skill', () => {
+  test('lists every pattern and registration', () => {
+    const skill = readFileSync('skills/hyperux/SKILL.md', 'utf8')
+
+    expect(skill).toMatch(/^---\nname: hyperux\ndescription: /)
+
+    for (const slug of patternSlugs) {
+      expect(skill).toContain(`| \`${slug}\``)
+    }
+
+    for (const fileName of readdirSync(REGISTRATION_DIRECTORY)) {
+      expect(skill).toContain(`\`${fileName.replace(/\.js$/, '')}\``)
+    }
+  })
+})
+
+test.describe('Use with AI panel', () => {
+  test('copies the Markdown docs and the install command', async ({ page }) => {
+    await page.goto('/patterns/tabs')
+    await page.waitForFunction(() => 'Alpine' in globalThis)
+
+    const panel = page.getByRole('region', { name: 'Use with AI' })
+
+    await panel.getByRole('button', { name: 'Copy for AI' }).click()
+
+    const copiedMarkdown = await page.evaluate(() => navigator.clipboard.readText())
+
+    expect(copiedMarkdown).toContain('# Alpine.js Tabs Pattern')
+    expect(copiedMarkdown).toContain("Alpine.data('huxTabPanel'")
+
+    await panel.getByRole('button', { name: 'Copy command' }).click()
+
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      'npx shadcn@latest add https://js.hyperui.dev/r/tabs.json',
+    )
+  })
+})

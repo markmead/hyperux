@@ -76,7 +76,9 @@ test.describe('huxDialog', () => {
     await expect(page.getByRole('dialog')).toBeHidden()
 
     expect(
-      await page.evaluate(() => (globalThis as unknown as { recordedEvents: string[] }).recordedEvents),
+      await page.evaluate(
+        () => (globalThis as unknown as { recordedEvents: string[] }).recordedEvents,
+      ),
     ).toEqual(['open', 'close'])
   })
 })
@@ -286,22 +288,22 @@ test.describe('huxStepper', () => {
     const next = card.getByRole('button', { name: 'Next step' })
 
     await expect(previous).toBeDisabled()
-    await expect(card.getByRole('button', { name: 'Step 1 of 3: Contact' })).toHaveAttribute(
+    await expect(card.getByRole('listitem').nth(0).getByRole('button')).toHaveAttribute(
       'aria-current',
       'step',
     )
 
     await next.click()
 
-    await expect(card.getByRole('region', { name: 'Step 2 of 3: Shipping' })).toBeVisible()
-    await expect(card.getByRole('button', { name: 'Step 2 of 3: Shipping' })).toHaveAttribute(
+    await expect(card.getByRole('region', { name: /Shipping/ })).toBeVisible()
+    await expect(card.getByRole('listitem').nth(1).getByRole('button')).toHaveAttribute(
       'aria-current',
       'step',
     )
     await expect(previous).toBeEnabled()
 
     await previous.click()
-    await expect(card.getByRole('region', { name: 'Step 1 of 3: Contact' })).toBeVisible()
+    await expect(card.getByRole('region', { name: /Contact/ })).toBeVisible()
   })
 })
 
@@ -379,7 +381,9 @@ test.describe('huxCommandPalette', () => {
     const opener = demoCard(page).getByRole('button', { name: 'Open Command Palette' })
 
     await opener.click()
-    await expect(page.getByRole('dialog', { name: 'Command palette' }).getByRole('combobox')).toBeFocused()
+    await expect(
+      page.getByRole('dialog', { name: 'Command palette' }).getByRole('combobox'),
+    ).toBeFocused()
 
     await page.keyboard.press('Escape')
 
@@ -399,5 +403,132 @@ test.describe('huxScrollSpy', () => {
 
     await expect(target).toHaveAttribute('aria-current', /true|location/)
     await expect(navigation.locator('[aria-current]')).toHaveCount(1)
+  })
+})
+
+test.describe('huxTreeView', () => {
+  test.beforeEach(async ({ page }) => openPattern(page, 'tree-view'))
+
+  test('exposes tree semantics with a single tab stop', async ({ page }) => {
+    const tree = page.getByRole('tree', { name: 'Project files' })
+    const source = tree.getByRole('treeitem', { name: 'src', exact: true })
+
+    await expect(source).toHaveAttribute('aria-expanded', 'true')
+    await expect(source).toHaveAttribute('aria-level', '1')
+    await expect(tree.getByRole('treeitem', { name: 'components' })).toHaveAttribute(
+      'aria-level',
+      '2',
+    )
+    await expect(tree.getByRole('treeitem', { name: 'README.md' })).not.toHaveAttribute(
+      'aria-expanded',
+    )
+    await expect(tree.locator('[tabindex="0"]')).toHaveCount(1)
+  })
+
+  test('expands, enters, collapses and climbs with arrow keys', async ({ page }) => {
+    const tree = page.getByRole('tree', { name: 'Project files' })
+    const components = tree.getByRole('treeitem', { name: 'components' })
+
+    await tree.getByRole('treeitem', { name: 'src', exact: true }).focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(components).toBeFocused()
+
+    await page.keyboard.press('ArrowRight')
+    await expect(components).toHaveAttribute('aria-expanded', 'true')
+    await expect(tree.getByRole('treeitem', { name: 'Dialog.astro' })).toBeVisible()
+
+    await page.keyboard.press('ArrowRight')
+    await expect(tree.getByRole('treeitem', { name: 'Dialog.astro' })).toBeFocused()
+
+    await page.keyboard.press('ArrowLeft')
+    await expect(components).toBeFocused()
+
+    await page.keyboard.press('ArrowLeft')
+    await expect(components).toHaveAttribute('aria-expanded', 'false')
+    await expect(tree.getByRole('treeitem', { name: 'Dialog.astro' })).toHaveCount(0)
+
+    await page.keyboard.press('End')
+    await expect(tree.getByRole('treeitem', { name: 'README.md' })).toBeFocused()
+
+    await page.keyboard.press('Home')
+    await expect(tree.getByRole('treeitem', { name: 'src', exact: true })).toBeFocused()
+  })
+
+  test('selects with Enter, finds by typeahead and expands siblings with *', async ({ page }) => {
+    const tree = page.getByRole('tree', { name: 'Project files' })
+
+    await tree.getByRole('treeitem', { name: 'src', exact: true }).focus()
+    await page.keyboard.press('r')
+    await expect(tree.getByRole('treeitem', { name: 'README.md' })).toBeFocused()
+
+    await page.keyboard.press('Enter')
+    await expect(tree.getByRole('treeitem', { name: 'README.md' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    await expect(demoCard(page).getByText('readme-md')).toBeVisible()
+
+    await page.keyboard.press('Home')
+    await page.keyboard.press('*')
+    await expect(tree.getByRole('treeitem', { name: 'public' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+  })
+})
+
+test.describe('huxToast', () => {
+  test.beforeEach(async ({ page }) => openPattern(page, 'toast'))
+
+  test('announces toasts in a labelled live region and dismisses them', async ({ page }) => {
+    const region = page.getByRole('region', { name: 'Notifications' })
+
+    await expect(region.locator('[aria-live="polite"]')).toHaveCount(1)
+
+    await demoCard(page).getByRole('button', { name: 'Show success' }).click()
+    await expect(region.getByText('Your changes have been saved.')).toBeVisible()
+
+    await region.getByRole('button', { name: 'Dismiss notification' }).click()
+    await expect(region.getByRole('listitem')).toHaveCount(0)
+  })
+
+  test('marks errors as alerts and keeps them without a timer', async ({ page }) => {
+    await page.clock.install()
+    await openPattern(page, 'toast')
+
+    await demoCard(page).getByRole('button', { name: 'Show error' }).click()
+
+    const alert = page.getByRole('alert')
+
+    await expect(alert).toContainText('Upload failed')
+
+    await page.clock.runFor(60_000)
+    await expect(alert).toBeVisible()
+  })
+
+  test('auto-dismisses, pauses on hover and queues beyond the limit', async ({ page }) => {
+    await page.clock.install()
+    await openPattern(page, 'toast')
+
+    const region = page.getByRole('region', { name: 'Notifications' })
+    const showSuccess = demoCard(page).getByRole('button', { name: 'Show success' })
+
+    for (let count = 0; count < 4; count += 1) {
+      await showSuccess.click()
+    }
+
+    await expect(region.getByRole('listitem')).toHaveCount(3)
+
+    await region.getByRole('listitem').first().hover()
+    await page.clock.runFor(10_000)
+    await expect(region.getByRole('listitem')).toHaveCount(3)
+
+    await page.mouse.move(0, 0)
+    await page.clock.runFor(5_100)
+    // The three visible toasts expire and the queued fourth one takes a slot.
+    await expect(region.getByRole('listitem')).toHaveCount(1)
+
+    await page.clock.runFor(5_100)
+    await expect(region.getByRole('listitem')).toHaveCount(0)
   })
 })

@@ -106,10 +106,10 @@ export function extractQuickStartHtml(pattern: Pattern): string | null {
     return null
   }
 
-  const section = quickStart.split(/^## /m)[0]
-  const match = section.match(/```html\n([\s\S]*?)\n```/)
+  const section = quickStart.split(/^## /m)[0] ?? ''
+  const html = section.match(/```html\n([\s\S]*?)\n```/)?.[1]
 
-  return match ? match[1].trim() : null
+  return html ? html.trim() : null
 }
 
 export function patternUrl(slug: string): string {

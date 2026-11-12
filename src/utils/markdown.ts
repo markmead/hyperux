@@ -157,7 +157,9 @@ export function renderPatternMarkdown(pattern: Pattern, patterns: Pattern[]): st
 
   const meta = [
     `- Registrations: ${registrations.map(({ name }) => `\`${name}\``).join(', ')}`,
-    composes.length ? `- Composes: ${composes.map((name) => `[${name}](${SITE_URL}/patterns/${name}.md)`).join(', ')}` : '',
+    composes.length
+      ? `- Composes: ${composes.map((name) => `[${name}](${SITE_URL}/patterns/${name}.md)`).join(', ')}`
+      : '',
     `- Keywords: ${terms.join(', ')}`,
     `- Updated: ${isoDate(modDate)}`,
     `- Registry item: ${registryItemUrl(slug)}`,
@@ -274,8 +276,9 @@ export async function renderLlmsFullTxt(): Promise<string> {
   ].join('\n\n')
 
   return (
-    [intro, ...pages.filter(({ path }) => path !== 'index').map(({ markdown }) => markdown.trim())].join(
-      '\n\n---\n\n',
-    ) + '\n'
+    [
+      intro,
+      ...pages.filter(({ path }) => path !== 'index').map(({ markdown }) => markdown.trim()),
+    ].join('\n\n---\n\n') + '\n'
   )
 }

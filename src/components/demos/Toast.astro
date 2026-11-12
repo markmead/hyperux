@@ -1,0 +1,119 @@
+<div class="prose-demo not-prose relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      Queued status notifications that pause while hovered or focused, with an assertive role for
+      errors.
+    </p>
+
+    <div data-hux-copy="huxToastDemo">
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+          x-data
+          x-on:click="$dispatch('hux-toast:site-toasts:show', { title: 'Saved', message: 'Your changes have been saved.', toastType: 'success' })"
+        >
+          Show success
+        </button>
+
+        <button
+          type="button"
+          class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+          x-data
+          x-on:click="$dispatch('hux-toast:site-toasts:show', { title: 'Upload failed', message: 'The file is larger than 10 MB.', toastType: 'error', dismissDelay: 0 })"
+        >
+          Show error
+        </button>
+      </div>
+
+      <div
+        x-data="huxToast({ toastId: 'site-toasts', dismissDelay: 5000, maxVisibleToasts: 3 })"
+        role="region"
+        aria-label="Notifications"
+        class="pointer-events-none fixed right-4 bottom-4 z-50 w-full max-w-sm"
+        x-on:mouseenter="pauseToastTimers('hover')"
+        x-on:mouseleave="resumeToastTimers('hover')"
+        x-on:focusin="pauseToastTimers('focus')"
+        x-on:focusout="if (!$el.contains($event.relatedTarget)) resumeToastTimers('focus')"
+      >
+        <ol aria-live="polite" aria-relevant="additions" class="flex flex-col gap-3">
+          <template x-for="toastItem in toastItems" x-bind:key="toastItem.id">
+            <li
+              x-transition:enter="transition duration-200 ease-out motion-reduce:transition-none"
+              x-transition:enter-start="translate-y-2 opacity-0"
+              x-transition:enter-end="translate-y-0 opacity-100"
+              class="pointer-events-auto flex items-start gap-3 rounded-lg border bg-white p-4 shadow-lg"
+              x-bind:class="toastItem.toastType === 'error' ? 'border-red-300' : 'border-gray-200'"
+            >
+              <div
+                class="flex-1 space-y-1"
+                x-bind:role="toastItem.toastType === 'error' ? 'alert' : null"
+              >
+                <p
+                  x-show="toastItem.title"
+                  x-text="toastItem.title"
+                  class="text-sm font-semibold"
+                  x-bind:class="toastItem.toastType === 'error' ? 'text-red-800' : 'text-gray-900'"
+                >
+                </p>
+                <p x-text="toastItem.message" class="text-sm text-gray-700"></p>
+              </div>
+
+              <button
+                type="button"
+                class="shrink-0 rounded-md p-1.5 text-gray-600 hover:text-gray-900"
+                aria-label="Dismiss notification"
+                x-on:click="dismissToast(toastItem.id)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  class="size-4"
+                >
+                  <path
+                    d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                  ></path>
+                </svg>
+              </button>
+            </li>
+          </template>
+        </ol>
+      </div>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxToastDemo', 'huxToastRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>

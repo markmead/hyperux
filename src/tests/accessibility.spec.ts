@@ -23,7 +23,11 @@ async function expectNoViolations(page: Page, include?: string) {
   const { violations } = await builder.analyze()
 
   expect(
-    violations.map(({ id, help, nodes }) => ({ id, help, targets: nodes.map(({ target }) => target) })),
+    violations.map(({ id, help, nodes }) => ({
+      id,
+      help,
+      targets: nodes.map(({ target }) => target),
+    })),
   ).toEqual([])
 }
 
@@ -66,5 +70,13 @@ test.describe('WCAG 2.2 AA (axe)', () => {
     await demoCard(page).getByRole('button', { name: 'Open Command Palette' }).click()
     await page.keyboard.type('docs')
     await expectNoViolations(page, '[role="dialog"]')
+  })
+
+  test('visible toasts', async ({ page }) => {
+    await openPattern(page, 'toast')
+    await demoCard(page).getByRole('button', { name: 'Show success' }).click()
+    await demoCard(page).getByRole('button', { name: 'Show error' }).click()
+    await expect(page.getByRole('alert')).toBeVisible()
+    await expectNoViolations(page, '[aria-label="Notifications"]')
   })
 })

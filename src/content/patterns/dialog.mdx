@@ -101,13 +101,23 @@ The binding objects are shorthand. Writing the attributes yourself is equivalent
 
 ```html
 <div x-data="huxDialog({ dialogId: 'settings' })">
-  <button type="button" aria-haspopup="dialog" x-bind:aria-expanded="isOpen.toString()" x-on:click="openDialog()">
+  <button
+    type="button"
+    aria-haspopup="dialog"
+    x-bind:aria-expanded="isOpen.toString()"
+    x-on:click="openDialog()"
+  >
     Open dialog
   </button>
 
   <template x-teleport="body">
     <div x-cloak x-show="isOpen" x-on:keydown.escape.stop="handleEscape()">
-      <div x-cloak x-show="showBackdrop" aria-hidden="true" x-on:click="handleBackdropClick()"></div>
+      <div
+        x-cloak
+        x-show="showBackdrop"
+        aria-hidden="true"
+        x-on:click="handleBackdropClick()"
+      ></div>
 
       <div
         x-trap.noscroll="isOpen"
@@ -202,7 +212,7 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 
 - `init()` derives `dialogTitleId` as `${dialogId}-title` and `dialogDescriptionId` as `${dialogId}-description`. Without a `dialogId`, a generated `hux-dialog-{uuid}` prefix is used, so both ids are always strings.
 - `openDialog()` remembers the focused element (when the dialog was closed), sets `isOpen = true` and dispatches open event(s).
-- `closeDialog()` sets `isOpen = false` and dispatches close event(s). When the dialog was open and `returnFocusOnClose` is `true`, it focuses the remembered element on the next tick, but only if focus was lost to `document.body`; `x-trap` normally returns focus itself.
+- `closeDialog()` sets `isOpen = false` and dispatches close event(s). When the dialog was open and `returnFocusOnClose` is `true`, it watches focus for up to one second (covering leave transitions) and focuses the remembered element once focus is lost (on `document.body`, or on an element that is no longer visible). It stops watching as soon as focus moves anywhere else, for example when `x-trap` returns it.
 - `dialogPanelBindings` sets `role="dialog"`, `aria-modal="true"`, `aria-labelledby` and calls `handleEscape()` on Escape. `aria-describedby` is set only while open and only when an element with `dialogDescriptionId` exists.
 - `dialogTriggerBindings` sets `type="button"`, `aria-haspopup="dialog"`, `aria-expanded` and calls `openDialog()` on click.
 - `dialogBackdropBindings` sets `aria-hidden="true"` and calls `handleBackdropClick()` on click.
