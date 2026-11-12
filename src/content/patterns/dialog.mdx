@@ -12,8 +12,12 @@ terms:
   - slide-over
   - drawer
   - panel
+registrations:
+  - huxDialog
+requires:
+  - '@alpinejs/focus'
 pubDate: 2026-04-20
-modDate: 2026-07-15
+modDate: 2026-11-12
 ---
 
 import Demo from '../../components/demos/Dialog.astro'
@@ -26,7 +30,7 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 # Alpine.js {frontmatter.title}
 
-`huxDialog` handles open/close state, optional backdrop behavior, and scoped lifecycle events for modal UI in Alpine.js. Pair it with your own dialog markup and focus trap directives.
+`huxDialog` handles open/close state, optional backdrop behavior, focus return, and scoped lifecycle events for modal UI in Alpine.js. Pair it with your own dialog markup and focus trap directives. Optional `x-bind` objects carry the ARIA wiring, Escape handling and backdrop clicks, so your markup only has to say where each part goes.
 
 This pattern expects the Alpine Focus plugin when you use `x-trap` in your markup: [@alpinejs/focus](https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js).
 
@@ -42,8 +46,9 @@ Returns an Alpine data object with:
 - `dialogId: string | null`
 - `isPersistent: boolean`
 - `isSeamless: boolean`
-- `dialogTitleId: string | null`
-- `dialogDescriptionId: string | null`
+- `dialogTitleId: string`
+- `dialogDescriptionId: string`
+- `returnFocusOnClose: boolean`
 - `closeOnBackdrop: boolean`
 - `closeOnEscape: boolean`
 - `showBackdrop: boolean`
@@ -52,6 +57,11 @@ Returns an Alpine data object with:
 - `closeDialog(): void`
 - `handleBackdropClick(): void`
 - `handleEscape(): void`
+- `dialogTriggerBindings: object` (for `x-bind` on the opening button)
+- `dialogPanelBindings: object` (for `x-bind` on the `role="dialog"` element)
+- `dialogBackdropBindings: object` (for `x-bind` on the backdrop)
+- `dialogTitleBindings: object` (for `x-bind` on the title)
+- `dialogDescriptionBindings: object` (for `x-bind` on the description)
 
 _Internal helper methods are private implementation details and are not part of the supported API contract._
 
@@ -61,31 +71,21 @@ _Internal helper methods are private implementation details and are not part of 
 - `startsOpen: boolean` (default: `false`)
 - `isPersistent: boolean` (default: `false`)
 - `isSeamless: boolean` (default: `false`)
+- `returnFocusOnClose: boolean` (default: `true`)
 
 ## Quick Start
 
 ```html
 <div x-data="huxDialog({ dialogId: 'settings' })">
-  <button type="button" x-on:click="openDialog()">Open dialog</button>
+  <button x-bind="dialogTriggerBindings">Open dialog</button>
 
   <template x-teleport="body">
-    <div x-cloak x-show="isOpen" x-on:keydown.escape.stop="handleEscape()">
-      <div
-        x-cloak
-        x-show="showBackdrop"
-        aria-hidden="true"
-        x-on:click="handleBackdropClick()"
-      ></div>
+    <div x-cloak x-show="isOpen">
+      <div x-cloak x-show="showBackdrop" x-bind="dialogBackdropBindings"></div>
 
-      <div
-        x-trap.noscroll="isOpen"
-        role="dialog"
-        aria-modal="true"
-        x-bind:aria-labelledby="dialogTitleId || null"
-        x-bind:aria-describedby="dialogDescriptionId || null"
-      >
-        <h2 x-bind:id="dialogTitleId || null">Settings</h2>
-        <p x-bind:id="dialogDescriptionId || null">Update your account preferences.</p>
+      <div x-trap.noscroll="isOpen" x-bind="dialogPanelBindings">
+        <h2 x-bind="dialogTitleBindings">Settings</h2>
+        <p x-bind="dialogDescriptionBindings">Update your account preferences.</p>
         <button type="button" x-on:click="closeDialog()">Close</button>
       </div>
     </div>
@@ -94,6 +94,36 @@ _Internal helper methods are private implementation details and are not part of 
 ```
 
 ## Common Usage Patterns
+
+### Explicit Attributes Instead of Binding Objects
+
+The binding objects are shorthand. Writing the attributes yourself is equivalent:
+
+```html
+<div x-data="huxDialog({ dialogId: 'settings' })">
+  <button type="button" aria-haspopup="dialog" x-bind:aria-expanded="isOpen.toString()" x-on:click="openDialog()">
+    Open dialog
+  </button>
+
+  <template x-teleport="body">
+    <div x-cloak x-show="isOpen" x-on:keydown.escape.stop="handleEscape()">
+      <div x-cloak x-show="showBackdrop" aria-hidden="true" x-on:click="handleBackdropClick()"></div>
+
+      <div
+        x-trap.noscroll="isOpen"
+        role="dialog"
+        aria-modal="true"
+        x-bind:aria-labelledby="dialogTitleId"
+        x-bind:aria-describedby="dialogDescriptionId"
+      >
+        <h2 x-bind:id="dialogTitleId">Settings</h2>
+        <p x-bind:id="dialogDescriptionId">Update your account preferences.</p>
+        <button type="button" x-on:click="closeDialog()">Close</button>
+      </div>
+    </div>
+  </template>
+</div>
+```
 
 ### Persistent Confirmation Dialog
 
@@ -155,10 +185,10 @@ huxDialog({
         x-transition:leave-end="translate-x-full"
         role="dialog"
         aria-modal="true"
-        x-bind:aria-labelledby="dialogTitleId || null"
+        x-bind:aria-labelledby="dialogTitleId"
         class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl"
       >
-        <h2 x-bind:id="dialogTitleId || null">Settings</h2>
+        <h2 x-bind:id="dialogTitleId">Settings</h2>
         <button type="button" x-on:click="closeDialog()">Close</button>
       </div>
     </div>
@@ -170,9 +200,12 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 
 ## Behavior Contract
 
-- `init()` derives `dialogTitleId` from `dialogId` as `${dialogId}-title`, and `dialogDescriptionId` as `${dialogId}-description`, otherwise both `null`.
-- `openDialog()` sets `isOpen = true` and dispatches open event(s).
-- `closeDialog()` sets `isOpen = false` and dispatches close event(s).
+- `init()` derives `dialogTitleId` as `${dialogId}-title` and `dialogDescriptionId` as `${dialogId}-description`. Without a `dialogId`, a generated `hux-dialog-{uuid}` prefix is used, so both ids are always strings.
+- `openDialog()` remembers the focused element (when the dialog was closed), sets `isOpen = true` and dispatches open event(s).
+- `closeDialog()` sets `isOpen = false` and dispatches close event(s). When the dialog was open and `returnFocusOnClose` is `true`, it focuses the remembered element on the next tick, but only if focus was lost to `document.body`; `x-trap` normally returns focus itself.
+- `dialogPanelBindings` sets `role="dialog"`, `aria-modal="true"`, `aria-labelledby` and calls `handleEscape()` on Escape. `aria-describedby` is set only while open and only when an element with `dialogDescriptionId` exists.
+- `dialogTriggerBindings` sets `type="button"`, `aria-haspopup="dialog"`, `aria-expanded` and calls `openDialog()` on click.
+- `dialogBackdropBindings` sets `aria-hidden="true"` and calls `handleBackdropClick()` on click.
 - `toggleDialog()` flips open state by delegating to `openDialog()` and `closeDialog()`.
 - `isPersistent` disables both Escape and backdrop close via computed flags.
 - `isSeamless` hides backdrop via `showBackdrop`.
@@ -187,10 +220,11 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 
 - Keep modal container with `role="dialog"` and `aria-modal="true"`.
 - Provide a visible or screen-reader title and wire `aria-labelledby` to that element.
-- `dialogTitleId` and `dialogDescriptionId` are only derived when a `dialogId` is passed. **Set a `dialogId` (or add a static `aria-label`) so the dialog has an accessible name** — without one, `aria-labelledby` resolves to `null` and screen readers announce an unnamed dialog.
+- `dialogTitleId` is always set (from `dialogId` or a generated prefix), so the dialog is named as long as an element carries that id. Use `dialogTitleBindings`, or `x-bind:id="dialogTitleId"`, on the visible title.
 - Associate descriptive body copy with the dialog by wiring `aria-describedby` to `dialogDescriptionId` so screen readers announce it alongside the title.
 - Keep close controls as labeled `button` elements with `type="button"`, and give icon-only close buttons enough padding to meet a comfortable touch-target size.
-- Use keyboard escape handling (`x-on:keydown.escape.stop`) and focus trapping (`x-trap`) so keyboard users remain inside the modal while open.
+- Use focus trapping (`x-trap`) so keyboard users remain inside the modal while open. Escape handling is included in `dialogPanelBindings`; with explicit attributes, add `x-on:keydown.escape.stop="handleEscape()"`.
+- Focus returns to the opening control on close. Set `returnFocusOnClose: false` only when you move focus somewhere else yourself.
 
 ## Notes
 

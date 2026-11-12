@@ -9,7 +9,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://js.hyperui.dev',
 
-  integrations: [mdx(), sitemap(), alpinejs()],
+  integrations: [mdx(), sitemap(), alpinejs({ entrypoint: '/src/alpine-entrypoint' })],
 
   vite: {
     plugins: [tailwindcss()],

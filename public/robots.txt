@@ -2,4 +2,9 @@ User-agent: *
 
 Allow: /
 
+# For agents: https://js.hyperui.dev/llms.txt lists every page's Markdown
+# version (e.g. /patterns/dialog.md), https://js.hyperui.dev/llms-full.txt
+# has them all in one file, and https://js.hyperui.dev/r/registry.json is a
+# shadcn-compatible registry of every pattern.
+
 Sitemap: https://js.hyperui.dev/sitemap-index.xml
