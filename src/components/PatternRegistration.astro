@@ -1,46 +1,21 @@
 ---
-import huxComboboxSource from './patterns/huxCombobox.js?raw'
-import huxCommandPaletteSource from './patterns/huxCommandPalette.js?raw'
-import huxCopySource from './patterns/huxCopy.js?raw'
-import huxDialogSource from './patterns/huxDialog.js?raw'
-import huxInlineEditorSource from './patterns/huxInlineEditor.js?raw'
-import huxDropdownSource from './patterns/huxDropdown.js?raw'
-import huxResizableSource from './patterns/huxResizable.js?raw'
-import huxScrollSpySource from './patterns/huxScrollSpy.js?raw'
-import huxStepperSource from './patterns/huxStepper.js?raw'
-import huxTabsSource from './patterns/huxTabs.js?raw'
-import huxInfiniteScrollSource from './patterns/huxInfiniteScroll.js?raw'
-import huxTabPanelSource from './patterns/huxTabPanel.js?raw'
+// Every file in ./patterns is one Alpine.data() registration. Each is inlined
+// with a `data-hux-copy="<name>Registration"` marker so demo copy buttons can
+// include the registration source.
+const registrationSources = import.meta.glob<string>('./patterns/*.js', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+})
+
+const registrations = Object.entries(registrationSources).map(([filePath, source]) => ({
+  name: filePath.replace(/^\.\/patterns\//, '').replace(/\.js$/, ''),
+  source,
+}))
 ---
 
-<script is:inline data-hux-copy="huxComboboxRegistration" set:html={huxComboboxSource} />
-
-<script
-  is:inline
-  data-hux-copy="huxCommandPaletteRegistration"
-  set:html={huxCommandPaletteSource}
-/>
-
-<script is:inline data-hux-copy="huxCopyRegistration" set:html={huxCopySource} />
-
-<script is:inline data-hux-copy="huxDialogRegistration" set:html={huxDialogSource} />
-
-<script is:inline data-hux-copy="huxInlineEditorRegistration" set:html={huxInlineEditorSource} />
-
-<script is:inline data-hux-copy="huxDropdownRegistration" set:html={huxDropdownSource} />
-
-<script is:inline data-hux-copy="huxResizableRegistration" set:html={huxResizableSource} />
-
-<script is:inline data-hux-copy="huxScrollSpyRegistration" set:html={huxScrollSpySource} />
-
-<script is:inline data-hux-copy="huxStepperRegistration" set:html={huxStepperSource} />
-
-<script is:inline data-hux-copy="huxTabsRegistration" set:html={huxTabsSource} />
-
-<script
-  is:inline
-  data-hux-copy="huxInfiniteScrollRegistration"
-  set:html={huxInfiniteScrollSource}
-/>
-
-<script is:inline data-hux-copy="huxTabPanelRegistration" set:html={huxTabPanelSource} />
+{
+  registrations.map(({ name, source }) => (
+    <script is:inline data-hux-copy={`${name}Registration`} set:html={source} />
+  ))
+}

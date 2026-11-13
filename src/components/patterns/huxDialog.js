@@ -4,8 +4,10 @@ document.addEventListener('alpine:init', () => {
     dialogId: initialConfig.dialogId ?? null,
     isPersistent: initialConfig.isPersistent ?? false,
     isSeamless: initialConfig.isSeamless ?? false,
+    returnFocusOnClose: initialConfig.returnFocusOnClose ?? true,
     dialogTitleId: null,
     dialogDescriptionId: null,
+    _dialogOpenerElement: null,
 
     get closeOnBackdrop() {
       return !this.isPersistent
@@ -19,12 +21,68 @@ document.addEventListener('alpine:init', () => {
       return !this.isSeamless
     },
 
+    // Optional `x-bind` objects. They carry the ARIA wiring, Escape and
+    // backdrop handling so markup cannot forget them.
+    dialogTriggerBindings: {
+      type: 'button',
+      'aria-haspopup': 'dialog',
+      ':aria-expanded'() {
+        return this.isOpen.toString()
+      },
+      '@click'() {
+        this.openDialog()
+      },
+    },
+
+    dialogPanelBindings: {
+      role: 'dialog',
+      'aria-modal': 'true',
+      ':aria-labelledby'() {
+        return this.dialogTitleId
+      },
+      ':aria-describedby'() {
+        // Re-evaluated on open, once the description element is in the DOM.
+        return this.isOpen && document.getElementById(this.dialogDescriptionId)
+          ? this.dialogDescriptionId
+          : null
+      },
+      '@keydown.escape.stop'() {
+        this.handleEscape()
+      },
+    },
+
+    dialogBackdropBindings: {
+      'aria-hidden': 'true',
+      '@click'() {
+        this.handleBackdropClick()
+      },
+    },
+
+    dialogTitleBindings: {
+      ':id'() {
+        return this.dialogTitleId
+      },
+    },
+
+    dialogDescriptionBindings: {
+      ':id'() {
+        return this.dialogDescriptionId
+      },
+    },
+
     init() {
-      this.dialogTitleId = this.dialogId ? `${this.dialogId}-title` : null
-      this.dialogDescriptionId = this.dialogId ? `${this.dialogId}-description` : null
+      // Ids are always derived so the dialog always has an accessible name.
+      const idPrefix = this.dialogId ?? `hux-dialog-${crypto.randomUUID()}`
+
+      this.dialogTitleId = `${idPrefix}-title`
+      this.dialogDescriptionId = `${idPrefix}-description`
     },
 
     openDialog() {
+      if (!this.isOpen) {
+        this._dialogOpenerElement = document.activeElement
+      }
+
       this.isOpen = true
       this.dispatchDialogEvent('open')
     },
@@ -39,8 +97,51 @@ document.addEventListener('alpine:init', () => {
     },
 
     closeDialog() {
+      const wasOpen = this.isOpen
+
       this.isOpen = false
       this.dispatchDialogEvent('close')
+
+      if (wasOpen) {
+        this.restoreOpenerFocus()
+      }
+    },
+
+    restoreOpenerFocus() {
+      const openerElement = this._dialogOpenerElement
+
+      this._dialogOpenerElement = null
+
+      if (!this.returnFocusOnClose || !openerElement?.isConnected) {
+        return
+      }
+
+      // `x-trap` usually returns focus itself, but a leave transition keeps the
+      // focused element visible until it finishes, and focus then drops to the
+      // body. Watch for up to a second: restore focus once it is lost, and stop
+      // as soon as something else moves it.
+      const focusedAtClose = document.activeElement
+      const watchDeadline = performance.now() + 1000
+
+      const watchFocus = () => {
+        const activeElement = document.activeElement
+        const isFocusLost =
+          !activeElement ||
+          activeElement === document.body ||
+          activeElement.checkVisibility?.() === false
+
+        if (isFocusLost) {
+          openerElement.focus()
+
+          return
+        }
+
+        if (activeElement === focusedAtClose && performance.now() < watchDeadline) {
+          requestAnimationFrame(watchFocus)
+        }
+      }
+
+      this.$nextTick(watchFocus)
     },
 
     handleBackdropClick() {

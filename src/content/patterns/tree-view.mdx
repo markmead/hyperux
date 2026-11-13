@@ -1,0 +1,166 @@
+---
+slug: tree-view
+title: Tree View
+description: Build accessible file trees and nested navigation with huxTreeView for Alpine.js, with arrow-key expand and collapse, typeahead, and selection events.
+terms:
+  - tree-view
+  - treeview
+  - file-tree
+  - nested-navigation
+  - alpinejs
+  - accessibility
+  - keyboard-navigation
+registrations:
+  - huxTreeView
+pubDate: 2026-11-12
+modDate: 2026-11-12
+---
+
+import Demo from '../../components/demos/TreeView.astro'
+import LastUpdated from '../../components/LastUpdated.astro'
+
+<div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
+
+<Demo />
+
+# Alpine.js {frontmatter.title}
+
+`huxTreeView` implements the WAI-ARIA tree pattern for Alpine.js: expand and collapse state, a roving tabindex, arrow-key movement between visible items, typeahead, and single selection. It flattens your nested items into `visibleTreeItems`, with the `aria-level`, `aria-setsize` and `aria-posinset` values each item needs, so you render one flat `x-for` loop.
+
+<LastUpdated date={frontmatter.modDate} />
+
+## API
+
+### `huxTreeView(config)`
+
+Returns an Alpine data object with:
+
+- `treeItems: Array<{ id: string, label: string, children: TreeItem[] }>` (normalized, extra fields kept)
+- `treeId: string | null`
+- `expandedItemIds: string[]`
+- `selectedItemId: string | null`
+- `focusedItemId: string | null`
+- `visibleTreeItems: Array<{ treeItem, itemLevel: number, positionInSet: number, setSize: number, hasChildren: boolean, isExpanded: boolean }>`
+- `treeItemElementId(itemId: string): string`
+- `hasChildItems(itemId: string): boolean`
+- `isItemExpanded(itemId: string): boolean`
+- `expandTreeItem(itemId: string): void`
+- `collapseTreeItem(itemId: string): void`
+- `toggleTreeItem(itemId: string): void`
+- `selectTreeItem(itemId: string): void`
+- `focusTreeItem(itemId: string): void`
+- `expandAllSiblings(itemId: string): void`
+- `handleTreeKeydown(keyboardEvent: KeyboardEvent): void`
+
+_Internal helper methods are private implementation details and are not part of the supported API contract._
+
+## Options
+
+- `treeItems: Array<{ id: string, label: string, children?: TreeItem[] }>` (default: `[]`)
+- `treeId: string` (optional, scopes event names and element ids)
+- `expandedItemIds: string[]` (default: `[]`)
+- `selectedItemId: string` (optional)
+
+## Quick Start
+
+```html
+<div
+  x-data="huxTreeView({
+    treeId: 'files',
+    expandedItemIds: ['src'],
+    treeItems: [
+      { id: 'src', label: 'src', children: [{ id: 'main-js', label: 'main.js' }] },
+      { id: 'readme', label: 'README.md' }
+    ]
+  })"
+>
+  <div role="tree" aria-label="Project files" x-on:keydown="handleTreeKeydown($event)">
+    <template x-for="visibleItem in visibleTreeItems" x-bind:key="visibleItem.treeItem.id">
+      <div
+        role="treeitem"
+        x-bind:id="treeItemElementId(visibleItem.treeItem.id)"
+        x-bind:aria-level="visibleItem.itemLevel"
+        x-bind:aria-setsize="visibleItem.setSize"
+        x-bind:aria-posinset="visibleItem.positionInSet"
+        x-bind:aria-expanded="visibleItem.hasChildren ? visibleItem.isExpanded.toString() : null"
+        x-bind:aria-selected="(selectedItemId === visibleItem.treeItem.id).toString()"
+        x-bind:tabindex="focusedItemId === visibleItem.treeItem.id ? '0' : '-1'"
+        x-bind:style="`padding-left: ${visibleItem.itemLevel - 1}rem`"
+        x-on:click="selectTreeItem(visibleItem.treeItem.id); toggleTreeItem(visibleItem.treeItem.id)"
+        x-on:focus="focusedItemId = visibleItem.treeItem.id"
+        x-text="visibleItem.treeItem.label"
+      ></div>
+    </template>
+  </div>
+</div>
+```
+
+## Common Usage Patterns
+
+### Navigate on Selection
+
+Extra fields on tree items are kept, so links can travel with the data:
+
+```html
+<div
+  x-data="huxTreeView({ treeId: 'docs-nav', treeItems: [{ id: 'intro', label: 'Introduction', href: '/docs/intro' }] })"
+  x-on:hux-tree-view:docs-nav:select="if ($event.detail.treeItem.href) location.assign($event.detail.treeItem.href)"
+>
+  ...
+</div>
+```
+
+### Load Children Lazily
+
+Listen for `expand` and fetch the folder's contents yourself. The tree only manages state; data fetching stays in your code.
+
+```html
+<div
+  x-data="huxTreeView({ treeId: 'remote', treeItems: initialItems })"
+  x-on:hux-tree-view:remote:expand="loadFolder($event.detail.itemId)"
+>
+  ...
+</div>
+```
+
+## Behavior Contract
+
+- `init()` drops items without a string `id` and `label`, and ignores duplicate ids (logging an error). Dropping duplicates also stops circular `children` references.
+- `expandedItemIds` keeps only ids of items that have children. When `selectedItemId` is set, its ancestors are expanded so it is visible; unknown ids are cleared.
+- `focusedItemId` starts on the selected item, otherwise the first top-level item. Use it for the roving tabindex (`0` on the focused item, `-1` elsewhere).
+- `visibleTreeItems` lists top-level items and the children of expanded items, in display order, with 1-based `itemLevel`, `positionInSet` and `setSize`.
+- `handleTreeKeydown()`:
+  - `ArrowDown` / `ArrowUp` move to the next or previous visible item, without wrapping.
+  - `ArrowRight` expands a closed parent, or moves to the first child of an open one. It does nothing on a leaf.
+  - `ArrowLeft` collapses an open parent, or moves to the parent item.
+  - `Home` / `End` move to the first or last visible item.
+  - `Enter` and `Space` select the focused item.
+  - `*` expands every sibling of the focused item.
+  - Printable characters move to the next visible item whose label starts with the typed text. Characters typed within 500ms build up one search.
+  - Keys with `Alt`, `Control` or `Meta` held are ignored, so browser shortcuts still work.
+- `collapseTreeItem()` moves `focusedItemId` to the collapsed item when focus was inside it.
+- `expandTreeItem()`, `collapseTreeItem()` and `selectTreeItem()` dispatch events; expanding an open item or collapsing a closed one does nothing.
+
+## Error Handling
+
+- Invalid or duplicate items are dropped instead of throwing.
+- Unknown ids no-op in every method.
+- Non-array `treeItems` initialize an empty tree.
+
+## Accessibility Notes
+
+- Use `role="tree"` with an `aria-label` (or `aria-labelledby`) on the container and `role="treeitem"` on each item.
+- Bind `aria-level`, `aria-setsize` and `aria-posinset` from `visibleTreeItems`. They give screen readers the nesting a flat list would otherwise lose.
+- Set `aria-expanded` only on items with children; leave it off leaves (`null`).
+- Bind `aria-selected` on every item and keep the roving tabindex, so Tab moves into and out of the tree in one stop.
+- Put `handleTreeKeydown($event)` on the tree container and sync `focusedItemId` on each item's `focus` so mouse clicks and keyboard focus agree.
+- Hide decorative chevrons with `aria-hidden="true"`, and respect `prefers-reduced-motion` for their rotation.
+
+## Notes
+
+- Events emitted (via `$dispatch`, so they bubble to `window`), each with `{ treeId, itemId, treeItem }` in `event.detail`:
+  - `hux-tree-view:{treeId}:select`, `hux-tree-view:{treeId}:expand`, `hux-tree-view:{treeId}:collapse` when `treeId` is set
+  - `hux-tree-view:select`, `hux-tree-view:expand`, `hux-tree-view:collapse` always
+- Element ids are `hux-tree-{treeId}-item-{itemId}`; without a `treeId` a random id replaces it.
+
+</div>

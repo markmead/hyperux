@@ -9,7 +9,12 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://js.hyperui.dev',
 
-  integrations: [mdx(), sitemap(), alpinejs()],
+  integrations: [mdx(), sitemap(), alpinejs({ entrypoint: '/src/alpine-entrypoint' })],
+
+  markdown: {
+    // The default github-dark comment colour fails WCAG AA contrast.
+    shikiConfig: { theme: 'github-dark-high-contrast' },
+  },
 
   vite: {
     plugins: [tailwindcss()],

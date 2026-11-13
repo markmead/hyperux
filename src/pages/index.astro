@@ -1,10 +1,37 @@
 ---
-import { type CollectionEntry, getCollection } from 'astro:content'
-
 import BaseLayout from '../layouts/BaseLayout.astro'
+import CommandStrip from '../components/CommandStrip.astro'
 import LastUpdated from '../components/LastUpdated.astro'
+import { SITE_URL, getPatterns, installCommand } from '../utils/patterns'
 
-const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+const patterns = await getPatterns()
+
+const agentRoutes = [
+  {
+    copyName: 'agentRouteLlms',
+    copyLabel: 'llms.txt URL',
+    title: 'Point your assistant at the docs',
+    description:
+      'llms.txt indexes a Markdown version of every pattern, with its options, behavior contract and full registration source.',
+    command: `${SITE_URL}/llms.txt`,
+  },
+  {
+    copyName: 'agentRouteRegistry',
+    copyLabel: 'install command',
+    title: 'Add a pattern to a project',
+    description:
+      'Each pattern is a shadcn-compatible registry item. The command writes the registration and a markup example into ./hyperux; no components.json needed.',
+    command: installCommand('dialog'),
+  },
+  {
+    copyName: 'agentRouteSkill',
+    copyLabel: 'skill command',
+    title: 'Teach your agent the conventions',
+    description:
+      'The HyperUX skill tells coding agents when to reach for a pattern, how to load it before Alpine starts and which ARIA wiring to keep.',
+    command: 'npx skills add markmead/hyperux',
+  },
+]
 
 const lastUpdated =
   patterns.length > 0
@@ -39,7 +66,7 @@ const lastUpdated =
               <li>
                 <a
                   href={`/patterns/${pattern.data.slug}`}
-                  class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+                  class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
                 >
                   Read the {pattern.data.title} documentation
                 </a>
@@ -48,6 +75,34 @@ const lastUpdated =
           }
         </ul>
       </nav>
+
+      <section aria-labelledby="agents-heading">
+        <h2 id="agents-heading">Use HyperUX with an AI assistant</h2>
+
+        <p>
+          Assistants write convincing UI code that often gets focus, keyboard and ARIA wrong. Hand
+          them a tested pattern instead.
+        </p>
+
+        <ul class="not-prose space-y-4">
+          {
+            agentRoutes.map((agentRoute) => (
+              <li class="overflow-hidden rounded-lg border border-gray-300 bg-white">
+                <div class="space-y-1 px-4 py-3">
+                  <h3 class="text-base font-semibold text-gray-900">{agentRoute.title}</h3>
+                  <p class="text-sm text-gray-700">{agentRoute.description}</p>
+                </div>
+
+                <CommandStrip
+                  command={agentRoute.command}
+                  copyName={agentRoute.copyName}
+                  copyLabel={agentRoute.copyLabel}
+                />
+              </li>
+            ))
+          }
+        </ul>
+      </section>
     </article>
   </main>
 </BaseLayout>

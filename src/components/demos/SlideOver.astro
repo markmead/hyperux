@@ -49,14 +49,14 @@
             x-transition:leave="transform transition-transform duration-200 ease-in"
             x-transition:leave-start="translate-x-0"
             x-transition:leave-end="translate-x-full"
-            x-bind:aria-labelledby="dialogTitleId || null"
+            x-bind:aria-labelledby="dialogTitleId"
             role="dialog"
             aria-modal="true"
             class="fixed top-0 right-0 h-full w-full max-w-md overflow-y-auto bg-white shadow-xl"
           >
             <div class="flex h-full flex-col">
               <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <h2 x-bind:id="dialogTitleId || null" class="text-base font-semibold text-gray-900">
+                <h2 x-bind:id="dialogTitleId" class="text-base font-semibold text-gray-900">
                   User Settings
                 </h2>
 
@@ -182,7 +182,7 @@
         href="https://github.com/markmead/hyperux/issues/new"
         target="_blank"
         rel="noreferrer"
-        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
       >
         Found a bug or improvement? Open an issue.
       </a>

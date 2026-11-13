@@ -1,0 +1,118 @@
+<div class="prose-demo not-prose relative rounded-lg border border-gray-300 bg-white p-6">
+  <span
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-semibold tracking-wide text-teal-900 uppercase"
+  >
+    Demo
+  </span>
+
+  <div class="space-y-4">
+    <p class="text-gray-700">
+      File tree with arrow-key navigation, expand and collapse, typeahead, and a single selection.
+    </p>
+
+    <div
+      data-hux-copy="huxTreeViewDemo"
+      x-data="huxTreeView({
+        treeId: 'project-files',
+        expandedItemIds: ['src'],
+        treeItems: [
+          {
+            id: 'src',
+            label: 'src',
+            children: [
+              {
+                id: 'components',
+                label: 'components',
+                children: [
+                  { id: 'dialog-astro', label: 'Dialog.astro' },
+                  { id: 'tabs-astro', label: 'Tabs.astro' }
+                ]
+              },
+              { id: 'pages', label: 'pages', children: [{ id: 'index-astro', label: 'index.astro' }] },
+              { id: 'env-ts', label: 'env.d.ts' }
+            ]
+          },
+          { id: 'public', label: 'public', children: [{ id: 'favicon-svg', label: 'favicon.svg' }] },
+          { id: 'package-json', label: 'package.json' },
+          { id: 'readme-md', label: 'README.md' }
+        ]
+      })"
+      class="max-w-sm space-y-3"
+    >
+      <div
+        role="tree"
+        aria-label="Project files"
+        class="rounded-md border border-gray-200 p-1 text-sm"
+        x-on:keydown="handleTreeKeydown($event)"
+      >
+        <template x-for="visibleItem in visibleTreeItems" x-bind:key="visibleItem.treeItem.id">
+          <div
+            role="treeitem"
+            x-bind:id="treeItemElementId(visibleItem.treeItem.id)"
+            x-bind:aria-level="visibleItem.itemLevel"
+            x-bind:aria-setsize="visibleItem.setSize"
+            x-bind:aria-posinset="visibleItem.positionInSet"
+            x-bind:aria-expanded="visibleItem.hasChildren ? visibleItem.isExpanded.toString() : null"
+            x-bind:aria-selected="(selectedItemId === visibleItem.treeItem.id).toString()"
+            x-bind:tabindex="focusedItemId === visibleItem.treeItem.id ? '0' : '-1'"
+            x-bind:style="`padding-left: ${(visibleItem.itemLevel - 1) * 1.25 + 0.5}rem`"
+            x-bind:class="selectedItemId === visibleItem.treeItem.id
+              ? 'bg-blue-50 text-blue-900'
+              : 'text-gray-700 hover:bg-gray-100'"
+            class="flex cursor-default items-center gap-1.5 rounded py-1.5 pr-2"
+            x-on:click="selectTreeItem(visibleItem.treeItem.id); toggleTreeItem(visibleItem.treeItem.id)"
+            x-on:focus="focusedItemId = visibleItem.treeItem.id"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              aria-hidden="true"
+              class="size-4 shrink-0 text-gray-500 transition-transform motion-reduce:transition-none"
+              x-bind:class="{ 'invisible': !visibleItem.hasChildren, 'rotate-90': visibleItem.isExpanded }"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                clip-rule="evenodd"></path>
+            </svg>
+
+            <span x-text="visibleItem.treeItem.label"></span>
+          </div>
+        </template>
+      </div>
+
+      <p class="text-sm text-gray-600" aria-live="polite">
+        Selected:{' '}
+        <span class="font-medium text-gray-900" x-text="selectedItemId ?? 'nothing yet'"></span>
+      </p>
+    </div>
+
+    <hr class="my-8 h-px w-full border-none bg-gray-200" />
+
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <button
+        type="button"
+        x-data="huxCopy({ sourceNames: ['huxTreeViewDemo', 'huxTreeViewRegistration'] })"
+        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        x-on:click="copyToClipboard()"
+      >
+        <span
+          aria-live="polite"
+          x-text="hasCopied ? 'Copied Alpine.js + HTML' : 'Copy Alpine.js + HTML'"
+        >
+          Copy Alpine.js + HTML
+        </span>
+      </button>
+
+      <a
+        href="https://github.com/markmead/hyperux/issues/new"
+        target="_blank"
+        rel="noreferrer"
+        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
+      >
+        Found a bug or improvement? Open an issue.
+      </a>
+    </div>
+  </div>
+</div>
