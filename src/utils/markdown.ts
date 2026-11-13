@@ -3,16 +3,18 @@ import {
   SITE_URL,
   getPatterns,
   installCommand,
+  patternUrl,
   pluginCdnUrl,
   registryItemUrl,
   resolveRegistrations,
   resolveRequires,
   type Pattern,
+  type Registration,
 } from './patterns'
 
-export const SITE_TITLE = 'HyperUX'
+const SITE_TITLE = 'HyperUX'
 
-export const HOME_TITLE = 'Free Alpine.js UI Patterns for Developers'
+const HOME_TITLE = 'Free Alpine.js UI Patterns for Developers'
 
 const ABOUT =
   'HyperUX is a collection of free, open source, behavior-first Alpine.js patterns. Each pattern is a single `Alpine.data()` registration that owns state, keyboard handling, focus management, ARIA wiring and events. You bring the markup and styles; HyperUX does not ship any CSS.'
@@ -45,7 +47,7 @@ function document(
   )
 }
 
-export function codeFence(code: string, language = 'html'): string {
+function codeFence(code: string, language = 'html'): string {
   const longestRun = Math.max(2, ...(code.match(/`+/g) ?? []).map((run) => run.length))
   const fence = '`'.repeat(longestRun + 1)
 
@@ -56,9 +58,7 @@ export function codeFence(code: string, language = 'html'): string {
  * How to load registrations so they run before Alpine starts. Shared by the
  * Markdown pages, the registry `docs` and "Copy for AI".
  */
-export function renderSetupMarkdown(pattern: Pattern, patterns: Pattern[]): string {
-  const registrations = resolveRegistrations(pattern, patterns)
-  const plugins = resolveRequires(pattern, patterns)
+export function renderSetupMarkdown(registrations: Registration[], plugins: string[]): string {
   const names = registrations.map(({ name }) => `\`${name}\``).join(', ')
 
   const pluginLines = plugins.map((plugin) => {
@@ -103,7 +103,7 @@ function cleanMdxProse(prose: string, pattern: Pattern): string {
 }
 
 /** Clean prose between code fences and leave fenced code untouched. */
-export function cleanMdxBody(pattern: Pattern): string {
+function cleanMdxBody(pattern: Pattern): string {
   const lines = (pattern.body ?? '').split('\n')
   const segments: { fenced: boolean; text: string[] }[] = []
   let inFence = false
@@ -147,18 +147,19 @@ function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10)
 }
 
-export function patternTitle(pattern: Pattern): string {
+function patternTitle(pattern: Pattern): string {
   return `Alpine.js ${pattern.data.title} Pattern`
 }
 
 export function renderPatternMarkdown(pattern: Pattern, patterns: Pattern[]): string {
   const { slug, description, terms, modDate, composes } = pattern.data
   const registrations = resolveRegistrations(pattern, patterns)
+  const plugins = resolveRequires(pattern, patterns)
 
   const meta = [
     `- Registrations: ${registrations.map(({ name }) => `\`${name}\``).join(', ')}`,
     composes.length
-      ? `- Composes: ${composes.map((name) => `[${name}](${SITE_URL}/patterns/${name}.md)`).join(', ')}`
+      ? `- Composes: ${composes.map((name) => `[${name}](${patternUrl(name)}.md)`).join(', ')}`
       : '',
     `- Keywords: ${terms.join(', ')}`,
     `- Updated: ${isoDate(modDate)}`,
@@ -182,7 +183,7 @@ export function renderPatternMarkdown(pattern: Pattern, patterns: Pattern[]): st
     [
       meta,
       '## Setup',
-      renderSetupMarkdown(pattern, patterns),
+      renderSetupMarkdown(registrations, plugins),
       cleanMdxBody(pattern),
       '## Registration Source',
       'Copy these files as they are. They are the source of truth for every option, default and event above.',
@@ -192,10 +193,10 @@ export function renderPatternMarkdown(pattern: Pattern, patterns: Pattern[]): st
 }
 
 function patternIndexLine(pattern: Pattern, suffix = ''): string {
-  return `- [${pattern.data.title}](${SITE_URL}/patterns/${pattern.data.slug}${suffix}): ${pattern.data.description}`
+  return `- [${pattern.data.title}](${patternUrl(pattern.data.slug)}${suffix}): ${pattern.data.description}`
 }
 
-export function renderHomeMarkdown(patterns: Pattern[]): string {
+function renderHomeMarkdown(patterns: Pattern[]): string {
   return document({ title: HOME_TITLE, description: SITE_DESCRIPTION, path: '/' }, [
     ABOUT,
     '## Patterns',
@@ -204,17 +205,15 @@ export function renderHomeMarkdown(patterns: Pattern[]): string {
     [
       `- ${SITE_URL}/llms.txt: index of every Markdown page`,
       `- ${SITE_URL}/llms-full.txt: every pattern, with registration source, in one file`,
-      `- ${SITE_URL}/r/registry.json: shadcn-compatible registry; install one pattern with \`npx shadcn@latest add ${SITE_URL}/r/<slug>.json\``,
+      `- ${SITE_URL}/r/registry.json: shadcn-compatible registry; install one pattern with \`${installCommand('<slug>')}\``,
       '- Agent skill: `npx skills add markmead/hyperux`',
     ].join('\n'),
   ])
 }
 
-export type MarkdownPage = {
+type MarkdownPage = {
   /** Page path without a leading slash or extension, e.g. `patterns/dialog`. */
   path: string
-  title: string
-  description: string
   markdown: string
 }
 
@@ -223,16 +222,9 @@ export async function getMarkdownPages(): Promise<MarkdownPage[]> {
   const patterns = await getPatterns()
 
   return [
-    {
-      path: 'index',
-      title: HOME_TITLE,
-      description: SITE_DESCRIPTION,
-      markdown: renderHomeMarkdown(patterns),
-    },
+    { path: 'index', markdown: renderHomeMarkdown(patterns) },
     ...patterns.map((pattern) => ({
       path: `patterns/${pattern.data.slug}`,
-      title: patternTitle(pattern),
-      description: pattern.data.description,
       markdown: renderPatternMarkdown(pattern, patterns),
     })),
   ]
@@ -249,7 +241,7 @@ export async function renderLlmsTxt(): Promise<string> {
       [
         ABOUT,
         `Every page on ${SITE_URL} has a Markdown version at the same path with \`.md\` appended (the home page is ${SITE_URL}/index.md). Pattern pages include the API, options, behavior contract, accessibility notes and the full registration source. ${SITE_URL}/llms-full.txt contains all of them in one file.`,
-        `To add a pattern to a project, fetch ${SITE_URL}/r/<slug>.json (shadcn registry item format): it holds the registration files and a markup example. \`npx shadcn@latest add ${SITE_URL}/r/<slug>.json\` writes them into a project. ${SITE_URL}/r/registry.json lists every item.`,
+        `To add a pattern to a project, fetch ${registryItemUrl('<slug>')} (shadcn registry item format): it holds the registration files and a markup example. \`${installCommand('<slug>')}\` writes them into a project. ${SITE_URL}/r/registry.json lists every item.`,
         'Rules when adapting a pattern: keep the registration code unchanged, write your own markup around its public API, keep the ARIA attributes and `type="button"` shown in the examples, and use explicit Alpine syntax (`x-on:click`, `x-bind:class`).',
       ].join('\n\n'),
       '## Patterns',
@@ -265,9 +257,9 @@ export async function renderLlmsTxt(): Promise<string> {
   )
 }
 
-/** Every Markdown page in one file, separated by horizontal rules. */
+/** Every pattern's Markdown page in one file, separated by horizontal rules. */
 export async function renderLlmsFullTxt(): Promise<string> {
-  const pages = await getMarkdownPages()
+  const patterns = await getPatterns()
 
   const intro = [
     `# ${SITE_TITLE}`,
@@ -276,9 +268,8 @@ export async function renderLlmsFullTxt(): Promise<string> {
   ].join('\n\n')
 
   return (
-    [
-      intro,
-      ...pages.filter(({ path }) => path !== 'index').map(({ markdown }) => markdown.trim()),
-    ].join('\n\n---\n\n') + '\n'
+    [intro, ...patterns.map((pattern) => renderPatternMarkdown(pattern, patterns).trim())].join(
+      '\n\n---\n\n',
+    ) + '\n'
   )
 }

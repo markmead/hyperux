@@ -1,6 +1,7 @@
 ---
-import { renderPatternMarkdown } from '../utils/markdown'
-import { findPattern, getPatterns, installCommand } from '../utils/patterns'
+import CommandStrip from './CommandStrip.astro'
+import { markdownPathFor } from '../utils/markdownPath'
+import { installCommand } from '../utils/patterns'
 
 interface Props {
   slug: string
@@ -8,10 +9,7 @@ interface Props {
 
 const { slug } = Astro.props
 
-const patterns = await getPatterns()
-const pattern = findPattern(patterns, slug)
-const patternMarkdown = renderPatternMarkdown(pattern, patterns)
-const command = installCommand(slug)
+const markdownPath = markdownPathFor(`/patterns/${slug}`)
 ---
 
 <section
@@ -22,15 +20,31 @@ const command = installCommand(slug)
     <h2 id="use-with-ai-heading" class="text-sm font-semibold text-gray-900">Use with AI</h2>
 
     <div class="flex flex-wrap items-center gap-2 text-sm">
-      <textarea hidden readonly data-hux-copy="patternMarkdown" aria-hidden="true" tabindex="-1"
-        >{patternMarkdown}</textarea
-      >
-
+      <!--
+        Copies the page's prerendered Markdown (docs + registration source) on
+        click instead of embedding it in every page. The fetch promise goes into
+        ClipboardItem so Safari keeps the click's user activation.
+      -->
       <button
         type="button"
-        x-data="huxCopy({ valueSourceNames: ['patternMarkdown'] })"
+        x-data={`{
+          hasCopied: false,
+          async copyPatternMarkdown() {
+            const markdownBlob = fetch('${markdownPath}')
+              .then((markdownResponse) => markdownResponse.text())
+              .then((markdownText) => new Blob([markdownText], { type: 'text/plain' }))
+
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ 'text/plain': markdownBlob })])
+              this.hasCopied = true
+              setTimeout(() => (this.hasCopied = false), 2000)
+            } catch (copyError) {
+              console.error('[Use with AI] Could not copy the Markdown', copyError)
+            }
+          },
+        }`}
         class="rounded-md border border-gray-300 bg-white px-3 py-1.5 font-medium hover:bg-gray-100"
-        x-on:click="copyToClipboard()"
+        x-on:click="copyPatternMarkdown()"
       >
         <span aria-live="polite" x-text="hasCopied ? 'Copied docs + source' : 'Copy for AI'">
           Copy for AI
@@ -38,7 +52,7 @@ const command = installCommand(slug)
       </button>
 
       <a
-        href={`/patterns/${slug}.md`}
+        href={markdownPath}
         class="rounded-md px-3 py-1.5 font-medium text-sky-700 underline underline-offset-2 hover:text-sky-900"
       >
         Markdown
@@ -53,21 +67,10 @@ const command = installCommand(slug)
     </div>
   </div>
 
-  <div class="flex items-center gap-2 bg-gray-900 px-4 py-2.5">
-    <span class="shrink-0 font-mono text-sm text-gray-400 select-none" aria-hidden="true">$</span>
-
-    <code
-      data-hux-copy={`installCommand-${slug}`}
-      class="min-w-0 flex-1 font-mono text-sm break-all text-gray-100">{command}</code
-    >
-
-    <button
-      type="button"
-      x-data={`huxCopy({ valueSourceNames: ['installCommand-${slug}'] })`}
-      class="shrink-0 rounded-md px-2 py-1 text-sm font-medium text-gray-100 hover:bg-gray-700"
-      x-on:click="copyToClipboard()"
-    >
-      <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy command'">Copy command</span>
-    </button>
-  </div>
+  <CommandStrip
+    command={installCommand(slug)}
+    copyName={`installCommand-${slug}`}
+    copyLabel="install command"
+    showPrompt
+  />
 </section>

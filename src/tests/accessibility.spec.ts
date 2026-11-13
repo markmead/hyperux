@@ -1,17 +1,9 @@
-import { readFileSync, readdirSync } from 'node:fs'
-
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 
-import { demoCard, openPattern } from './helpers'
+import { demoCard, openPattern, patternSlugs } from './helpers'
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
-
-const patternSlugs = readdirSync('src/content/patterns')
-  .filter((fileName) => fileName.endsWith('.mdx'))
-  .map((fileName) => readFileSync(`src/content/patterns/${fileName}`, 'utf8'))
-  .map((source) => source.match(/^slug: (.+)$/m)?.[1]?.trim())
-  .filter((slug): slug is string => Boolean(slug))
 
 async function expectNoViolations(page: Page, include?: string) {
   let builder = new AxeBuilder({ page }).withTags(WCAG_TAGS)

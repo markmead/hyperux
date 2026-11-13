@@ -1,11 +1,10 @@
 ---
-import { type CollectionEntry, getCollection } from 'astro:content'
-
 import BaseLayout from '../layouts/BaseLayout.astro'
+import CommandStrip from '../components/CommandStrip.astro'
 import LastUpdated from '../components/LastUpdated.astro'
-import { SITE_URL } from '../utils/patterns'
+import { SITE_URL, getPatterns, installCommand } from '../utils/patterns'
 
-const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+const patterns = await getPatterns()
 
 const agentRoutes = [
   {
@@ -22,7 +21,7 @@ const agentRoutes = [
     title: 'Add a pattern to a project',
     description:
       'Each pattern is a shadcn-compatible registry item. The command writes the registration and a markup example into ./hyperux; no components.json needed.',
-    command: `npx shadcn@latest add ${SITE_URL}/r/dialog.json`,
+    command: installCommand('dialog'),
   },
   {
     copyName: 'agentRouteSkill',
@@ -94,26 +93,11 @@ const lastUpdated =
                   <p class="text-sm text-gray-700">{agentRoute.description}</p>
                 </div>
 
-                <div class="flex items-center gap-2 bg-gray-900 px-4 py-2.5">
-                  <code
-                    data-hux-copy={agentRoute.copyName}
-                    class="min-w-0 flex-1 font-mono text-sm break-all text-gray-100"
-                  >
-                    {agentRoute.command}
-                  </code>
-
-                  <button
-                    type="button"
-                    x-data={`huxCopy({ valueSourceNames: ['${agentRoute.copyName}'] })`}
-                    class="shrink-0 rounded-md px-2 py-1 text-sm font-medium text-gray-100 hover:bg-gray-700"
-                    x-on:click="copyToClipboard()"
-                  >
-                    <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy'">
-                      Copy
-                    </span>
-                    <span class="sr-only">{agentRoute.copyLabel}</span>
-                  </button>
-                </div>
+                <CommandStrip
+                  command={agentRoute.command}
+                  copyName={agentRoute.copyName}
+                  copyLabel={agentRoute.copyLabel}
+                />
               </li>
             ))
           }

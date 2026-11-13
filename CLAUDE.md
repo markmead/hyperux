@@ -23,7 +23,7 @@ Tests live in `src/tests`: `patterns.spec.ts` (behavior contracts through the li
 
 ### Alpine.js Pattern Registrations
 
-All Alpine.js component logic lives in `src/components/patterns/<registration>.js`, one file per `Alpine.data()` registration on the `alpine:init` event. `src/components/PatternRegistration.astro` inlines each file as an `is:inline` script. These files are the **source of truth** for all component behavior, options, and defaults — always verify documentation against them. Alpine plugins (currently `@alpinejs/focus`) are bundled via `src/alpine-entrypoint.ts`.
+All Alpine.js component logic lives in `src/components/patterns/<registration>.js`, one file per `Alpine.data()` registration on the `alpine:init` event. `src/components/PatternRegistration.astro` globs that folder and inlines each file as an `is:inline` script, so a new file is picked up automatically. These files are the **source of truth** for all component behavior, options, and defaults — always verify documentation against them. Alpine plugins (currently `@alpinejs/focus`) are bundled via `src/alpine-entrypoint.ts`.
 
 Registered components:
 
@@ -58,7 +58,7 @@ Generated at build time from the content collection and registration files (`src
 
 `skills/hyperux/SKILL.md` is the agent skill (`npx skills add markmead/hyperux`). Its pattern table must list every slug and registration; a test enforces this.
 
-When adding a pattern: add the registration file, import it in `PatternRegistration.astro`, add the demo and MDX (with `registrations`), add a row to the skill table, and add behavior tests.
+When adding a pattern: add the registration file, add the demo and MDX (with `registrations`), add a row to the skill table, and add behavior tests.
 
 ### The `data-hux-copy` System
 
@@ -120,7 +120,7 @@ All config options, public properties, public methods, internal properties, and 
 
 ### Accuracy
 
-Document only what is implemented. Verify all options, defaults, method names, and error messages against `PatternRegistration.astro` before finalizing docs.
+Document only what is implemented. Verify all options, defaults, method names, and error messages against the registration files in `src/components/patterns/` before finalizing docs.
 
 ## PR / Issue Naming
 

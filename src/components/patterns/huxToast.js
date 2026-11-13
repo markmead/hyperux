@@ -5,19 +5,17 @@ document.addEventListener('alpine:init', () => {
     maxVisibleToasts: Math.max(1, initialConfig.maxVisibleToasts ?? 3),
     toastItems: [],
     queuedToastItems: [],
-    isPaused: false,
     _toastTimers: null,
     _toastCounter: 0,
-    _pauseReasons: null,
+    _pauseReasons: new Set(),
     _removeToastListeners: null,
 
     init() {
       this.dismissDelay = this.normalizeDismissDelay(initialConfig.dismissDelay, 5000)
       this._toastTimers = new Map()
-      this._pauseReasons = new Set()
 
       // Requests to show a toast arrive on `window`, so any script can raise one.
-      const showEventNames = [this.toastId ? `hux-toast:${this.toastId}:show` : 'hux-toast:show']
+      const showEventName = this.toastId ? `hux-toast:${this.toastId}:show` : 'hux-toast:show'
 
       const handleShowEvent = (showEvent) => this.showToast(showEvent.detail ?? {})
       const handleVisibilityChange = () => {
@@ -28,20 +26,14 @@ document.addEventListener('alpine:init', () => {
         }
       }
 
-      for (const eventName of showEventNames) {
-        window.addEventListener(eventName, handleShowEvent)
-      }
-
+      window.addEventListener(showEventName, handleShowEvent)
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
       // Apply the current state too: a tab can start hidden.
       handleVisibilityChange()
 
       this._removeToastListeners = () => {
-        for (const eventName of showEventNames) {
-          window.removeEventListener(eventName, handleShowEvent)
-        }
-
+        window.removeEventListener(showEventName, handleShowEvent)
         document.removeEventListener('visibilitychange', handleVisibilityChange)
       }
     },
@@ -54,6 +46,11 @@ document.addEventListener('alpine:init', () => {
       }
 
       this._toastTimers.clear()
+    },
+
+    // Hover, focus and a hidden page each pause independently.
+    get isPaused() {
+      return this._pauseReasons.size > 0
     },
 
     normalizeDismissDelay(rawDismissDelay, fallbackDelay) {
@@ -138,13 +135,13 @@ document.addEventListener('alpine:init', () => {
     },
 
     pauseToastTimers(pauseReason = 'manual') {
+      const wasPaused = this.isPaused
+
       this._pauseReasons.add(pauseReason)
 
-      if (this.isPaused) {
+      if (wasPaused) {
         return
       }
-
-      this.isPaused = true
 
       for (const itemId of this._toastTimers.keys()) {
         this.stopToastTimer(itemId)
@@ -152,14 +149,13 @@ document.addEventListener('alpine:init', () => {
     },
 
     resumeToastTimers(pauseReason = 'manual') {
+      const wasPaused = this.isPaused
+
       this._pauseReasons.delete(pauseReason)
 
-      // Hover, focus and a hidden page each pause independently.
-      if (!this.isPaused || this._pauseReasons.size > 0) {
+      if (!wasPaused || this.isPaused) {
         return
       }
-
-      this.isPaused = false
 
       for (const itemId of this._toastTimers.keys()) {
         this.startToastTimer(itemId)

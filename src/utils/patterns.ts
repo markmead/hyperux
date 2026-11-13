@@ -29,7 +29,7 @@ const PLUGIN_CDN_URLS: Record<string, string> = {
   '@alpinejs/focus': `https://cdn.jsdelivr.net/npm/@alpinejs/focus@${pluginVersion('@alpinejs/focus')}/dist/cdn.min.js`,
 }
 
-export function getRegistrationSource(name: string): string {
+function getRegistrationSource(name: string): string {
   const source = registrationSources[`../components/patterns/${name}.js`]
 
   if (source === undefined) {
@@ -60,25 +60,18 @@ export function findPattern(patterns: Pattern[], slug: string): Pattern {
 }
 
 /**
- * Every registration a pattern needs at runtime: its own first, then those of
- * the patterns it composes (recursively), without duplicates.
+ * The pattern followed by every pattern it composes (recursively, depth
+ * first), each once. The visited set also stops cycles in `composes`.
  */
-export function resolveRegistrations(pattern: Pattern, patterns: Pattern[]): Registration[] {
-  const names: string[] = []
-  const visited = new Set<string>()
+function composedPatterns(pattern: Pattern, patterns: Pattern[]): Pattern[] {
+  const ordered: Pattern[] = []
 
   const visit = (current: Pattern) => {
-    if (visited.has(current.data.slug)) {
+    if (ordered.includes(current)) {
       return
     }
 
-    visited.add(current.data.slug)
-
-    for (const name of current.data.registrations) {
-      if (!names.includes(name)) {
-        names.push(name)
-      }
-    }
+    ordered.push(current)
 
     for (const slug of current.data.composes) {
       visit(findPattern(patterns, slug))
@@ -87,31 +80,21 @@ export function resolveRegistrations(pattern: Pattern, patterns: Pattern[]): Reg
 
   visit(pattern)
 
-  return names.map((name) => ({ name, source: getRegistrationSource(name) }))
+  return ordered
+}
+
+/** Every registration a pattern needs at runtime, its own first. */
+export function resolveRegistrations(pattern: Pattern, patterns: Pattern[]): Registration[] {
+  const names = new Set(
+    composedPatterns(pattern, patterns).flatMap(({ data }) => data.registrations),
+  )
+
+  return [...names].map((name) => ({ name, source: getRegistrationSource(name) }))
 }
 
 /** Alpine plugins a pattern needs, including those of the patterns it composes. */
-export function resolveRequires(
-  pattern: Pattern,
-  patterns: Pattern[],
-  visitedSlugs = new Set<string>(),
-): string[] {
-  const plugins = new Set(pattern.data.requires)
-
-  // Guards against cycles in `composes`, like resolveRegistrations().
-  visitedSlugs.add(pattern.data.slug)
-
-  for (const slug of pattern.data.composes) {
-    if (visitedSlugs.has(slug)) {
-      continue
-    }
-
-    for (const plugin of resolveRequires(findPattern(patterns, slug), patterns, visitedSlugs)) {
-      plugins.add(plugin)
-    }
-  }
-
-  return [...plugins]
+export function resolveRequires(pattern: Pattern, patterns: Pattern[]): string[] {
+  return [...new Set(composedPatterns(pattern, patterns).flatMap(({ data }) => data.requires))]
 }
 
 /** The first fenced HTML block under `## Quick Start` in a pattern's MDX body. */

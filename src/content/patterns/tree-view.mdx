@@ -125,7 +125,7 @@ Listen for `expand` and fetch the folder's contents yourself. The tree only mana
 
 ## Behavior Contract
 
-- `init()` drops items without a string `id` and `label`, ignores duplicate ids (logging an error), and stops at a nesting depth of 10.
+- `init()` drops items without a string `id` and `label`, and ignores duplicate ids (logging an error). Dropping duplicates also stops circular `children` references.
 - `expandedItemIds` keeps only ids of items that have children. When `selectedItemId` is set, its ancestors are expanded so it is visible; unknown ids are cleared.
 - `focusedItemId` starts on the selected item, otherwise the first top-level item. Use it for the roving tabindex (`0` on the focused item, `-1` elsewhere).
 - `visibleTreeItems` lists top-level items and the children of expanded items, in display order, with 1-based `itemLevel`, `positionInSet` and `setSize`.
@@ -143,7 +143,7 @@ Listen for `expand` and fetch the folder's contents yourself. The tree only mana
 
 ## Error Handling
 
-- Invalid, duplicate or too-deep items are dropped instead of throwing.
+- Invalid or duplicate items are dropped instead of throwing.
 - Unknown ids no-op in every method.
 - Non-array `treeItems` initialize an empty tree.
 

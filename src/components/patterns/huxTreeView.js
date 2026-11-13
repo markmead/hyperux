@@ -10,16 +10,9 @@ document.addEventListener('alpine:init', () => {
     _typeaheadBuffer: '',
     _typeaheadTimeoutId: null,
 
-    normalizeTreeItems(rawTreeItems, itemDepth = 0, maxDepth = 10, seenItemIds = new Set()) {
+    // Duplicate ids are dropped, which also stops circular `children` references.
+    normalizeTreeItems(rawTreeItems, seenItemIds = new Set()) {
       if (!Array.isArray(rawTreeItems)) {
-        return []
-      }
-
-      if (itemDepth > maxDepth) {
-        console.error(
-          `[huxTreeView] treeItems exceeded maxDepth of ${maxDepth} — check for circular children references`,
-        )
-
         return []
       }
 
@@ -44,12 +37,7 @@ document.addEventListener('alpine:init', () => {
             ...rawTreeItem,
             id: itemId,
             label: itemLabel,
-            children: this.normalizeTreeItems(
-              rawTreeItem.children,
-              itemDepth + 1,
-              maxDepth,
-              seenItemIds,
-            ),
+            children: this.normalizeTreeItems(rawTreeItem.children, seenItemIds),
           },
         ]
       })
@@ -197,22 +185,20 @@ document.addEventListener('alpine:init', () => {
       this.$nextTick(() => document.getElementById(this.treeItemElementId(itemId))?.focus())
     },
 
-    focusVisibleItemAt(visibleIndex) {
-      const visibleItem = this.visibleTreeItems[visibleIndex]
-
-      if (visibleItem) {
-        this.focusTreeItem(visibleItem.treeItem.id)
-      }
-    },
-
     expandAllSiblings(itemId) {
       const parentItemId = this._treeItemMap?.get(itemId)?.parentItemId ?? null
       const siblingItems = parentItemId
         ? this._treeItemMap.get(parentItemId).treeItem.children
         : this.treeItems
 
-      for (const siblingItem of siblingItems) {
-        this.expandTreeItem(siblingItem.id)
+      const collapsedSiblingIds = siblingItems
+        .filter(({ id, children }) => children.length > 0 && !this.isItemExpanded(id))
+        .map(({ id }) => id)
+
+      this.expandedItemIds = [...this.expandedItemIds, ...collapsedSiblingIds]
+
+      for (const siblingId of collapsedSiblingIds) {
+        this.dispatchTreeEvent('expand', siblingId)
       }
     },
 
@@ -248,7 +234,7 @@ document.addEventListener('alpine:init', () => {
             .toLowerCase()
             .startsWith(this._typeaheadBuffer)
         ) {
-          this.focusVisibleItemAt(candidateIndex)
+          this.focusTreeItem(visibleItems[candidateIndex].treeItem.id)
 
           return
         }
@@ -271,9 +257,9 @@ document.addEventListener('alpine:init', () => {
       let isHandled = true
 
       if (pressedKey === 'ArrowDown') {
-        this.focusVisibleItemAt(currentIndex + 1)
+        this.focusTreeItem(visibleItems[currentIndex + 1]?.treeItem.id)
       } else if (pressedKey === 'ArrowUp') {
-        this.focusVisibleItemAt(currentIndex - 1)
+        this.focusTreeItem(visibleItems[currentIndex - 1]?.treeItem.id)
       } else if (pressedKey === 'ArrowRight') {
         if (currentItem.hasChildren && !currentItem.isExpanded) {
           this.expandTreeItem(itemId)
@@ -291,9 +277,9 @@ document.addEventListener('alpine:init', () => {
           }
         }
       } else if (pressedKey === 'Home') {
-        this.focusVisibleItemAt(0)
+        this.focusTreeItem(visibleItems[0].treeItem.id)
       } else if (pressedKey === 'End') {
-        this.focusVisibleItemAt(visibleItems.length - 1)
+        this.focusTreeItem(visibleItems.at(-1).treeItem.id)
       } else if (pressedKey === 'Enter' || pressedKey === ' ') {
         this.selectTreeItem(itemId)
       } else if (pressedKey === '*') {

@@ -1,0 +1,41 @@
+---
+/**
+ * A dark, copyable command row (install command, URL). Used by the pattern
+ * page "Use with AI" panel and the home page agent routes.
+ */
+interface Props {
+  command: string
+  /** Unique `data-hux-copy` name for this row on the page. */
+  copyName: string
+  /** Screen reader context appended to the "Copy" button's name. */
+  copyLabel: string
+  /** Show a `$` prompt before shell commands. */
+  showPrompt?: boolean
+}
+
+const { command, copyName, copyLabel, showPrompt = false } = Astro.props
+---
+
+<div class="flex items-center gap-2 bg-gray-900 px-4 py-2.5">
+  {
+    showPrompt && (
+      <span class="shrink-0 font-mono text-sm text-gray-400 select-none" aria-hidden="true">
+        $
+      </span>
+    )
+  }
+
+  <code data-hux-copy={copyName} class="min-w-0 flex-1 font-mono text-sm break-all text-gray-100"
+    >{command}</code
+  >
+
+  <button
+    type="button"
+    x-data={`huxCopy({ valueSourceNames: ['${copyName}'] })`}
+    class="shrink-0 rounded-md px-2 py-1 text-sm font-medium text-gray-100 hover:bg-gray-700"
+    x-on:click="copyToClipboard()"
+  >
+    <span aria-live="polite" x-text="hasCopied ? 'Copied' : 'Copy'">Copy</span>
+    <span class="sr-only">{copyLabel}</span>
+  </button>
+</div>

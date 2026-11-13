@@ -1,4 +1,13 @@
+import { readFileSync, readdirSync } from 'node:fs'
+
 import type { Page } from '@playwright/test'
+
+/** Every pattern slug, read from the MDX frontmatter. */
+export const patternSlugs = readdirSync('src/content/patterns')
+  .filter((fileName) => fileName.endsWith('.mdx'))
+  .map((fileName) => readFileSync(`src/content/patterns/${fileName}`, 'utf8'))
+  .map((source) => source.match(/^slug: (.+)$/m)?.[1]?.trim())
+  .filter((slug): slug is string => Boolean(slug))
 
 /** Load a pattern page and wait for Alpine to initialise every component. */
 export async function openPattern(page: Page, slug: string): Promise<void> {

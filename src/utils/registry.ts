@@ -9,6 +9,7 @@ import {
   resolveRequires,
   type Pattern,
 } from './patterns'
+import { markdownPathFor } from './markdownPath'
 
 /**
  * HyperUX publishes a static registry in the shadcn registry format
@@ -22,7 +23,7 @@ const REGISTRY_SCHEMA = 'https://ui.shadcn.com/schema/registry.json'
 const REGISTRY_ITEM_SCHEMA = 'https://ui.shadcn.com/schema/registry-item.json'
 
 /** Where files land in a consumer project, relative to its root. */
-export const INSTALL_DIRECTORY = 'hyperux'
+const INSTALL_DIRECTORY = 'hyperux'
 
 type RegistryFile = {
   path: string
@@ -31,7 +32,7 @@ type RegistryFile = {
   content?: string
 }
 
-export type RegistryItem = {
+type RegistryItem = {
   $schema?: string
   name: string
   type: 'registry:item'
@@ -52,10 +53,12 @@ export type RegistryItem = {
 }
 
 function file(path: string, content?: string): RegistryFile {
+  const projectPath = `${INSTALL_DIRECTORY}/${path}`
+
   return {
-    path: `${INSTALL_DIRECTORY}/${path}`,
+    path: projectPath,
     type: 'registry:file',
-    target: `${INSTALL_DIRECTORY}/${path}`,
+    target: projectPath,
     ...(content === undefined ? {} : { content: `${content}\n` }),
   }
 }
@@ -71,6 +74,8 @@ export function buildRegistryItem(
   // Items are self-contained: a composed pattern's registrations ship in the
   // same item, so one fetch (or one `shadcn add`) is enough.
   const registrations = resolveRegistrations(pattern, patterns)
+  const requires = resolveRequires(pattern, patterns)
+  const markdownUrl = `${SITE_URL}${markdownPathFor(`/patterns/${slug}`)}`
 
   const files = registrations.map(({ name, source }) =>
     file(`${name}.js`, withContent ? source : undefined),
@@ -91,18 +96,18 @@ export function buildRegistryItem(
       ? {
           docs: [
             `HyperUX ${title} added to ./${INSTALL_DIRECTORY}.`,
-            renderSetupMarkdown(pattern, patterns),
-            `Docs: ${patternUrl(slug)} (Markdown: ${patternUrl(slug)}.md)`,
+            renderSetupMarkdown(registrations, requires),
+            `Docs: ${patternUrl(slug)} (Markdown: ${markdownUrl})`,
           ].join('\n\n'),
         }
       : {}),
     categories: terms,
     meta: {
       url: patternUrl(slug),
-      markdown: `${patternUrl(slug)}.md`,
+      markdown: markdownUrl,
       registrations: registrations.map(({ name }) => name),
       composes,
-      requires: resolveRequires(pattern, patterns),
+      requires,
     },
   }
 }

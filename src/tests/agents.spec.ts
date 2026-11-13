@@ -2,14 +2,9 @@ import { readFileSync, readdirSync } from 'node:fs'
 
 import { expect, test } from '@playwright/test'
 
-const PATTERN_DIRECTORY = 'src/content/patterns'
-const REGISTRATION_DIRECTORY = 'src/components/patterns'
+import { openPattern, patternSlugs } from './helpers'
 
-const patternSlugs = readdirSync(PATTERN_DIRECTORY)
-  .filter((fileName) => fileName.endsWith('.mdx'))
-  .map((fileName) => readFileSync(`${PATTERN_DIRECTORY}/${fileName}`, 'utf8'))
-  .map((source) => source.match(/^slug: (.+)$/m)?.[1]?.trim())
-  .filter((slug): slug is string => Boolean(slug))
+const REGISTRATION_DIRECTORY = 'src/components/patterns'
 
 function registrationSource(name: string): string {
   return `${readFileSync(`${REGISTRATION_DIRECTORY}/${name}.js`, 'utf8').trim()}\n`
@@ -171,19 +166,19 @@ test.describe('Agent skill', () => {
 
 test.describe('Use with AI panel', () => {
   test('copies the Markdown docs and the install command', async ({ page }) => {
-    await page.goto('/patterns/tabs')
-    await page.waitForFunction(() => 'Alpine' in globalThis)
+    await openPattern(page, 'tabs')
 
     const panel = page.getByRole('region', { name: 'Use with AI' })
 
     await panel.getByRole('button', { name: 'Copy for AI' }).click()
+    await expect(panel.getByText('Copied docs + source')).toBeVisible()
 
     const copiedMarkdown = await page.evaluate(() => navigator.clipboard.readText())
 
     expect(copiedMarkdown).toContain('# Alpine.js Tabs Pattern')
     expect(copiedMarkdown).toContain("Alpine.data('huxTabPanel'")
 
-    await panel.getByRole('button', { name: 'Copy command' }).click()
+    await panel.getByRole('button', { name: 'Copy install command' }).click()
 
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
       'npx shadcn@latest add https://js.hyperui.dev/r/tabs.json',
