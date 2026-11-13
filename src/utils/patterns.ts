@@ -1,5 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content'
 
+import packageJson from '../../package.json'
+
 export const SITE_URL = 'https://js.hyperui.dev'
 
 export const SITE_DESCRIPTION = 'Behavior-first Alpine.js patterns you can copy, adapt, and ship.'
@@ -19,8 +21,12 @@ const registrationSources = import.meta.glob<string>('../components/patterns/*.j
   eager: true,
 })
 
+// Pin CDN URLs to the exact versions the site bundles and tests.
+const pluginVersion = (plugin: keyof typeof packageJson.dependencies) =>
+  packageJson.dependencies[plugin].replace(/^[\^~]/, '')
+
 const PLUGIN_CDN_URLS: Record<string, string> = {
-  '@alpinejs/focus': 'https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js',
+  '@alpinejs/focus': `https://cdn.jsdelivr.net/npm/@alpinejs/focus@${pluginVersion('@alpinejs/focus')}/dist/cdn.min.js`,
 }
 
 export function getRegistrationSource(name: string): string {
@@ -85,11 +91,22 @@ export function resolveRegistrations(pattern: Pattern, patterns: Pattern[]): Reg
 }
 
 /** Alpine plugins a pattern needs, including those of the patterns it composes. */
-export function resolveRequires(pattern: Pattern, patterns: Pattern[]): string[] {
+export function resolveRequires(
+  pattern: Pattern,
+  patterns: Pattern[],
+  visitedSlugs = new Set<string>(),
+): string[] {
   const plugins = new Set(pattern.data.requires)
 
+  // Guards against cycles in `composes`, like resolveRegistrations().
+  visitedSlugs.add(pattern.data.slug)
+
   for (const slug of pattern.data.composes) {
-    for (const plugin of resolveRequires(findPattern(patterns, slug), patterns)) {
+    if (visitedSlugs.has(slug)) {
+      continue
+    }
+
+    for (const plugin of resolveRequires(findPattern(patterns, slug), patterns, visitedSlugs)) {
       plugins.add(plugin)
     }
   }

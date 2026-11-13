@@ -136,7 +136,7 @@ $dispatch('hux-toast:app:show', {
 
 ## Behavior Contract
 
-- `init()` listens on `window` for `hux-toast:{toastId}:show` (or `hux-toast:show` without a `toastId`) and passes `event.detail` to `showToast()`. It also pauses timers while `document.hidden` is true. `destroy()` removes the listeners and clears every timer.
+- `init()` listens on `window` for `hux-toast:{toastId}:show` (or `hux-toast:show` without a `toastId`) and passes `event.detail` to `showToast()`. It also pauses timers while `document.hidden` is true, including when the page starts hidden. `destroy()` removes the listeners and clears every timer.
 - `showToast()` trims the message, defaults `toastType` to `info` (allowed: `info`, `success`, `warning`, `error`) and `dismissDelay` to the component's `dismissDelay`. It returns the new toast's id.
 - When fewer than `maxVisibleToasts` are visible, the toast is added to `toastItems`; otherwise it waits in `queuedToastItems` (first in, first out).
 - A toast with `dismissDelay > 0` dismisses itself after that much unpaused time.
@@ -147,7 +147,7 @@ $dispatch('hux-toast:app:show', {
 ## Error Handling
 
 - `showToast()` logs `[huxToast] showToast() needs a non-empty message` and returns `null` for a missing or blank message.
-- Unknown `toastType` values fall back to `info`; a non-number `dismissDelay` falls back to the default.
+- Unknown `toastType` values fall back to `info`. A `dismissDelay` that is not a finite number of zero or more (such as `NaN` or `-1`) falls back to the default: `5000` for the component option, or the component's `dismissDelay` for a single toast.
 - `dismissToast()` ignores unknown ids, so double clicks and timers racing a click are safe.
 
 ## Accessibility Notes

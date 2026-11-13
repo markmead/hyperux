@@ -1,7 +1,7 @@
 document.addEventListener('alpine:init', () => {
   Alpine.data('huxToast', (initialConfig = {}) => ({
     toastId: initialConfig.toastId ?? null,
-    dismissDelay: initialConfig.dismissDelay ?? 5000,
+    dismissDelay: 5000,
     maxVisibleToasts: Math.max(1, initialConfig.maxVisibleToasts ?? 3),
     toastItems: [],
     queuedToastItems: [],
@@ -12,6 +12,7 @@ document.addEventListener('alpine:init', () => {
     _removeToastListeners: null,
 
     init() {
+      this.dismissDelay = this.normalizeDismissDelay(initialConfig.dismissDelay, 5000)
       this._toastTimers = new Map()
       this._pauseReasons = new Set()
 
@@ -33,6 +34,9 @@ document.addEventListener('alpine:init', () => {
 
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
+      // Apply the current state too: a tab can start hidden.
+      handleVisibilityChange()
+
       this._removeToastListeners = () => {
         for (const eventName of showEventNames) {
           window.removeEventListener(eventName, handleShowEvent)
@@ -50,6 +54,13 @@ document.addEventListener('alpine:init', () => {
       }
 
       this._toastTimers.clear()
+    },
+
+    normalizeDismissDelay(rawDismissDelay, fallbackDelay) {
+      // Only finite, non-negative numbers count; `0` disables auto-dismiss.
+      return Number.isFinite(rawDismissDelay) && rawDismissDelay >= 0
+        ? rawDismissDelay
+        : fallbackDelay
     },
 
     showToast(toastConfig = {}) {
@@ -70,10 +81,7 @@ document.addEventListener('alpine:init', () => {
         toastType: ['info', 'success', 'warning', 'error'].includes(toastConfig.toastType)
           ? toastConfig.toastType
           : 'info',
-        dismissDelay:
-          typeof toastConfig.dismissDelay === 'number'
-            ? toastConfig.dismissDelay
-            : this.dismissDelay,
+        dismissDelay: this.normalizeDismissDelay(toastConfig.dismissDelay, this.dismissDelay),
       }
 
       if (this.toastItems.length < this.maxVisibleToasts) {

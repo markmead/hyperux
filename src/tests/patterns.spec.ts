@@ -532,3 +532,28 @@ test.describe('huxToast', () => {
     await expect(region.getByRole('listitem')).toHaveCount(0)
   })
 })
+
+test.describe('huxToast delay validation', () => {
+  test('falls back to the default for NaN and negative delays', async ({ page }) => {
+    await page.clock.install()
+    await openPattern(page, 'toast')
+
+    const region = page.getByRole('region', { name: 'Notifications' })
+
+    for (const dismissDelay of [Number.NaN, -1]) {
+      await page.evaluate((delay) => {
+        window.dispatchEvent(
+          new CustomEvent('hux-toast:site-toasts:show', {
+            detail: { message: `Delay ${delay}`, dismissDelay: delay },
+          }),
+        )
+      }, dismissDelay)
+    }
+
+    await page.clock.runFor(1_000)
+    await expect(region.getByRole('listitem')).toHaveCount(2)
+
+    await page.clock.runFor(4_500)
+    await expect(region.getByRole('listitem')).toHaveCount(0)
+  })
+})

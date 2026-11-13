@@ -143,6 +143,14 @@ test.describe('Registry', () => {
     expect(item.meta.registrations).toEqual(['huxCommandPalette', 'huxDialog', 'huxCombobox'])
     expect(item.meta.requires).toContain('@alpinejs/focus')
   })
+
+  test('points setup docs at the bundled focus plugin version', async ({ request }) => {
+    const packageJson = JSON.parse(readFileSync('package.json', 'utf8'))
+    const bundledVersion = packageJson.dependencies['@alpinejs/focus'].replace(/^[\^~]/, '')
+    const item = await (await request.get('/r/dialog.json')).json()
+
+    expect(item.docs).toContain(`@alpinejs/focus@${bundledVersion}/dist/cdn.min.js`)
+  })
 })
 
 test.describe('Agent skill', () => {
