@@ -20,11 +20,11 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 <div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
 
-<Demo />
-
 # Alpine.js {frontmatter.title}
 
 The `huxScrollSpy` utility watches headings inside a scrollable container and exposes a reactive table of contents model for Alpine.js. It is for documentation sidebars, settings panels, and other layouts where content scrolls inside its own region instead of the page.
+
+<Demo />
 
 `huxScrollSpy` requires a valid `x-ref` target for the scroll container and a browser environment with `IntersectionObserver`. The component only manages heading discovery, active-state updates, and scroll-to-section behavior; you control the TOC markup and styling.
 

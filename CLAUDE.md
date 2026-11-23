@@ -14,15 +14,35 @@ pnpm build     # wrangler types + astro build
 pnpm check     # astro type-check
 pnpm lint      # eslint
 pnpm format    # prettier (respects .prettierignore)
+pnpm format:check # prettier, check only (what CI runs)
+pnpm knip      # unused files, exports and dependencies
+pnpm test      # Playwright (builds the site, serves it with `astro preview`)
+pnpm test:a11y # only the axe accessibility tests
 ```
 
-There are no tests.
+## Testing and Accessibility
+
+Playwright tests in `src/tests` run against the production build, in Chromium:
+
+- `accessibility.spec.ts`: axe (WCAG 2.2 AA) on the home page and every pattern page at 390px and 1280px, on the open dialog, dropdown, combobox, command palette and site search, plus a no-horizontal-scroll check at 320px and 390px
+- `patterns.spec.ts`: each pattern's documented behavior through its live demo (keyboard, focus, ARIA state, events)
+- `fixtures.ts`: serves `@alpinejs/focus` from `node_modules` instead of the CDN the page uses (same bytes, so the integrity hash still matches), so tests run offline
+
+In a sandbox that has Chromium preinstalled, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to its path instead of running `playwright install`. CI (`.github/workflows/ci.yml`) has two jobs on every pull request and push to `main`: `lint` (`pnpm format:check`, `pnpm lint`, `pnpm knip`) and `test` (`pnpm build`, `pnpm check`, `pnpm test`). Run all of these before pushing; `pnpm format` fixes Prettier. Knip's config is `knip.json`; `@alpinejs/focus` is ignored there because the tests load it by file path.
+
+**Always run `/accessibility-review` when you change UI markup, styles or pattern behavior.** Run it against the affected pages, fix what it finds, and note the findings in the pull request. axe only catches part of what matters, so keep `pnpm test:a11y` green and use `/accessibility-review` for keyboard, focus, contrast and screen reader checks the tests cannot cover. Add or update a test for behavior you fix.
+
+## Design
+
+`DESIGN.md` is the spec for the site's visual identity: tokens, type, the home page stage, header,
+footer and focus. Read it before changing chrome or the home page, and update it in the same commit
+as any design change. Pattern demos stay neutral and are not part of that identity.
 
 ## Architecture
 
 ### Alpine.js Pattern Registrations
 
-All Alpine.js component logic lives in `src/components/PatternRegistration.astro` as `is:inline` scripts. Each script registers one component via `Alpine.data()` on the `alpine:init` event. This file is the **source of truth** for all component behavior, options, and defaults — always verify documentation against it.
+Each component's logic lives in its own file in `src/components/patterns/` (for example `huxDialog.js`), registered via `Alpine.data()` on the `alpine:init` event. `src/components/PatternRegistration.astro` loads those files as `is:inline` scripts so the site can ship and copy them. The files in `src/components/patterns/` are the **source of truth** for all component behavior, options, and defaults — always verify documentation against them.
 
 Registered components:
 
@@ -89,17 +109,18 @@ Action-driven events use hyphen-case and are optionally scoped with a component 
 
 1. Frontmatter
 2. Demo import
-3. `<Demo />`
+3. Title (`# Alpine.js …`)
 4. Intro paragraph
-5. Runtime constraints (if applicable)
-6. API
-7. Options
-8. Quick Start
-9. Common Usage Patterns
-10. Behavior Contract
-11. Error Handling
-12. Accessibility Notes
-13. Notes
+5. `<Demo />`
+6. Runtime constraints (if applicable)
+7. API
+8. Options
+9. Quick Start
+10. Common Usage Patterns
+11. Behavior Contract
+12. Error Handling
+13. Accessibility Notes
+14. Notes
 
 ### Component Naming Conventions
 
@@ -116,7 +137,7 @@ All config options, public properties, public methods, internal properties, and 
 
 ### Accuracy
 
-Document only what is implemented. Verify all options, defaults, method names, and error messages against `PatternRegistration.astro` before finalizing docs.
+Document only what is implemented. Verify all options, defaults, method names, and error messages against the files in `src/components/patterns/` before finalizing docs.
 
 ## PR / Issue Naming
 

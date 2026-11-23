@@ -74,6 +74,7 @@ pnpm build     # wrangler types + astro build
 pnpm check     # astro type-check
 pnpm lint      # eslint
 pnpm format    # prettier
+pnpm test      # Playwright behavior and accessibility (axe) tests
 ```
 
 Built with [Astro](https://astro.build), deployed to Cloudflare Pages.

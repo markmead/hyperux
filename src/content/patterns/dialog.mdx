@@ -15,7 +15,7 @@ terms:
 registrations:
   - huxDialog
 pubDate: 2026-04-20
-modDate: 2026-07-15
+modDate: 2026-11-23
 ---
 
 import Demo from '../../components/demos/Dialog.astro'
@@ -24,11 +24,11 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 <div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
 
-<Demo />
-
 # Alpine.js {frontmatter.title}
 
 `huxDialog` handles open/close state, optional backdrop behavior, and scoped lifecycle events for modal UI in Alpine.js. Pair it with your own dialog markup and focus trap directives.
+
+<Demo />
 
 This pattern expects the Alpine Focus plugin when you use `x-trap` in your markup: [@alpinejs/focus](https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.15/dist/cdn.min.js).
 
@@ -44,6 +44,7 @@ Returns an Alpine data object with:
 - `dialogId: string | null`
 - `isPersistent: boolean`
 - `isSeamless: boolean`
+- `returnFocusOnClose: boolean`
 - `dialogTitleId: string | null`
 - `dialogDescriptionId: string | null`
 - `closeOnBackdrop: boolean`
@@ -63,6 +64,7 @@ _Internal helper methods are private implementation details and are not part of 
 - `startsOpen: boolean` (default: `false`)
 - `isPersistent: boolean` (default: `false`)
 - `isSeamless: boolean` (default: `false`)
+- `returnFocusOnClose: boolean` (default: `true`)
 
 ## Quick Start
 
@@ -178,6 +180,7 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 - `toggleDialog()` flips open state by delegating to `openDialog()` and `closeDialog()`.
 - `isPersistent` disables both Escape and backdrop close via computed flags.
 - `isSeamless` hides backdrop via `showBackdrop`.
+- `openDialog()` remembers the focused element. After `closeDialog()`, when `returnFocusOnClose` is `true`, focus returns to that element if it was lost (for example to `<body>` after a leave transition). If something else takes focus first, it is left alone.
 - Event names are scoped when `dialogId` exists.
 
 ## Error Handling
@@ -192,6 +195,7 @@ For a left-side slide-over, position the panel with `left-0` and swap the enter/
 - `dialogTitleId` and `dialogDescriptionId` are only derived when a `dialogId` is passed. **Set a `dialogId` (or add a static `aria-label`) so the dialog has an accessible name** — without one, `aria-labelledby` resolves to `null` and screen readers announce an unnamed dialog.
 - Associate descriptive body copy with the dialog by wiring `aria-describedby` to `dialogDescriptionId` so screen readers announce it alongside the title.
 - Keep close controls as labeled `button` elements with `type="button"`, and give icon-only close buttons enough padding to meet a comfortable touch-target size.
+- Leave `returnFocusOnClose` enabled so keyboard users land back on the control that opened the dialog, including when the dialog is closed from a leave transition or from another component (such as a command palette).
 - Use keyboard escape handling (`x-on:keydown.escape.stop`) and focus trapping (`x-trap`) so keyboard users remain inside the modal while open.
 
 ## Notes
