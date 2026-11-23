@@ -53,6 +53,10 @@ it however you like.
 Full API, options, defaults, and behavior contracts for each pattern are
 documented at [js.hyperui.dev](https://js.hyperui.dev).
 
+## For AI assistants
+
+Every page has a Markdown version at the same path with `.md` appended (for example <https://js.hyperui.dev/patterns/dialog.md>), including the full registration source. <https://js.hyperui.dev/llms.txt> indexes them and <https://js.hyperui.dev/llms-full.txt> has every pattern in one file.
+
 ## Focus styling
 
 HyperUX ships behavior, not looks — and that includes keyboard focus. The demo
