@@ -33,6 +33,10 @@
 }
 
 @layer components {
+  .prose-breakout :not(pre) > code {
+    overflow-wrap: anywhere;
+  }
+
   .prose-breakout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 3rem) min(65ch, 100%) minmax(0, 3rem) minmax(
