@@ -10,13 +10,26 @@
   --font-sans: var(--font-google-sans-flex);
 }
 
+/* Identity: a keyboard. Paper and ink for the page, ivory keycaps, one cobalt for the stage
+   and the brand, one amber that only ever means "something just happened". */
+@theme {
+  --font-display: 'Bricolage Grotesque Variable', var(--font-google-sans-flex), sans-serif;
+
+  --color-paper: #eef0f4;
+  --color-ink: #161a24;
+  --color-signal: #2f45ff;
+  --color-event: #ffc233;
+  --color-key: #fbfbf8;
+}
+
 [x-cloak] {
   display: none !important;
 }
 
 @layer base {
+  /* Ink on light surfaces. The stage sets --focus-ring to white, where ink would not show. */
   :focus-visible {
-    outline: 2px solid var(--color-blue-500, #3b82f6);
+    outline: 3px solid var(--focus-ring, var(--color-ink));
     outline-offset: 2px;
   }
 }
@@ -60,4 +73,41 @@
       }
     }
   }
+}
+
+/* Typography wraps inline code in literal backticks, and the docs already mark
+   code with a background instead. Unlayered so it beats the plugin's utilities. */
+.prose :not(pre) > code {
+  border-radius: var(--radius-sm);
+  background-color: var(--color-gray-100);
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: none;
+}
+
+/* A new line in the home page's trace: show it once, then fade. */
+@keyframes hux-flash {
+  from {
+    background-color: var(--color-event);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+.hux-flash {
+  animation: hux-flash 700ms ease-out;
+}
+
+/* Docs headings share the display face with the rest of the identity. */
+.prose :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }
