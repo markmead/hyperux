@@ -33,10 +33,6 @@
 }
 
 @layer components {
-  .prose-breakout :not(pre) > code {
-    overflow-wrap: anywhere;
-  }
-
   .prose-breakout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 3rem) min(65ch, 100%) minmax(0, 3rem) minmax(
@@ -80,4 +76,19 @@
 .prose :not(pre) > code::before,
 .prose :not(pre) > code::after {
   content: none;
+}
+
+/* A value in the home page's live readout changes: show it once, then fade. */
+@keyframes hux-flash {
+  from {
+    background-color: var(--color-blue-100);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+.hux-flash {
+  animation: hux-flash 700ms ease-out;
 }

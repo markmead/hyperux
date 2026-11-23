@@ -102,6 +102,14 @@ test.describe('Open states (axe)', () => {
     await expectNoViolations(page)
   })
 
+  test('home page hero dialog', async ({ page }) => {
+    await page.goto('/')
+    await waitForAlpine(page)
+    await page.getByRole('button', { name: 'Delete account' }).click()
+    await expect(page.getByRole('dialog', { name: 'Delete your account?' })).toBeVisible()
+    await expectNoViolations(page)
+  })
+
   test('site search', async ({ page }) => {
     await page.goto('/')
     await waitForAlpine(page)

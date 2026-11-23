@@ -15,7 +15,7 @@ const lastUpdated =
       }, new Date(0))
     : null
 
-// The whole `huxDialog` pattern, as it appears in the README.
+// The live hero dialog's markup with the classes left out. Keep it in step with the markup below.
 const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
   <button type="button" x-on:click="openDialog()">
     Delete account
@@ -24,16 +24,67 @@ const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
   <div
     x-cloak
     x-show="isOpen"
-    role="dialog"
-    aria-modal="true"
-    x-bind:aria-labelledby="dialogTitleId"
+    x-on:click.self="handleBackdropClick()"
+    x-on:keydown.escape.stop="handleEscape()"
   >
-    <h2 x-bind:id="dialogTitleId">Delete your account?</h2>
-    <button type="button" x-on:click="closeDialog()">
-      Cancel
-    </button>
+    <div
+      role="dialog"
+      aria-modal="true"
+      x-trap.noscroll="isOpen"
+      x-bind:aria-labelledby="dialogTitleId"
+    >
+      <h2 x-bind:id="dialogTitleId">Delete your account?</h2>
+      <button type="button" x-on:click="closeDialog()">
+        Cancel
+      </button>
+      <button type="button" x-on:click="closeDialog()">
+        Delete
+      </button>
+    </div>
   </div>
 </div>`
+
+// Event names carry the dialog id, so these attributes have more than one colon after `x-on`.
+// The panel is teleported to <body>, so its events do not bubble through this section: listen on
+// the window.
+const inspectorListeners = {
+  'x-on:hux-dialog:confirm-delete:open.window': 'record($event)',
+  'x-on:hux-dialog:confirm-delete:close.window': 'record($event)',
+}
+
+// On wide screens the panel opens over the headline so the readout stays visible.
+// The readout only reports what it can observe from outside the registration: the events it
+// dispatches and where focus is. It never reads or changes the dialog's own state.
+const inspectorData = `{
+  isOpen: false,
+  focusLabel: 'not moved yet',
+  lastEvent: 'none yet',
+  init() {
+    for (const key of ['isOpen', 'focusLabel', 'lastEvent']) {
+      this.$watch(key, () => this.flash(key))
+    }
+  },
+  flash(key) {
+    const valueElement = this.$refs[key]
+
+    valueElement.classList.remove('hux-flash')
+    void valueElement.offsetWidth
+    valueElement.classList.add('hux-flash')
+  },
+  describe(element) {
+    if (!(element instanceof HTMLElement) || element === document.body) {
+      return 'body'
+    }
+
+    const name = element.getAttribute('aria-label') || element.textContent.trim().replace(/\\s+/g, ' ')
+
+    return '<' + element.tagName.toLowerCase() + '> ' + name.slice(0, 28)
+  },
+  record(event) {
+    this.lastEvent = event.type
+    this.isOpen = event.type.endsWith(':open')
+  },
+}`
 ---
 
 <BaseLayout
@@ -42,7 +93,7 @@ const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
 >
   <main id="main-content" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <section
-      class="grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-16 lg:py-20"
+      class="grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,36rem)] lg:gap-16 lg:py-20"
     >
       <div class="space-y-6">
         <h1
@@ -73,19 +124,128 @@ const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
         </div>
       </div>
 
-      <figure class="min-w-0 space-y-3">
-        <pre
-          tabindex="0"
-          class="overflow-x-auto rounded-lg bg-gray-900 p-5 font-mono text-[0.8125rem]/6 text-gray-100"><code>{heroSnippet}</code></pre>
-
-        <figcaption class="text-sm/6 text-gray-700">
-          That's the whole <code class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[0.85em]"
-            >huxDialog</code
+      <div
+        class="min-w-0 space-y-4"
+        x-data={inspectorData}
+        x-on:focusin.window="focusLabel = describe($event.target)"
+        {...inspectorListeners}
+      >
+        <div class="rounded-lg border border-gray-300 bg-white p-5 sm:p-6">
+          <div
+            x-data="huxDialog({ dialogId: 'confirm-delete' })"
+            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-4"
           >
-          pattern: open state, ids, and events come from the registration. The markup and classes stay
-          yours.
-        </figcaption>
-      </figure>
+            <p class="max-w-64 text-sm/6 text-gray-700">
+              This dialog is live. Open it, press Tab, then Escape, and watch the readout.
+            </p>
+
+            <button
+              type="button"
+              class="inline-flex min-h-11 items-center rounded-md bg-gray-900 px-5 py-2 font-medium text-white transition-colors hover:bg-gray-700"
+              x-on:click="openDialog()"
+            >
+              Delete account
+            </button>
+
+            <template x-teleport="body">
+              <div
+                x-cloak
+                x-show="isOpen"
+                x-transition.opacity.duration.200ms
+                class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 lg:justify-start lg:pl-[8vw]"
+                x-on:click.self="handleBackdropClick()"
+                x-on:keydown.escape.stop="handleEscape()"
+              >
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  x-trap.noscroll="isOpen"
+                  x-bind:aria-labelledby="dialogTitleId"
+                  class="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow-xl"
+                >
+                  <h2 x-bind:id="dialogTitleId" class="text-lg font-semibold text-gray-900">
+                    Delete your account?
+                  </h2>
+
+                  <p class="text-gray-700">This is a demo. Nothing is deleted.</p>
+
+                  <div class="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      class="inline-flex min-h-11 items-center rounded-md border border-gray-300 bg-white px-4 py-2 font-medium text-gray-900 transition-colors hover:bg-gray-100"
+                      x-on:click="closeDialog()"
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      class="inline-flex min-h-11 items-center rounded-md bg-gray-900 px-4 py-2 font-medium text-white transition-colors hover:bg-gray-700"
+                      x-on:click="closeDialog()"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <dl
+            class="mt-5 divide-y divide-gray-200 border-t border-gray-200 font-mono text-[0.8125rem]/6"
+          >
+            <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 py-2">
+              <dt class="text-gray-700">isOpen</dt>
+              <dd
+                x-ref="isOpen"
+                x-text="isOpen"
+                class="-mx-1 rounded px-1 break-words text-gray-900"
+              >
+                false
+              </dd>
+            </div>
+
+            <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 py-2">
+              <dt class="text-gray-700">focus</dt>
+              <dd
+                x-ref="focusLabel"
+                x-text="focusLabel"
+                class="-mx-1 rounded px-1 break-words text-gray-900"
+              >
+                not moved yet
+              </dd>
+            </div>
+
+            <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 py-2">
+              <dt class="text-gray-700">last event</dt>
+              <dd
+                x-ref="lastEvent"
+                x-text="lastEvent"
+                class="-mx-1 rounded px-1 break-all text-gray-900"
+              >
+                none yet
+              </dd>
+            </div>
+
+            <div class="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-3 py-2">
+              <dt class="text-gray-700">dialogTitleId</dt>
+              <dd class="-mx-1 px-1 break-words text-gray-900">confirm-delete-title</dd>
+            </div>
+          </dl>
+        </div>
+
+        <figure class="space-y-3">
+          <pre
+            tabindex="0"
+            class="overflow-x-auto rounded-lg bg-gray-900 p-5 font-mono text-[0.8125rem]/6 text-gray-100"><code>{heroSnippet}</code></pre>
+
+          <figcaption class="text-sm/6 text-gray-700">
+            The same markup with the classes left out. Open state, ids, and events come from <code
+              class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[0.85em]">huxDialog</code
+            >. The markup and classes stay yours.
+          </figcaption>
+        </figure>
+      </div>
     </section>
 
     <section id="patterns" class="scroll-mt-8 pb-16 sm:pb-24" aria-labelledby="patterns-heading">

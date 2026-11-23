@@ -40,6 +40,33 @@ test.describe('Home page', () => {
     await expect(codeBlock).toContainText('huxDialog')
   })
 
+  test('the hero dialog is live and the readout follows it', async ({ page }) => {
+    const readout = page.locator('dl')
+    const value = (label: string) => readout.locator('div', { hasText: label }).locator('dd')
+
+    await expect(value('isOpen')).toHaveText('false')
+
+    const trigger = page.getByRole('button', { name: 'Delete account' })
+
+    await trigger.click()
+
+    await expect(page.getByRole('dialog', { name: 'Delete your account?' })).toBeVisible()
+    await expect(value('isOpen')).toHaveText('true')
+    await expect(value('last event')).toHaveText('hux-dialog:confirm-delete:open')
+    await expect(value('focus')).toHaveText('<button> Cancel')
+
+    await page.keyboard.press('Tab')
+    await expect(value('focus')).toHaveText('<button> Delete')
+
+    await page.keyboard.press('Escape')
+
+    await expect(page.getByRole('dialog')).toBeHidden()
+    await expect(value('isOpen')).toHaveText('false')
+    await expect(value('last event')).toHaveText('hux-dialog:confirm-delete:close')
+    await expect(value('focus')).toHaveText('<button> Delete account')
+    await expect(trigger).toBeFocused()
+  })
+
   test('the header fits on one row at phone width', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
 
