@@ -110,6 +110,21 @@ test.describe('Open states (axe)', () => {
     await expectNoViolations(page)
   })
 
+  test('home page stage with a populated trace and a lit key', async ({ page }) => {
+    await page.goto('/')
+    await waitForAlpine(page)
+    await page.getByRole('button', { name: 'Delete account' }).click()
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Escape')
+    await expect(
+      page.getByRole('list', { name: 'Event trace' }).getByRole('listitem').first(),
+    ).toBeVisible()
+    await page.keyboard.down('Tab')
+    await expect(page.locator('[data-key="Tab"]')).toHaveAttribute('data-lit', 'true')
+    await expectNoViolations(page)
+    await page.keyboard.up('Tab')
+  })
+
   test('site search', async ({ page }) => {
     await page.goto('/')
     await waitForAlpine(page)
@@ -117,4 +132,89 @@ test.describe('Open states (axe)', () => {
     await expect(page.getByRole('dialog', { name: 'Search patterns' })).toBeVisible()
     await expectNoViolations(page)
   })
+})
+
+test.describe('keyboard focus and zoom', () => {
+  // Tabs through every focusable element on the page and asserts that each one shows the
+  // site-wide focus ring: a visible outline of at least 2px.
+  for (const path of ['/', ...patternSlugs.map((slug) => `/patterns/${slug}`)]) {
+    test(`every tab stop shows a focus ring on ${path}`, async ({ page }) => {
+      await page.goto(path)
+      await waitForAlpine(page)
+
+      const missing: string[] = []
+      const seen = new Set<string>()
+
+      for (let step = 0; step < 80; step++) {
+        await page.keyboard.press('Tab')
+
+        const stop = await page.evaluate(() => {
+          const element = document.activeElement
+
+          if (!element || element === document.body) {
+            return null
+          }
+
+          const style = getComputedStyle(element)
+
+          return {
+            id: `${element.tagName.toLowerCase()} ${(element.getAttribute('aria-label') ?? element.textContent ?? '').trim().slice(0, 30)}`,
+            visible: style.outlineStyle !== 'none' && Number.parseFloat(style.outlineWidth) >= 2,
+          }
+        })
+
+        if (!stop) {
+          break
+        }
+
+        if (seen.has(stop.id) && seen.size > 3) {
+          continue
+        }
+
+        seen.add(stop.id)
+
+        // Focus inside an iframe goes to its own document, so look for the ring in there.
+        if (stop.id.startsWith('iframe')) {
+          const frame = page
+            .frames()
+            .find(
+              (candidate) =>
+                candidate !== page.mainFrame() && candidate.url().includes('/examples/'),
+            )
+
+          stop.visible = Boolean(
+            await frame?.evaluate(() => {
+              const style = getComputedStyle(document.documentElement)
+
+              return style.outlineStyle !== 'none' && Number.parseFloat(style.outlineWidth) >= 2
+            }),
+          )
+        }
+
+        if (!stop.visible) {
+          missing.push(stop.id)
+        }
+      }
+
+      expect(seen.size).toBeGreaterThan(2)
+      expect(missing).toEqual([])
+    })
+  }
+
+  // 200% zoom of a 1280px window is a 640px viewport. Text must reflow with no sideways scroll.
+  for (const path of ['/', '/patterns/tabs', '/patterns/dialog']) {
+    test(`${path} reflows at 200% zoom`, async ({ page }) => {
+      await page.setViewportSize({ width: 640, height: 450 })
+      await page.goto(path)
+      await waitForAlpine(page)
+
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
+
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth)
+      await expectNoViolations(page)
+    })
+  }
 })

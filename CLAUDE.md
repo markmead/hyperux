@@ -32,6 +32,12 @@ In a sandbox that has Chromium preinstalled, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE
 
 **Always run `/accessibility-review` when you change UI markup, styles or pattern behavior.** Run it against the affected pages, fix what it finds, and note the findings in the pull request. axe only catches part of what matters, so keep `pnpm test:a11y` green and use `/accessibility-review` for keyboard, focus, contrast and screen reader checks the tests cannot cover. Add or update a test for behavior you fix.
 
+## Design
+
+`DESIGN.md` is the spec for the site's visual identity: tokens, type, the home page stage, header,
+footer and focus. Read it before changing chrome or the home page, and update it in the same commit
+as any design change. Pattern demos stay neutral and are not part of that identity.
+
 ## Architecture
 
 ### Alpine.js Pattern Registrations
