@@ -14,6 +14,8 @@ pnpm build     # wrangler types + astro build
 pnpm check     # astro type-check
 pnpm lint      # eslint
 pnpm format    # prettier (respects .prettierignore)
+pnpm format:check # prettier, check only (what CI runs)
+pnpm knip      # unused files, exports and dependencies
 pnpm test      # Playwright (builds the site, serves it with `astro preview`)
 pnpm test:a11y # only the axe accessibility tests
 ```
@@ -26,7 +28,7 @@ Playwright tests in `src/tests` run against the production build, in Chromium:
 - `patterns.spec.ts`: each pattern's documented behavior through its live demo (keyboard, focus, ARIA state, events)
 - `fixtures.ts`: serves `@alpinejs/focus` from `node_modules` instead of the CDN the page uses (same bytes, so the integrity hash still matches), so tests run offline
 
-In a sandbox that has Chromium preinstalled, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to its path instead of running `playwright install`. CI (`.github/workflows/ci.yml`) runs lint, Prettier, build, `pnpm check` and the tests on every pull request.
+In a sandbox that has Chromium preinstalled, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to its path instead of running `playwright install`. CI (`.github/workflows/ci.yml`) has two jobs on every pull request and push to `main`: `lint` (`pnpm format:check`, `pnpm lint`, `pnpm knip`) and `test` (`pnpm build`, `pnpm check`, `pnpm test`). Run all of these before pushing; `pnpm format` fixes Prettier. Knip's config is `knip.json`; `@alpinejs/focus` is ignored there because the tests load it by file path.
 
 **Always run `/accessibility-review` when you change UI markup, styles or pattern behavior.** Run it against the affected pages, fix what it finds, and log each finding in `A11Y-FINDINGS.CSV` with its status. axe only catches part of what matters, so keep `pnpm test:a11y` green and use `/accessibility-review` for keyboard, focus, contrast and screen reader checks the tests cannot cover. Add or update a test for behavior you fix.
 
