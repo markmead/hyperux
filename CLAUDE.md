@@ -30,7 +30,7 @@ Playwright tests in `src/tests` run against the production build, in Chromium:
 
 In a sandbox that has Chromium preinstalled, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` to its path instead of running `playwright install`. CI (`.github/workflows/ci.yml`) has two jobs on every pull request and push to `main`: `lint` (`pnpm format:check`, `pnpm lint`, `pnpm knip`) and `test` (`pnpm build`, `pnpm check`, `pnpm test`). Run all of these before pushing; `pnpm format` fixes Prettier. Knip's config is `knip.json`; `@alpinejs/focus` is ignored there because the tests load it by file path.
 
-**Always run `/accessibility-review` when you change UI markup, styles or pattern behavior.** Run it against the affected pages, fix what it finds, and log each finding in `A11Y-FINDINGS.CSV` with its status. axe only catches part of what matters, so keep `pnpm test:a11y` green and use `/accessibility-review` for keyboard, focus, contrast and screen reader checks the tests cannot cover. Add or update a test for behavior you fix.
+**Always run `/accessibility-review` when you change UI markup, styles or pattern behavior.** Run it against the affected pages, fix what it finds, and note the findings in the pull request. axe only catches part of what matters, so keep `pnpm test:a11y` green and use `/accessibility-review` for keyboard, focus, contrast and screen reader checks the tests cannot cover. Add or update a test for behavior you fix.
 
 ## Design
 

@@ -185,8 +185,8 @@ These are the defaults this design was built to avoid. Using one needs a reason 
 
 axe at zero (WCAG 2.2 AA) on every page at 390px and 1280px, no horizontal scroll at 320px,
 visible keyboard focus on every surface, reduced motion respected, 44px targets on primary
-controls. Run `/accessibility-review` after any visual change and log findings in
-`A11Y-FINDINGS.CSV`; `pnpm test:a11y` guards the rest.
+controls. Run `/accessibility-review` after any visual change and note the findings in the pull
+request; `pnpm test:a11y` guards the rest.
 
 ## Status
 
