@@ -208,12 +208,12 @@ test.describe('keyboard focus and zoom', () => {
       await page.goto(path)
       await waitForAlpine(page)
 
-      const widths = await page.evaluate(() => [
-        document.documentElement.scrollWidth,
-        document.documentElement.clientWidth,
-      ])
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }))
 
-      expect(widths[0]).toBeLessThanOrEqual(widths[1])
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth)
       await expectNoViolations(page)
     })
   }
