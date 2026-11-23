@@ -133,3 +133,88 @@ test.describe('Open states (axe)', () => {
     await expectNoViolations(page)
   })
 })
+
+test.describe('keyboard focus and zoom', () => {
+  // Tabs through every focusable element on the page and asserts that each one shows the
+  // site-wide focus ring: a visible outline of at least 2px.
+  for (const path of ['/', ...patternSlugs.map((slug) => `/patterns/${slug}`)]) {
+    test(`every tab stop shows a focus ring on ${path}`, async ({ page }) => {
+      await page.goto(path)
+      await waitForAlpine(page)
+
+      const missing: string[] = []
+      const seen = new Set<string>()
+
+      for (let step = 0; step < 80; step++) {
+        await page.keyboard.press('Tab')
+
+        const stop = await page.evaluate(() => {
+          const element = document.activeElement
+
+          if (!element || element === document.body) {
+            return null
+          }
+
+          const style = getComputedStyle(element)
+
+          return {
+            id: `${element.tagName.toLowerCase()} ${(element.getAttribute('aria-label') ?? element.textContent ?? '').trim().slice(0, 30)}`,
+            visible: style.outlineStyle !== 'none' && Number.parseFloat(style.outlineWidth) >= 2,
+          }
+        })
+
+        if (!stop) {
+          break
+        }
+
+        if (seen.has(stop.id) && seen.size > 3) {
+          continue
+        }
+
+        seen.add(stop.id)
+
+        // Focus inside an iframe goes to its own document, so look for the ring in there.
+        if (stop.id.startsWith('iframe')) {
+          const frame = page
+            .frames()
+            .find(
+              (candidate) =>
+                candidate !== page.mainFrame() && candidate.url().includes('/examples/'),
+            )
+
+          stop.visible = Boolean(
+            await frame?.evaluate(() => {
+              const style = getComputedStyle(document.documentElement)
+
+              return style.outlineStyle !== 'none' && Number.parseFloat(style.outlineWidth) >= 2
+            }),
+          )
+        }
+
+        if (!stop.visible) {
+          missing.push(stop.id)
+        }
+      }
+
+      expect(seen.size).toBeGreaterThan(2)
+      expect(missing).toEqual([])
+    })
+  }
+
+  // 200% zoom of a 1280px window is a 640px viewport. Text must reflow with no sideways scroll.
+  for (const path of ['/', '/patterns/tabs', '/patterns/dialog']) {
+    test(`${path} reflows at 200% zoom`, async ({ page }) => {
+      await page.setViewportSize({ width: 640, height: 450 })
+      await page.goto(path)
+      await waitForAlpine(page)
+
+      const widths = await page.evaluate(() => [
+        document.documentElement.scrollWidth,
+        document.documentElement.clientWidth,
+      ])
+
+      expect(widths[0]).toBeLessThanOrEqual(widths[1])
+      await expectNoViolations(page)
+    })
+  }
+})

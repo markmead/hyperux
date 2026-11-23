@@ -193,7 +193,7 @@ controls. Run `/accessibility-review` after any visual change and log findings i
 Built and verified:
 
 - Tokens, display font, focus rule, header, footer, home page and the stage.
-- Full Playwright suite (92 tests) and axe at zero on every page at 390px and 1280px; no horizontal
+- Full Playwright suite (107 tests) and axe at zero on every page at 390px and 1280px; no horizontal
   scroll at 320px.
 - Tests in `src/tests/home.spec.ts` for the live trace, the keycaps, the first view at 1440x900, the
   open dialog leaving the trace readable, the white focus ring on the stage, and reduced motion.
@@ -202,6 +202,8 @@ Built and verified:
 
 Fixed in this pass:
 
+- The resizable demo's preview iframe was a tab stop with no focus indicator. The preview page now
+  draws the ink ring inside the frame, and a test tabs through every stop on every page.
 - Keycaps never lit: the `data-lit` binding referenced the Astro loop variable `key` inside an Alpine
   expression. The id is now interpolated at build time.
 - On desktop the dialog backdrop dimmed the trace to low contrast. The trace panel now sits above the
