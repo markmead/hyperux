@@ -1,11 +1,25 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
     "accessibility-review": {
       "source": "anthropics/knowledge-work-plugins",
       "sourceType": "github",
       "skillPath": "design/skills/accessibility-review/SKILL.md",
-      "computedHash": "987e6d762060025045c4cc243cbc2feefc5397bb2998d666b4c334c4c1e19d8a"
+      "computedHash": "47f1742bc651c43275a313d159623cf51b5cda8934bfc9088c404a593e5a7e9e"
+    },
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "commit": "dc987e0831b41417169647d0152101c7c363c328",
+      "sourceType": "github",
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "a0dfac7503f69bcf529b2660fc79964064c4f179eb65695904ddc45fc0d99d20"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "commit": "e4bb5d960d87126ff3b3a8af1a104b7db67560ba",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "83485963700bcf11d5bf78118facb301676b69d918fee2e45a95e7f1a2840f6c"
     },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
