@@ -88,7 +88,8 @@ Left-aligned and editorial. No centered hero, no card grid.
 3. **Snippet.** The dialog markup with the classes left out, beside a short explanation. The snippet
    in `src/pages/index.astro` is a hand-kept copy of the stage's markup: change both together.
 4. **Patterns.** A two-column ruled index. Titles in the display face, one-line descriptions, a
-   `signal` bar on the left edge on hover and on keyboard focus. The whole row is the link.
+   `signal` bar on the left edge on hover and on keyboard focus. Rows have 20px of horizontal padding so
+   the text clears the bar. The whole row is the link.
 
 On phones everything stacks, the headline scales down, keycaps wrap, and the trace follows the
 stage copy. The stage has a short line for people without a keyboard.
