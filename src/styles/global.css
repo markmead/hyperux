@@ -77,3 +77,18 @@
 .prose :not(pre) > code::after {
   content: none;
 }
+
+/* A value in the home page's live readout changes: show it once, then fade. */
+@keyframes hux-flash {
+  from {
+    background-color: var(--color-blue-100);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+.hux-flash {
+  animation: hux-flash 700ms ease-out;
+}
