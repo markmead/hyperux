@@ -142,9 +142,20 @@ buttons become icon-only and the header stays on one row.
 
 ### Pattern pages
 
-Unchanged on purpose. The demo cards stay neutral gray and white: they say "your styles go here",
-and copied snippets must not inherit site personality. Only the page background, the header and
-footer, and prose headings follow this document.
+Documentation pages follow the home page's identity, without its one bold moment:
+
+- Left-aligned. The page opens on the title (display face, 80% width, weight 800), then a one-paragraph
+  intro, then the live demo, then the docs. A 65ch column sits on the left edge; code blocks and the
+  demo may run wider.
+- Headings use the display face. H2s have a 2px `ink` rule under them. Links are `ink`, underlined,
+  and turn `signal` on hover. Inline code sits on `key` with an `ink/15` border.
+- Demo cards stay neutral on purpose: white, a hairline `ink/15` border, rounded-xl, a plain "Demo"
+  label on `key`. The copied markup inside them is gray and white and must not inherit site
+  personality, and the cobalt slab, keycaps and display type do not appear in them. The card's own
+  footer (copy button, issue link) uses the site's secondary button and link styles.
+
+All of it lives in `src/styles/global.css` (`.prose`, `.prose-breakout`) and the demo card wrapper
+at the top and bottom of each file in `src/components/demos/`.
 
 ## Focus
 

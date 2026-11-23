@@ -1,6 +1,6 @@
-<div class="prose-demo not-prose relative rounded-lg border border-gray-300 bg-white p-6">
+<div class="prose-demo not-prose relative rounded-xl border border-ink/15 bg-white p-6 sm:p-8">
   <span
-    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-teal-300 bg-teal-100 px-3 text-xs/6 font-medium text-teal-900"
+    class="absolute -top-3 left-6 inline-flex h-6 items-center rounded-full border border-ink/20 bg-key px-3 text-xs/6 font-medium text-ink sm:left-8"
   >
     Demo
   </span>
@@ -435,7 +435,7 @@
       <button
         type="button"
         x-data="huxCopy({ sourceNames: ['huxInlineEditorDemo', 'huxInlineEditorRegistration'] })"
-        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        class="inline-flex min-h-11 items-center rounded-lg border-2 border-ink px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-key"
         x-on:click="copyToClipboard()"
       >
         <span
@@ -450,7 +450,7 @@
         href="https://github.com/markmead/hyperux/issues/new"
         target="_blank"
         rel="noreferrer"
-        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
+        class="inline-block py-2 text-ink underline underline-offset-4 hover:text-signal"
       >
         Found a bug or improvement? Open an issue.
       </a>

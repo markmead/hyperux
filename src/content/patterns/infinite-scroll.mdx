@@ -18,11 +18,11 @@ import LastUpdated from '../../components/LastUpdated.astro'
 
 <div class="prose prose-lg prose-breakout prose-pre:rounded-lg max-w-none prose-headings:font-semibold mx-auto">
 
-<Demo />
-
 # Alpine.js {frontmatter.title}
 
 `huxInfiniteScroll` wraps the native `IntersectionObserver` API to watch a loader element and fire a `load-more` event whenever it enters the observed area. The component manages debouncing via `isLoading`, handles cleanup on teardown, and exposes `disableScroll()` for when there are no more pages. Data fetching is handled entirely by the consumer.
+
+<Demo />
 
 `huxInfiniteScroll` requires a valid `x-ref` loader element and a browser environment with `IntersectionObserver`. The component does not fetch data or manage a list — it only signals when the next page should load.
 
