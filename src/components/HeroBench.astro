@@ -142,7 +142,7 @@ const benchListeners = {
           keys.map((key) => (
             <div
               data-key={key.id}
-              x-bind:data-lit="lit[key.id] ? 'true' : 'false'"
+              x-bind:data-lit={`lit['${key.id}'] ? 'true' : 'false'`}
               class="flex h-12 min-w-12 items-center justify-center rounded-lg bg-key px-3 text-sm font-semibold text-ink shadow-[0_4px_0_0] shadow-ink/40 transition-[transform,box-shadow,background-color] duration-100 data-[lit=true]:translate-y-1 data-[lit=true]:bg-event data-[lit=true]:shadow-[0_0_0_0]"
             >
               {key.label}
@@ -158,7 +158,7 @@ const benchListeners = {
 
     <section
       aria-labelledby="trace-heading"
-      class="min-w-0 self-start bg-paper p-5 text-ink sm:p-6"
+      class="min-w-0 self-start bg-paper p-5 text-ink sm:p-6 lg:relative lg:z-[60]"
     >
       <div class="flex items-baseline justify-between gap-4 border-b-2 border-ink pb-3">
         <h2 id="trace-heading" class="font-display text-2xl font-bold [font-stretch:85%]">

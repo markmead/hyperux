@@ -119,6 +119,9 @@ A new line flashes `event` amber once (`.hux-flash`, 700ms, in `global.css`). Th
 region: it updates on every key press, and announcing that would be noise. Empty state: "Nothing
 yet. Press Tab, or open the dialog."
 
+On desktop the panel sits above the dialog backdrop, so the trace stays at full contrast while the
+dialog is open; the dialog is anchored to the left and does not overlap it.
+
 The trace is observation only. It listens to the events the registration dispatches (on `window`,
 because the panel is teleported to `<body>`), to `focusin`, and to key presses. It never reads or
 changes the dialog's state, so it shows what any consumer's own code could see.
@@ -187,18 +190,26 @@ controls. Run `/accessibility-review` after any visual change and log findings i
 
 ## Status
 
-Built and working:
+Built and verified:
 
 - Tokens, display font, focus rule, header, footer, home page and the stage.
-- Tests in `src/tests/home.spec.ts` for the live trace and the keycaps.
+- Full Playwright suite (92 tests) and axe at zero on every page at 390px and 1280px; no horizontal
+  scroll at 320px.
+- Tests in `src/tests/home.spec.ts` for the live trace, the keycaps, the first view at 1440x900, the
+  open dialog leaving the trace readable, the white focus ring on the stage, and reduced motion.
+- Reviewed in a real browser at 1440x900 and 390x844 (initial, dialog open, after Escape) and on the
+  tabs, dialog and dropdown pattern pages. Demo cards are unchanged.
 
-Not done:
+Fixed in this pass:
 
-- A full run of the Playwright suite after the last tweaks (headline size, snippet notes alignment,
-  new home tests). Treat the suite as unverified until it passes.
-- Screenshots of the final state at 1440px and 390px, and a check that the stage's first view shows
-  the keycaps and trace without scrolling at 900px height.
-- The display face on prose headings has not been reviewed on a real pattern page.
-- Pattern index rows and the stage have not been checked with Google Sans Flex, which the sandbox
-  cannot load; verify body text on a machine with network access.
-- `CLAUDE.md` does not mention this document yet.
+- Keycaps never lit: the `data-lit` binding referenced the Astro loop variable `key` inside an Alpine
+  expression. The id is now interpolated at build time.
+- On desktop the dialog backdrop dimmed the trace to low contrast. The trace panel now sits above the
+  backdrop at `lg` (`lg:relative lg:z-[60]`); the dialog is anchored left, so they never overlap.
+
+Known limits:
+
+- At 390px the trace follows the stage copy and keycaps, so it is below the first view. The keycaps
+  and the trigger are in the first view.
+- The sandbox cannot load Google Sans Flex, so body text was reviewed in the fallback sans. Check
+  line breaks of body text on a machine with network access.

@@ -110,6 +110,21 @@ test.describe('Open states (axe)', () => {
     await expectNoViolations(page)
   })
 
+  test('home page stage with a populated trace and a lit key', async ({ page }) => {
+    await page.goto('/')
+    await waitForAlpine(page)
+    await page.getByRole('button', { name: 'Delete account' }).click()
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Escape')
+    await expect(
+      page.getByRole('list', { name: 'Event trace' }).getByRole('listitem').first(),
+    ).toBeVisible()
+    await page.keyboard.down('Tab')
+    await expect(page.locator('[data-key="Tab"]')).toHaveAttribute('data-lit', 'true')
+    await expectNoViolations(page)
+    await page.keyboard.up('Tab')
+  })
+
   test('site search', async ({ page }) => {
     await page.goto('/')
     await waitForAlpine(page)
