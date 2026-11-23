@@ -2,9 +2,12 @@
 import { type CollectionEntry, getCollection } from 'astro:content'
 
 import BaseLayout from '../layouts/BaseLayout.astro'
+import HeroBench from '../components/HeroBench.astro'
 import LastUpdated from '../components/LastUpdated.astro'
 
-const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+const patterns: CollectionEntry<'patterns'>[] = (await getCollection('patterns')).sort(
+  (firstPattern, secondPattern) => firstPattern.data.title.localeCompare(secondPattern.data.title),
+)
 
 const lastUpdated =
   patterns.length > 0
@@ -12,42 +15,141 @@ const lastUpdated =
         return pattern.data.modDate > latest ? pattern.data.modDate : latest
       }, new Date(0))
     : null
+
+// The stage's dialog markup with the classes left out. Keep it in step with HeroBench.astro.
+const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
+  <button type="button" x-on:click="openDialog()">
+    Delete account
+  </button>
+
+  <div
+    x-cloak
+    x-show="isOpen"
+    x-on:click.self="handleBackdropClick()"
+    x-on:keydown.escape.stop="handleEscape()"
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      x-trap.noscroll="isOpen"
+      x-bind:aria-labelledby="dialogTitleId"
+    >
+      <h2 x-bind:id="dialogTitleId">Delete your account?</h2>
+      <button type="button" x-on:click="closeDialog()">
+        Cancel
+      </button>
+      <button type="button" x-on:click="closeDialog()">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>`
 ---
 
 <BaseLayout
   title="Free Alpine.js UI Patterns for Developers"
   description="Behavior-first Alpine.js patterns you can copy, adapt, and ship."
 >
-  <main id="main-content" class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-    <article class="prose prose-headings:font-semibold prose-lg">
-      <h1>Free Alpine.js UI Patterns for Developers</h1>
+  <main id="main-content">
+    <section
+      class="mx-auto grid max-w-7xl items-end gap-8 px-4 pt-8 pb-8 sm:px-6 sm:pt-12 sm:pb-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-16 lg:px-8"
+    >
+      <h1
+        class="font-display text-[clamp(3.25rem,8.2vw,7.25rem)]/[0.88] font-extrabold tracking-tight text-balance text-ink [font-stretch:75%]"
+      >
+        Free Alpine.js UI Patterns for Developers
+      </h1>
 
-      <p class="lead">Behavior-first Alpine.js patterns you can copy, adapt, and ship.</p>
+      <div class="space-y-6 pb-2">
+        <p class="text-lg/8 text-gray-800">
+          Behavior-first Alpine.js patterns you can copy, adapt, and ship. Each one handles state,
+          keyboard, focus, and ARIA. You bring the markup and the styles.
+        </p>
 
-      <p>
-        HyperUX is not about repackaging HTML elements and functionality as components. It focuses
-        on developer-friendly APIs for behavior-heavy UI patterns you can adapt to your own markup
-        and styles.
-      </p>
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            href="#patterns"
+            class="inline-flex min-h-11 items-center rounded-lg bg-ink px-5 py-2 font-medium text-white transition-colors hover:bg-signal"
+          >
+            Browse patterns
+          </a>
 
-      {lastUpdated && <LastUpdated date={lastUpdated} />}
+          <a
+            href="https://github.com/markmead/hyperux"
+            class="inline-flex min-h-11 items-center rounded-lg border-2 border-ink px-5 py-2 font-medium text-ink transition-colors hover:bg-key"
+          >
+            View source
+          </a>
+        </div>
+      </div>
+    </section>
 
-      <nav>
-        <ul>
-          {
-            patterns.map((pattern) => (
-              <li>
-                <a
-                  href={`/patterns/${pattern.data.slug}`}
-                  class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
-                >
-                  Read the {pattern.data.title} documentation
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-    </article>
+    <HeroBench />
+
+    <section
+      class="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-16 lg:px-8"
+    >
+      <pre
+        tabindex="0"
+        class="overflow-x-auto rounded-lg bg-ink p-5 font-mono text-[0.8125rem]/6 text-key"><code>{heroSnippet}</code></pre>
+
+      <div class="space-y-4 self-start text-gray-800">
+        <h2 class="font-display text-3xl font-bold [font-stretch:85%]">
+          The same markup, no styles
+        </h2>
+
+        <p>
+          Open state, ids, and events come from <code>huxDialog</code>. The classes, the layout, and
+          the look stay yours.
+        </p>
+
+        <p>
+          The trace above never looks inside the dialog. It listens for the events the dialog
+          dispatches and for focus moving, the same things your own code can use.
+        </p>
+      </div>
+    </section>
+
+    <section
+      id="patterns"
+      class="mx-auto max-w-7xl scroll-mt-8 px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8"
+      aria-labelledby="patterns-heading"
+    >
+      <div
+        class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-2 border-ink pb-4"
+      >
+        <h2
+          id="patterns-heading"
+          class="font-display text-5xl font-extrabold tracking-tight [font-stretch:80%]"
+        >
+          Patterns
+        </h2>
+
+        {
+          lastUpdated && (
+            <p class="text-sm text-gray-800">
+              <LastUpdated date={lastUpdated} />
+            </p>
+          )
+        }
+      </div>
+
+      <ul class="grid md:grid-cols-2 md:gap-x-12">
+        {
+          patterns.map((pattern) => (
+            <li class="relative border-b border-ink/15 px-5 py-6 transition-shadow hover:bg-key hover:shadow-[inset_5px_0_0_0_var(--color-signal)] has-[:focus-visible]:shadow-[inset_5px_0_0_0_var(--color-signal)]">
+              <a
+                href={`/patterns/${pattern.data.slug}`}
+                class="font-display text-3xl font-bold tracking-tight text-ink [font-stretch:85%] after:absolute after:inset-0"
+              >
+                {pattern.data.title}
+              </a>
+
+              <p class="mt-1.5 max-w-prose text-gray-800">{pattern.data.description}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </main>
 </BaseLayout>

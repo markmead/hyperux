@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Resizable Container</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* The page scrolls with the keyboard when its frame has focus, but no element matches
+         :focus, so the browser draws nothing. Show the site's focus ring while the frame has focus. */
+      html.has-focus {
+        outline: 3px solid #161a24;
+        outline-offset: -3px;
+      }
+    </style>
+    <script>
+      const root = document.documentElement
+
+      window.addEventListener('focus', () => root.classList.add('has-focus'))
+      window.addEventListener('blur', () => root.classList.remove('has-focus'))
+    </script>
   </head>
   <body>
     <div
