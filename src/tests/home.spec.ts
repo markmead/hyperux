@@ -40,31 +40,47 @@ test.describe('Home page', () => {
     await expect(codeBlock).toContainText('huxDialog')
   })
 
-  test('the hero dialog is live and the readout follows it', async ({ page }) => {
-    const readout = page.locator('dl')
-    const value = (label: string) => readout.locator('div', { hasText: label }).locator('dd')
+  test('the stage is live: the trace follows the dialog and focus', async ({ page }) => {
+    const trace = page.getByRole('list', { name: 'Event trace' })
+    const newest = trace.getByRole('listitem').first()
 
-    await expect(value('isOpen')).toHaveText('false')
+    await expect(page.getByText('Nothing yet. Press Tab, or open the dialog.')).toBeVisible()
 
     const trigger = page.getByRole('button', { name: 'Delete account' })
 
     await trigger.click()
 
     await expect(page.getByRole('dialog', { name: 'Delete your account?' })).toBeVisible()
-    await expect(value('isOpen')).toHaveText('true')
-    await expect(value('last event')).toHaveText('hux-dialog:confirm-delete:open')
-    await expect(value('focus')).toHaveText('<button> Cancel')
+    await expect(trace).toContainText('hux-dialog:confirm-delete:open')
+    await expect(trace).toContainText('<button> Cancel')
 
     await page.keyboard.press('Tab')
-    await expect(value('focus')).toHaveText('<button> Delete')
+    await expect(newest).toContainText('<button> Delete')
+    await expect(trace).toContainText('Tab')
 
     await page.keyboard.press('Escape')
 
     await expect(page.getByRole('dialog')).toBeHidden()
-    await expect(value('isOpen')).toHaveText('false')
-    await expect(value('last event')).toHaveText('hux-dialog:confirm-delete:close')
-    await expect(value('focus')).toHaveText('<button> Delete account')
+    await expect(trace).toContainText('hux-dialog:confirm-delete:close')
+    await expect(newest).toContainText('<button> Delete account')
     await expect(trigger).toBeFocused()
+  })
+
+  test('keycaps light while their key is held', async ({ page }) => {
+    const tabKey = page.locator('[data-key="Tab"]')
+    const shiftTabKey = page.locator('[data-key="ShiftTab"]')
+
+    await expect(tabKey).toHaveAttribute('data-lit', 'false')
+
+    await page.keyboard.down('Tab')
+    await expect(tabKey).toHaveAttribute('data-lit', 'true')
+    await page.keyboard.up('Tab')
+    await expect(tabKey).toHaveAttribute('data-lit', 'false')
+
+    await page.keyboard.down('Shift')
+    await page.keyboard.down('Tab')
+    await expect(shiftTabKey).toHaveAttribute('data-lit', 'true')
+    await expect(tabKey).toHaveAttribute('data-lit', 'false')
   })
 
   test('the header fits on one row at phone width', async ({ page }) => {

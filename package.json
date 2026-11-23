@@ -23,6 +23,7 @@
     "@astrojs/cloudflare": "^14.1.5",
     "@astrojs/mdx": "^7.0.4",
     "@astrojs/sitemap": "^3.7.3",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@lucide/astro": "^1.27.0",
     "@types/alpinejs": "^3.13.11",
     "alpinejs": "^3.15.12",

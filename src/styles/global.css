@@ -10,13 +10,26 @@
   --font-sans: var(--font-google-sans-flex);
 }
 
+/* Identity: a keyboard. Paper and ink for the page, ivory keycaps, one cobalt for the stage
+   and the brand, one amber that only ever means "something just happened". */
+@theme {
+  --font-display: 'Bricolage Grotesque Variable', var(--font-google-sans-flex), sans-serif;
+
+  --color-paper: #eef0f4;
+  --color-ink: #161a24;
+  --color-signal: #2f45ff;
+  --color-event: #ffc233;
+  --color-key: #fbfbf8;
+}
+
 [x-cloak] {
   display: none !important;
 }
 
 @layer base {
+  /* Ink on light surfaces. The stage sets --focus-ring to white, where ink would not show. */
   :focus-visible {
-    outline: 2px solid var(--color-blue-500, #3b82f6);
+    outline: 3px solid var(--focus-ring, var(--color-ink));
     outline-offset: 2px;
   }
 }
@@ -78,10 +91,10 @@
   content: none;
 }
 
-/* A value in the home page's live readout changes: show it once, then fade. */
+/* A new line in the home page's trace: show it once, then fade. */
 @keyframes hux-flash {
   from {
-    background-color: var(--color-blue-100);
+    background-color: var(--color-event);
   }
 
   to {
@@ -91,4 +104,10 @@
 
 .hux-flash {
   animation: hux-flash 700ms ease-out;
+}
+
+/* Docs headings share the display face with the rest of the identity. */
+.prose :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
 }

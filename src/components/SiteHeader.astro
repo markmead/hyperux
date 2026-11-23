@@ -16,17 +16,20 @@ const paletteItems = patterns
 const paletteItemsJson = JSON.stringify(paletteItems)
 ---
 
-<header class="border-b border-gray-300 bg-white">
+<header class="border-b border-ink/15 bg-paper">
   <div
     class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 lg:px-8"
   >
     <div class="flex min-w-0 items-center gap-3 sm:gap-4">
-      <a href="/" class="inline-block py-2 text-xl font-semibold sm:text-2xl">
-        HyperUX <span aria-hidden="true">📦</span>
+      <a
+        href="/"
+        class="inline-block py-2 font-display text-2xl font-extrabold tracking-tight [font-stretch:80%] sm:text-3xl"
+      >
+        HyperUX
       </a>
 
       <span
-        class="inline-flex h-6 items-center rounded-full border border-sky-300 bg-sky-100 px-3 text-xs/6 font-medium text-sky-900"
+        class="inline-flex h-6 items-center rounded-full border border-ink/30 px-3 text-xs/6 font-medium text-ink"
       >
         Experimental
       </span>
@@ -54,7 +57,7 @@ const paletteItemsJson = JSON.stringify(paletteItems)
       >
         <button
           type="button"
-          class="inline-flex min-h-11 items-center gap-2 rounded-md border border-gray-300 bg-gray-50 px-3.5 py-2 text-gray-700 transition-colors hover:bg-gray-100 sm:px-4"
+          class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-key px-3.5 py-2 text-ink shadow-[0_3px_0_0] shadow-ink/25 transition-[transform,box-shadow] hover:translate-y-px hover:shadow-[0_2px_0_0] active:translate-y-[3px] active:shadow-[0_0_0_0] sm:px-4"
           x-on:click="openDialog()"
         >
           <Search class="size-4" aria-hidden="true" />
@@ -237,7 +240,7 @@ const paletteItemsJson = JSON.stringify(paletteItems)
 
       <a
         href="https://github.com/markmead/hyperux"
-        class="inline-flex min-h-11 items-center gap-2 rounded-md border border-gray-900 bg-gray-900 px-3.5 py-2 text-white transition-colors hover:bg-gray-800 sm:px-4"
+        class="inline-flex min-h-11 items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-white transition-colors hover:bg-signal sm:px-4"
         aria-label="GitHub"
         target="_blank"
         rel="noreferrer"

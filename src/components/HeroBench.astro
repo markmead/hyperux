@@ -1,0 +1,202 @@
+---
+// The home page stage: a real huxDialog, a row of keycaps that light as keys are pressed, and a
+// trace of what the registration does. Everything here is observed from outside the registration:
+// the events it dispatches, focus moves and key presses. It never reads or changes its state.
+
+const keys = [
+  { id: 'Esc', label: 'Esc' },
+  { id: 'ShiftTab', label: 'Shift Tab' },
+  { id: 'Tab', label: 'Tab' },
+  { id: 'Enter', label: 'Enter' },
+  { id: 'Space', label: 'Space' },
+  { id: 'ArrowLeft', label: '←' },
+  { id: 'ArrowUp', label: '↑' },
+  { id: 'ArrowDown', label: '↓' },
+  { id: 'ArrowRight', label: '→' },
+]
+
+const benchData = `{
+  entries: [],
+  lit: {},
+  count: 0,
+  startedAt: null,
+  log(kind, text) {
+    const now = performance.now()
+
+    this.startedAt ??= now
+    this.entries = [{ id: ++this.count, kind, text, at: now - this.startedAt }, ...this.entries].slice(0, 7)
+  },
+  keyId(event) {
+    const names = { Escape: 'Esc', Enter: 'Enter', ' ': 'Space', ArrowLeft: 'ArrowLeft', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', ArrowRight: 'ArrowRight' }
+
+    if (event.key === 'Tab') {
+      return event.shiftKey ? 'ShiftTab' : 'Tab'
+    }
+
+    return names[event.key] ?? null
+  },
+  press(event) {
+    const id = this.keyId(event)
+
+    if (!id || event.repeat) {
+      return
+    }
+
+    this.lit[id] = true
+    this.log('key', id === 'ShiftTab' ? 'Shift+Tab' : id)
+    setTimeout(() => { this.lit[id] = false }, 220)
+  },
+  describe(element) {
+    if (!(element instanceof HTMLElement) || element === document.body) {
+      return 'body'
+    }
+
+    const name = element.getAttribute('aria-label') || element.textContent.trim().replace(/\\s+/g, ' ')
+
+    return '<' + element.tagName.toLowerCase() + '> ' + name.slice(0, 28)
+  },
+  seconds(entry) {
+    return '+' + (entry.at / 1000).toFixed(2) + 's'
+  },
+}`
+
+// Event names carry the dialog id, so these attributes have more than one colon after `x-on`.
+// The panel is teleported to <body>, so its events do not bubble through this section: listen on
+// the window.
+const benchListeners = {
+  'x-on:hux-dialog:confirm-delete:open.window': "log('event', $event.type)",
+  'x-on:hux-dialog:confirm-delete:close.window': "log('event', $event.type)",
+}
+---
+
+<div
+  class="bg-signal text-white [--focus-ring:white]"
+  x-data={benchData}
+  x-on:keydown.window="press($event)"
+  x-on:focusin.window="log('focus', describe($event.target))"
+  {...benchListeners}
+>
+  <div
+    class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-14 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-16 lg:px-8"
+  >
+    <div class="space-y-8">
+      <div x-data="huxDialog({ dialogId: 'confirm-delete' })" class="space-y-4">
+        <p class="font-display text-2xl/8 font-bold [font-stretch:85%] sm:text-3xl/9">
+          This is the real component. Press Tab, open the dialog, press Esc.
+        </p>
+
+        <button
+          type="button"
+          class="inline-flex min-h-12 items-center rounded-lg bg-key px-6 py-2 text-lg font-semibold text-ink shadow-[0_4px_0_0] shadow-ink/40 transition-[transform,box-shadow] hover:translate-y-px hover:shadow-[0_3px_0_0] active:translate-y-1 active:shadow-[0_0_0_0]"
+          x-on:click="openDialog()"
+        >
+          Delete account
+        </button>
+
+        <template x-teleport="body">
+          <div
+            x-cloak
+            x-show="isOpen"
+            x-transition.opacity.duration.200ms
+            class="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-4 text-ink lg:justify-start lg:pl-[6vw]"
+            x-on:click.self="handleBackdropClick()"
+            x-on:keydown.escape.stop="handleEscape()"
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              x-trap.noscroll="isOpen"
+              x-bind:aria-labelledby="dialogTitleId"
+              class="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow-xl"
+            >
+              <h2 x-bind:id="dialogTitleId" class="font-display text-2xl font-bold">
+                Delete your account?
+              </h2>
+
+              <p class="text-gray-700">This is a demo. Nothing is deleted.</p>
+
+              <div class="flex justify-end gap-3">
+                <button
+                  type="button"
+                  class="inline-flex min-h-11 items-center rounded-lg border border-ink/30 bg-white px-4 py-2 font-medium transition-colors hover:bg-paper"
+                  x-on:click="closeDialog()"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  class="inline-flex min-h-11 items-center rounded-lg bg-ink px-4 py-2 font-medium text-white transition-colors hover:bg-signal"
+                  x-on:click="closeDialog()"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div class="flex flex-wrap gap-2 sm:gap-3" aria-hidden="true">
+        {
+          keys.map((key) => (
+            <div
+              data-key={key.id}
+              x-bind:data-lit="lit[key.id] ? 'true' : 'false'"
+              class="flex h-12 min-w-12 items-center justify-center rounded-lg bg-key px-3 text-sm font-semibold text-ink shadow-[0_4px_0_0] shadow-ink/40 transition-[transform,box-shadow,background-color] duration-100 data-[lit=true]:translate-y-1 data-[lit=true]:bg-event data-[lit=true]:shadow-[0_0_0_0]"
+            >
+              {key.label}
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="max-w-sm text-sm/6 text-white/90 lg:hidden">
+        No keyboard? Tap Delete account and use the buttons in the dialog.
+      </p>
+    </div>
+
+    <section
+      aria-labelledby="trace-heading"
+      class="min-w-0 self-start bg-paper p-5 text-ink sm:p-6"
+    >
+      <div class="flex items-baseline justify-between gap-4 border-b-2 border-ink pb-3">
+        <h2 id="trace-heading" class="font-display text-2xl font-bold [font-stretch:85%]">
+          What the registration just did
+        </h2>
+      </div>
+
+      <p x-show="entries.length === 0" class="py-6 text-gray-700">
+        Nothing yet. Press Tab, or open the dialog.
+      </p>
+
+      <ol
+        x-cloak
+        x-show="entries.length > 0"
+        aria-label="Event trace"
+        class="divide-y divide-ink/15"
+      >
+        <template x-for="entry in entries" x-bind:key="entry.id">
+          <li
+            x-init="$el.classList.add('hux-flash')"
+            class="grid grid-cols-[4.25rem_4.5rem_minmax(0,1fr)] items-baseline gap-x-3 py-2.5"
+          >
+            <span class="text-sm text-gray-700 tabular-nums" x-text="seconds(entry)"></span>
+
+            <span
+              class="w-fit rounded px-1.5 py-0.5 text-sm font-semibold"
+              x-bind:class="{
+                'bg-event text-ink': entry.kind === 'event',
+                'bg-signal text-white': entry.kind === 'focus',
+                'border border-ink text-ink': entry.kind === 'key',
+              }"
+              x-text="entry.kind"></span>
+
+            <span class="min-w-0 font-mono text-[0.8125rem]/6 break-words" x-text="entry.text"
+            ></span>
+          </li>
+        </template>
+      </ol>
+    </section>
+  </div>
+</div>
