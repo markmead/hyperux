@@ -65,3 +65,19 @@
     }
   }
 }
+
+/* Typography wraps inline code in literal backticks, and the docs already mark
+   code with a background instead. Unlayered so it beats the plugin's utilities. */
+.prose :not(pre) > code {
+  border-radius: var(--radius-sm);
+  background-color: var(--color-gray-100);
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: none;
+}
