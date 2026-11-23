@@ -11,6 +11,21 @@ export default defineConfig({
 
   integrations: [mdx(), sitemap(), alpinejs()],
 
+  markdown: {
+    shikiConfig: {
+      // The default github-dark comment colour (#6a737d on #24292e) is 3.04:1.
+      theme: 'github-dark-high-contrast',
+      transformers: [
+        {
+          // Scrollable code blocks must be reachable by keyboard.
+          pre(node) {
+            node.properties.tabindex = '0'
+          },
+        },
+      ],
+    },
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },

@@ -103,7 +103,6 @@
                 x-bind:target="menuItem.target || null"
                 x-bind:rel="menuItem.target === '_blank' ? 'noreferrer' : null"
                 x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
-                x-bind:aria-label="menuItem.itemDepth > 0 ? `${menuItem.label}, submenu of ${menuItem.parentLabel}` : null"
                 x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex || hoveredIndex === menuIndex }"
                 x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
                 role="menuitem"
@@ -125,6 +124,10 @@
                   class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
                   x-text="menuItem?.target === '_blank' ? 'External link' : menuItem?.href ? 'Internal link' : 'Action'"
                 ></span>
+                <span
+                  x-show="menuItem.itemDepth > 0"
+                  class="sr-only"
+                  x-text="`, submenu of ${menuItem.parentLabel}`"></span>
               </a>
             </template>
 
@@ -133,7 +136,6 @@
                 x-bind:id="menuItemIds[menuIndex]"
                 type="button"
                 x-bind:tabindex="focusedIndex === menuIndex ? '0' : '-1'"
-                x-bind:aria-label="menuItem.itemDepth > 0 ? `${menuItem.label}, submenu of ${menuItem.parentLabel}` : null"
                 x-bind:class="{ 'bg-gray-100': focusedIndex === menuIndex || hoveredIndex === menuIndex }"
                 x-bind:style="`padding-left: ${1 + menuItem.itemDepth * 0.75}rem`"
                 role="menuitem"
@@ -155,6 +157,10 @@
                   class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium"
                   x-text="menuItem?.target === '_blank' ? 'External link' : menuItem?.href ? 'Internal link' : 'Action'"
                 ></span>
+                <span
+                  x-show="menuItem.itemDepth > 0"
+                  class="sr-only"
+                  x-text="`, submenu of ${menuItem.parentLabel}`"></span>
               </button>
             </template>
           </div>
@@ -183,7 +189,7 @@
         href="https://github.com/markmead/hyperux/issues/new"
         target="_blank"
         rel="noreferrer"
-        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
       >
         Found a bug or improvement? Open an issue.
       </a>

@@ -4,8 +4,10 @@ document.addEventListener('alpine:init', () => {
     dialogId: initialConfig.dialogId ?? null,
     isPersistent: initialConfig.isPersistent ?? false,
     isSeamless: initialConfig.isSeamless ?? false,
+    returnFocusOnClose: initialConfig.returnFocusOnClose ?? true,
     dialogTitleId: null,
     dialogDescriptionId: null,
+    _dialogOpenerElement: null,
 
     get closeOnBackdrop() {
       return !this.isPersistent
@@ -25,6 +27,10 @@ document.addEventListener('alpine:init', () => {
     },
 
     openDialog() {
+      if (!this.isOpen) {
+        this._dialogOpenerElement = document.activeElement
+      }
+
       this.isOpen = true
       this.dispatchDialogEvent('open')
     },
@@ -39,8 +45,51 @@ document.addEventListener('alpine:init', () => {
     },
 
     closeDialog() {
+      const wasOpen = this.isOpen
+
       this.isOpen = false
       this.dispatchDialogEvent('close')
+
+      if (wasOpen) {
+        this.restoreOpenerFocus()
+      }
+    },
+
+    restoreOpenerFocus() {
+      const openerElement = this._dialogOpenerElement
+
+      this._dialogOpenerElement = null
+
+      if (!this.returnFocusOnClose || !openerElement?.isConnected) {
+        return
+      }
+
+      // `x-trap` usually returns focus itself, but a leave transition keeps the
+      // focused element visible until it ends, and focus then drops to the body.
+      // Watch for up to a second: restore focus once it is lost, and stop as soon
+      // as something else moves it.
+      const focusedAtClose = document.activeElement
+      const watchDeadline = performance.now() + 1000
+
+      const watchFocus = () => {
+        const activeElement = document.activeElement
+        const isFocusLost =
+          !activeElement ||
+          activeElement === document.body ||
+          activeElement.checkVisibility?.() === false
+
+        if (isFocusLost) {
+          openerElement.focus()
+
+          return
+        }
+
+        if (activeElement === focusedAtClose && performance.now() < watchDeadline) {
+          requestAnimationFrame(watchFocus)
+        }
+      }
+
+      this.$nextTick(watchFocus)
     },
 
     handleBackdropClick() {

@@ -56,10 +56,10 @@ const paletteItemsJson = JSON.stringify(paletteItems)
           type="button"
           class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-gray-50 px-4 py-2 text-gray-700"
           x-on:click="openDialog()"
-          aria-label="Search patterns"
         >
-          <Search class="size-4" />
+          <Search class="size-4" aria-hidden="true" />
 
+          <span class="sr-only">Search patterns</span>
           <span x-text="shortcutHint" class="text-sm font-semibold"></span>
         </button>
 
@@ -93,7 +93,7 @@ const paletteItemsJson = JSON.stringify(paletteItems)
                 aria-modal="true"
                 class="relative w-full max-w-2xl space-y-4 rounded-xl border border-gray-200 bg-white p-4 shadow-xl"
               >
-                <h3 x-bind:id="dialogTitleId || null" class="sr-only">Search patterns</h3>
+                <h2 x-bind:id="dialogTitleId || null" class="sr-only">Search patterns</h2>
 
                 <div
                   x-data="{

@@ -22,7 +22,11 @@
       })"
       class="space-y-4"
     >
-      <div role="tablist" aria-label="Account settings" class="flex gap-1 border-b border-gray-200">
+      <div
+        role="tablist"
+        aria-label="Account settings"
+        class="flex gap-1 overflow-x-auto border-b border-gray-200"
+      >
         <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
           <button
             x-bind:id="`tab-${tabItem.id}`"
@@ -105,7 +109,7 @@
       <div
         role="tablist"
         aria-label="Account settings (decoupled panels)"
-        class="flex gap-1 border-b border-gray-200"
+        class="flex gap-1 overflow-x-auto border-b border-gray-200"
       >
         <template x-for="tabItem in tabItems" x-bind:key="tabItem.id">
           <button
@@ -193,7 +197,7 @@
         href="https://github.com/markmead/hyperux/issues/new"
         target="_blank"
         rel="noreferrer"
-        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
       >
         Found a bug or improvement? Open an issue.
       </a>
