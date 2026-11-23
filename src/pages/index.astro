@@ -4,7 +4,9 @@ import { type CollectionEntry, getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import LastUpdated from '../components/LastUpdated.astro'
 
-const patterns: CollectionEntry<'patterns'>[] = await getCollection('patterns')
+const patterns: CollectionEntry<'patterns'>[] = (await getCollection('patterns')).sort(
+  (firstPattern, secondPattern) => firstPattern.data.title.localeCompare(secondPattern.data.title),
+)
 
 const lastUpdated =
   patterns.length > 0
@@ -12,42 +14,113 @@ const lastUpdated =
         return pattern.data.modDate > latest ? pattern.data.modDate : latest
       }, new Date(0))
     : null
+
+// The whole `huxDialog` pattern, as it appears in the README.
+const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
+  <button type="button" x-on:click="openDialog()">
+    Delete account
+  </button>
+
+  <div
+    x-cloak
+    x-show="isOpen"
+    role="dialog"
+    aria-modal="true"
+    x-bind:aria-labelledby="dialogTitleId"
+  >
+    <h2 x-bind:id="dialogTitleId">Delete your account?</h2>
+    <button type="button" x-on:click="closeDialog()">
+      Cancel
+    </button>
+  </div>
+</div>`
 ---
 
 <BaseLayout
   title="Free Alpine.js UI Patterns for Developers"
   description="Behavior-first Alpine.js patterns you can copy, adapt, and ship."
 >
-  <main id="main-content" class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-    <article class="prose prose-headings:font-semibold prose-lg">
-      <h1>Free Alpine.js UI Patterns for Developers</h1>
+  <main id="main-content" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section
+      class="grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,34rem)] lg:gap-16 lg:py-20"
+    >
+      <div class="space-y-6">
+        <h1
+          class="text-4xl/[1.1] font-semibold tracking-tight text-balance text-gray-900 sm:text-5xl/[1.1]"
+        >
+          Free Alpine.js UI Patterns for Developers
+        </h1>
 
-      <p class="lead">Behavior-first Alpine.js patterns you can copy, adapt, and ship.</p>
+        <p class="max-w-xl text-lg/8 text-gray-700">
+          Behavior-first Alpine.js patterns you can copy, adapt, and ship. Each one handles state,
+          keyboard, focus, and ARIA. You bring the markup and the styles.
+        </p>
 
-      <p>
-        HyperUX is not about repackaging HTML elements and functionality as components. It focuses
-        on developer-friendly APIs for behavior-heavy UI patterns you can adapt to your own markup
-        and styles.
-      </p>
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <a
+            href="#patterns"
+            class="inline-flex min-h-11 items-center rounded-md bg-gray-900 px-5 py-2 font-medium text-white transition-colors hover:bg-gray-700"
+          >
+            Browse patterns
+          </a>
 
-      {lastUpdated && <LastUpdated date={lastUpdated} />}
+          <a
+            href="https://github.com/markmead/hyperux"
+            class="inline-flex min-h-11 items-center rounded-md border border-gray-300 bg-white px-5 py-2 font-medium text-gray-900 transition-colors hover:bg-gray-100"
+          >
+            View source
+          </a>
+        </div>
+      </div>
 
-      <nav>
-        <ul>
-          {
-            patterns.map((pattern) => (
-              <li>
-                <a
-                  href={`/patterns/${pattern.data.slug}`}
-                  class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
-                >
-                  Read the {pattern.data.title} documentation
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
-    </article>
+      <figure class="min-w-0 space-y-3">
+        <pre
+          tabindex="0"
+          class="overflow-x-auto rounded-lg bg-gray-900 p-5 font-mono text-[0.8125rem]/6 text-gray-100"><code>{heroSnippet}</code></pre>
+
+        <figcaption class="text-sm/6 text-gray-700">
+          That's the whole <code class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[0.85em]"
+            >huxDialog</code
+          >
+          pattern: open state, ids, and events come from the registration. The markup and classes stay
+          yours.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section id="patterns" class="scroll-mt-8 pb-16 sm:pb-24" aria-labelledby="patterns-heading">
+      <div
+        class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-gray-300 pb-4"
+      >
+        <h2 id="patterns-heading" class="text-2xl font-semibold tracking-tight text-gray-900">
+          Patterns
+        </h2>
+
+        {
+          lastUpdated && (
+            <p class="text-sm text-gray-700">
+              <LastUpdated date={lastUpdated} />
+            </p>
+          )
+        }
+      </div>
+
+      <ul class="grid md:grid-cols-2 md:gap-x-12">
+        {
+          patterns.map((pattern) => (
+            <li class="relative border-b border-gray-200 py-5 transition-colors hover:bg-white">
+              <a
+                href={`/patterns/${pattern.data.slug}`}
+                class="text-lg font-semibold text-gray-900 underline-offset-4 after:absolute after:inset-0 hover:underline"
+              >
+                {pattern.data.title}
+              </a>
+
+              <p class="mt-1 max-w-prose text-gray-700">{pattern.data.description}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </main>
 </BaseLayout>
