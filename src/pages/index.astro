@@ -91,7 +91,7 @@ const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
     >
       <pre
         tabindex="0"
-        class="overflow-x-auto bg-ink p-5 font-mono text-[0.8125rem]/6 text-key"><code>{heroSnippet}</code></pre>
+        class="overflow-x-auto rounded-lg bg-ink p-5 font-mono text-[0.8125rem]/6 text-key"><code>{heroSnippet}</code></pre>
 
       <div class="space-y-4 self-start text-gray-800">
         <h2 class="font-display text-3xl font-bold [font-stretch:85%]">
@@ -137,7 +137,7 @@ const heroSnippet = `<div x-data="huxDialog({ dialogId: 'confirm-delete' })">
       <ul class="grid md:grid-cols-2 md:gap-x-12">
         {
           patterns.map((pattern) => (
-            <li class="relative border-b border-ink/15 px-1 py-6 transition-shadow hover:bg-key hover:shadow-[inset_5px_0_0_0_var(--color-signal)] has-[:focus-visible]:shadow-[inset_5px_0_0_0_var(--color-signal)]">
+            <li class="relative border-b border-ink/15 px-5 py-6 transition-shadow hover:bg-key hover:shadow-[inset_5px_0_0_0_var(--color-signal)] has-[:focus-visible]:shadow-[inset_5px_0_0_0_var(--color-signal)]">
               <a
                 href={`/patterns/${pattern.data.slug}`}
                 class="font-display text-3xl font-bold tracking-tight text-ink [font-stretch:85%] after:absolute after:inset-0"

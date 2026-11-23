@@ -96,17 +96,18 @@ Action-driven events use hyphen-case and are optionally scoped with a component 
 
 1. Frontmatter
 2. Demo import
-3. `<Demo />`
+3. Title (`# Alpine.js …`)
 4. Intro paragraph
-5. Runtime constraints (if applicable)
-6. API
-7. Options
-8. Quick Start
-9. Common Usage Patterns
-10. Behavior Contract
-11. Error Handling
-12. Accessibility Notes
-13. Notes
+5. `<Demo />`
+6. Runtime constraints (if applicable)
+7. API
+8. Options
+9. Quick Start
+10. Common Usage Patterns
+11. Behavior Contract
+12. Error Handling
+13. Accessibility Notes
+14. Notes
 
 ### Component Naming Conventions
 
