@@ -38,7 +38,6 @@
                   ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
                   : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
               x-bind:aria-current="isStepCurrent(stepItem.id) ? 'step' : null"
-              x-bind:aria-label="`Step ${stepIndex + 1} of ${stepItems.length}: ${stepItem.label}`"
               x-bind:aria-describedby="`step-status-${stepItem.id}`"
               x-on:click="goToStep(stepItem.id)"
             >
@@ -52,6 +51,7 @@
                 x-text="stepIndex + 1"></span>
               <span x-text="stepItem.label"></span>
               <span
+                aria-hidden="true"
                 class="ml-auto rounded px-2 py-0.5 text-xs font-semibold"
                 x-bind:class="isStepCurrent(stepItem.id)
                   ? 'bg-blue-100 text-blue-800'
@@ -149,7 +149,7 @@
         href="https://github.com/markmead/hyperux/issues/new"
         target="_blank"
         rel="noreferrer"
-        class="inline-block text-sky-600 underline underline-offset-2 hover:text-sky-700"
+        class="inline-block text-sky-700 underline underline-offset-2 hover:text-sky-900"
       >
         Found a bug or improvement? Open an issue.
       </a>
