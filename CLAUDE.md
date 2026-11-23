@@ -61,9 +61,22 @@ Registered components:
 
 ### Content Collections
 
-Pattern documentation lives in `src/content/patterns/*.mdx`. The schema (`src/content.config.ts`) requires: `slug`, `title`, `description`, `terms`, `pubDate`, `modDate`.
+Pattern documentation lives in `src/content/patterns/*.mdx`. The schema (`src/content.config.ts`) requires: `slug`, `title`, `description`, `terms`, `registrations`, `pubDate`, `modDate`.
+
+`registrations` lists the `Alpine.data()` names the pattern needs, each a file in `src/components/patterns/`. A composed pattern lists every registration it relies on (for example `command-palette` lists `huxCommandPalette`, `huxDialog` and `huxCombobox`). The build fails if a listed file does not exist.
 
 Routing: `src/pages/patterns/[...slug].astro` uses `pattern.data.slug` (not the filename) as the URL slug.
+
+### Agent Outputs
+
+Every page has a prerendered Markdown version, built from the same MDX plus the registration source:
+
+- `/{path}.md` for each page (`/index.md` for the home page), built by `src/utils/markdown.ts` and `src/pages/[...path].md.ts`
+- `/llms.txt` (index) and `/llms-full.txt` (every pattern in one file)
+- `BaseHead.astro` links each HTML page to its Markdown version with `<link rel="alternate" type="text/markdown">`
+- `public/_headers` marks the Markdown files and `llms-full.txt` as `noindex`
+
+When adding a pattern, set `registrations` in its frontmatter. Nothing else needs registering: the Markdown pages and `llms` files are generated from the content collection.
 
 ### The `data-hux-copy` System
 
