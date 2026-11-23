@@ -14,6 +14,11 @@ pnpm-lock.yaml
 
 # wrangler
 wrangler.jsonc
+.wrangler/
+
+# playwright
+test-results/
+playwright-report/
 
 # agents
 .agents/
